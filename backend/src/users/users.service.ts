@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
+import { UpdateResult } from 'typeorm/browser';
 
 @Injectable()
 export class UsersService {
@@ -44,7 +45,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException('User with ID ${id} is not found');
+      throw new NotFoundException('User with ID ${id} not found');
     }
 
     return user;
@@ -59,5 +60,15 @@ export class UsersService {
       where: { id },
       select: ['id', 'email', 'role', 'companyId', 'refreshTokenHash'],
     });
+  }
+
+  async remove(id: string): Promise<UpdateResult> {
+    const user = await this.findOne(id);
+
+    if (user.companyId) {
+      throw new BadRequestException(`Can't delete account while owning a company`);
+    }
+
+    return await this.userRepository.softDelete(id);
   }
 }

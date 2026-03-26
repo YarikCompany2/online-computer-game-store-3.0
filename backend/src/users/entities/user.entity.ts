@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export enum UserRole {
     USER = 'user',
@@ -34,5 +34,8 @@ export class User {
     refreshTokenHash: string;
 
     @Column({ name: 'company_id', type: 'uuid', nullable: true })
-    companyId: string;
+    companyId: string | null;
+
+    @DeleteDateColumn({ name: 'deleted_at', select: false })
+    deletedAt: Date;
 }

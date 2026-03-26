@@ -5,6 +5,7 @@ import { Company, CompanyType } from "./entities/company.entity";
 import { User } from "../users/entities/user.entity";
 import { Repository } from "typeorm";
 import { skip } from "node:test";
+import { NotFoundException } from "@nestjs/common";
 
 describe('CompaniesService', () => {
   let service: CompaniesService;
@@ -18,6 +19,7 @@ describe('CompaniesService', () => {
   beforeEach(async () => {
     mockCompanyRepo = {
       findAndCount: jest.fn(),
+      findOne: jest.fn(),
       create: jest.fn((dto) => dto),
       save: jest.fn().mockImplementation((company) => 
         Promise.resolve({
@@ -26,6 +28,7 @@ describe('CompaniesService', () => {
         })
       ),
       update: jest.fn(),
+      softDelete: jest.fn().mockResolvedValue({ affected: 1 }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -101,6 +104,30 @@ describe('CompaniesService', () => {
 
       expect(result.meta.totalPages).toBe(3);
       expect(result.meta.currentPage).toBe(2);
+    })
+  });
+
+  describe('remove', () => {
+    it('should unlink users and soft delete the company if owner is correct', async () => {
+      const company = { id: 'comp-uuid', ownerId: 'owner-uuid' };
+      (mockCompanyRepo.findOne as jest.Mock).mockResolvedValue(company);
+
+      await service.remove('comp-uuid', 'owner-uuid');
+
+      expect(mockUserRepo.update).toHaveBeenCalledWith(
+        { companyId: 'comp-uuid' },
+        { companyId: null }
+      );
+
+      expect(mockCompanyRepo.softDelete).toHaveBeenCalledWith('comp-uuid');
+    });
+
+    it('should throw NotFoundException if company not found or owner is wrong', async () => {
+      (mockCompanyRepo.findOne as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        service.remove('comp-uuid', 'not-owner-uuid')
+      ).rejects.toThrow(NotFoundException)
     })
   });
 });

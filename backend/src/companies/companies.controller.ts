@@ -23,4 +23,10 @@ export class CompaniesController {
   findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResource<Company>> {
     return this.companiesService.findAll(paginationDto);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req) {
+    return this.companiesService.remove(id, req.user.userId);
+  }
 }

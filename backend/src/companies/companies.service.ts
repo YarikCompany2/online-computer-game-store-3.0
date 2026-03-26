@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -49,5 +49,19 @@ export class CompaniesService {
         currentPage: page,
       }
     }
+  }
+
+  async remove(id: string, ownerId: string) {
+    const company = await this.companyRepository.findOne({
+      where: { id, ownerId }
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found or access denied');
+    }
+
+    await this.userRepository.update({ companyId: id }, { companyId: null });
+
+    return await this.companyRepository.softDelete(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export enum CompanyType {
     PUBLISHER = 'publisher',
@@ -32,4 +32,7 @@ export class Company {
 
     @Column({ name: 'owner_id', type: 'uuid' })
     ownerId: string;
+
+    @DeleteDateColumn({ name: 'deleted_at', select: false })
+    deletedAt: Date;
 }
