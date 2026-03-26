@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, 
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Company } from './entities/company.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { type PaginatedResource } from 'src/common/interfaces/paginated-resource.interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { type PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 
 @Controller('companies')
 export class CompaniesController {

@@ -20,9 +20,12 @@ import { AuthModule } from './auth/auth.module';
         port: config.get<number>('DB_PORT'),
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
+        database: process.env.NODE_ENV === 'test'
+          ? config.get<string>('DB_NAME_TEST')
+          : config.get<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: true,
+        dropSchema: process.env.NODE_ENV === 'test',
       }),
     }),
 

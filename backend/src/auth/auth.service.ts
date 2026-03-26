@@ -1,10 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { timestamp } from 'rxjs/internal/operators/timestamp';
 
 @Injectable()
 export class AuthService {
@@ -36,48 +39,65 @@ export class AuthService {
     }
 
     async refreshTokens(refreshDto: RefreshDto) {
-        const { userId, refreshToken } = refreshDto;
-
+        const { userId, refreshToken: incomingToken } = refreshDto;
         const user = await this.usersService.findOneInternal(userId);
+
         if (!user || !user.refreshTokenHash) {
-            throw new UnauthorizedException('User not found or no token');
+            throw new UnauthorizedException('Access denied');
         }
 
-        const refreshTokenMatches = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+        const incomingTokenHash = crypto.createHash('sha256').update(incomingToken).digest('hex');
+        const refreshTokenMatches = await bcrypt.compare(incomingTokenHash, user.refreshTokenHash);
+
+
         if (!refreshTokenMatches) {
-            throw new UnauthorizedException('Invalid Refresh Token');
+            throw new UnauthorizedException('Access denied');
         }
 
         const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId);
+
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
     }
 
     private async getTokens(userId: string, email: string, role: string, companyId: string | null) {
-        const payload = { sub: userId, email, role, companyId };
+        const accessTokenPayload = {
+            sub: userId,
+            email,
+            role,
+            companyId,
+            tokenType: 'access',
+        };
+
+        const refreshTokenPayload = {
+            sub: userId,
+            tokenType: 'refresh',
+            jti: uuidv4(),
+            iat_micro: Date.now() + Math.random()
+        }
 
         const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(payload, {
+            this.jwtService.signAsync(accessTokenPayload, {
                 secret: this.configService.get<string>('JWT_SECRET')!,
                 expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') as any,
             }),
 
-            this.jwtService.signAsync(payload, {
+            this.jwtService.signAsync(refreshTokenPayload, {
                 secret: this.configService.get<string>('JWT_REFRESH_SECRET')!,
                 expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') as any,
             }),
         ]);
 
-        return {
-            accessToken,
-            refreshToken,
-        };
+        return { accessToken, refreshToken };
     }
 
-    private async updateRefreshToken(userId: string, refreshToken: string) {
+    private async updateRefreshToken(userId: string, tokenToHash: string) {
+        const tokenHash = crypto.createHash('sha256').update(tokenToHash).digest('hex')
+
         const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(refreshToken, salt);
+        const hash = await bcrypt.hash(tokenHash, salt);
+
         await this.usersService.update(userId, { refreshTokenHash: hash });
     }
 }

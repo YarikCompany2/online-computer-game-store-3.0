@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
-import { UpdateResult } from 'typeorm/browser';
+import { UpdateResult } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -38,14 +38,15 @@ export class UsersService {
   }
 
   async update(id: string, updateData: Partial<User>) {
-    return await this.userRepository.update(id, updateData);
+    await this.userRepository.update(id, updateData);
+    return this.findOne(id);
   }
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException('User with ID ${id} not found');
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     return user;
