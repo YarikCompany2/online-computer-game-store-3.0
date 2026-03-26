@@ -3,20 +3,31 @@ import { CompaniesService } from "./companies.service"
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Company, CompanyType } from "./entities/company.entity";
 import { User } from "../users/entities/user.entity";
+import { Repository } from "typeorm";
+import { skip } from "node:test";
 
 describe('CompaniesService', () => {
   let service: CompaniesService;
 
-  const mockCompanyRepo = {
-    create: jest.fn().mockImplementation(dto => dto),
-    save: jest.fn().mockImplementation(company => Promise.resolve({ id: 'comp-uuid', ...company })),
-  };
+  let mockCompanyRepo: Partial<Record<keyof Repository<Company>, jest.Mock>>;
 
   const mockUserRepo = {
     update: jest.fn().mockResolvedValue({ affected: 1 }),
   };
 
   beforeEach(async () => {
+    mockCompanyRepo = {
+      findAndCount: jest.fn(),
+      create: jest.fn((dto) => dto),
+      save: jest.fn().mockImplementation((company) => 
+        Promise.resolve({
+          id: 'comp-uuid',
+          ...company
+        })
+      ),
+      update: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CompaniesService,
@@ -51,5 +62,45 @@ describe('CompaniesService', () => {
         companyId: 'comp-uuid'
       });
     });
+  });
+
+  describe('findAll', () => {
+    it('should return a paginated list of companies with default values', async () => {
+      const mockCompanies = [{ id: '1', name: 'Company 1' }, { id: '2', name: 'Company 2' }];
+      const totalCount = 2;
+
+      mockCompanyRepo.findAndCount = jest.fn().mockResolvedValue([mockCompanies, totalCount]);
+
+      const result = await service.findAll({});
+
+      expect(result.data).toEqual(mockCompanies);
+      expect(result.meta.totalItems).toBe(totalCount);
+      expect(result.meta.currentPage).toBe(1);
+      expect(result.meta.itemsPerPage).toBe(10);
+      expect(result.meta.totalPages).toBe(1);
+
+      expect(mockCompanyRepo.findAndCount).toHaveBeenCalledWith({
+        take: 10,
+        skip: 0,
+      });
+    });
+
+    it('should correctly calculate skip for the second page', async () => {
+      const totalCount = 15;
+      mockCompanyRepo.findAndCount = jest.fn().mockResolvedValue([[], totalCount]);
+
+      const page = 2;
+      const limit = 5;
+
+      const result = await service.findAll({ page, limit });
+
+      expect(mockCompanyRepo.findAndCount).toHaveBeenCalledWith({
+        take: 5,
+        skip: 5,
+      });
+
+      expect(result.meta.totalPages).toBe(3);
+      expect(result.meta.currentPage).toBe(2);
+    })
   });
 });

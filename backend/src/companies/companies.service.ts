@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../users/entities/user.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 
 @Injectable()
 export class CompaniesService {
@@ -29,7 +31,23 @@ export class CompaniesService {
     return savedCompany;
   }
 
-  async findAll(): Promise<Company[]> {
-    return await this.companyRepository.find();
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResource<Company>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.companyRepository.findAndCount({
+      take: limit,
+      skip: skip,
+    });
+
+    return {
+      data,
+      meta: {
+        totalItems: total,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total/ limit),
+        currentPage: page,
+      }
+    }
   }
 }
