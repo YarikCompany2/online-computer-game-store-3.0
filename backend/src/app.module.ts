@@ -7,6 +7,8 @@ import { config } from 'process';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
 import { AuthModule } from './auth/auth.module';
+import { GamesModule } from './games/games.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     CompaniesModule,
     AuthModule,
+    GamesModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

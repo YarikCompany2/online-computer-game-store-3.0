@@ -1,4 +1,5 @@
-import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Game } from "../../games/entities/game.entity";
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 export enum CompanyType {
     PUBLISHER = 'publisher',
@@ -35,4 +36,7 @@ export class Company {
 
     @DeleteDateColumn({ name: 'deleted_at', select: false })
     deletedAt: Date;
+
+    @OneToMany(() => Game, (game) => game.company)
+    games: Game[];
 }
