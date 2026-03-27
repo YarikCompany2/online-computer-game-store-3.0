@@ -5,7 +5,8 @@ import { Company, CompanyType } from "./entities/company.entity";
 import { User } from "../users/entities/user.entity";
 import { Repository } from "typeorm";
 import { skip } from "node:test";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { UsersService } from "../users/users.service";
 
 describe('CompaniesService', () => {
   let service: CompaniesService;
@@ -13,7 +14,12 @@ describe('CompaniesService', () => {
   let mockCompanyRepo: Partial<Record<keyof Repository<Company>, jest.Mock>>;
 
   const mockUserRepo = {
-    update: jest.fn().mockResolvedValue({ affected: 1 }),
+    findOne: jest.fn(),
+    update: jest.fn().mockResolvedValue({}),
+  };
+
+  const mockUsersService = {
+    update: jest.fn().mockResolvedValue({}),
   };
 
   beforeEach(async () => {
@@ -36,6 +42,7 @@ describe('CompaniesService', () => {
         CompaniesService,
         { provide: getRepositoryToken(Company), useValue: mockCompanyRepo },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
+        { provide: UsersService, useValue: mockUsersService },
       ],
     }).compile();
 
@@ -55,15 +62,26 @@ describe('CompaniesService', () => {
       };
       const ownerId = 'user-uuid';
 
+      mockUserRepo.findOne.mockResolvedValue({ id: ownerId, companyId: null });
+
       const result = await service.create(dto, ownerId);
 
       expect(result.id).toBe('comp-uuid');
       expect(result.name).toBe(dto.name);
       expect(result.ownerId).toBe(ownerId);
 
-      expect(mockUserRepo.update).toHaveBeenCalledWith(ownerId, {
+      expect(mockUsersService.update).toHaveBeenCalledWith(ownerId, {
         companyId: 'comp-uuid'
       });
+    });
+
+    it('should throw BadRequestException if user already owns a company', async () => {
+      const dto = { name: 'Fail Studio', type: CompanyType.PUBLISHER };
+      const ownerId = 'user-uuid';
+
+      mockUserRepo.findOne.mockResolvedValue({ id: ownerId, companyId: 'existring-comp-id' });
+
+      await expect(service.create(dto, ownerId)).rejects.toThrow(BadRequestException);
     });
   });
 

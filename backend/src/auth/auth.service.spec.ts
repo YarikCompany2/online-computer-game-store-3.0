@@ -4,6 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { UnauthorizedException } from "@nestjs/common";
 
 describe('AuthService', () => {
@@ -70,10 +71,15 @@ describe('AuthService', () => {
 
     describe('refreshTokens', () => {
         it('should refresh tokens if refresh token is valid', async () => {
+            const rawToken = 'valid_refresh';
+
+            const shaHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+            const bcryptHash = await bcrypt.hash(shaHash, 10);
+
             const user = {
                 id: 'uuid',
                 email: 'test@test.com',
-                refreshTokenHash: await bcrypt.hash('valid_refresh', 10),
+                refreshTokenHash: bcryptHash,
                 role: 'user',
                 companyId: null
             };
@@ -83,7 +89,7 @@ describe('AuthService', () => {
 
             const result = await service.refreshTokens({
                 userId: 'uuid',
-                refreshToken: 'valid_refresh'
+                refreshToken: rawToken
             });
 
             expect(result).toHaveProperty('accessToken');
