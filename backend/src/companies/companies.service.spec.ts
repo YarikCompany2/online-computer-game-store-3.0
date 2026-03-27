@@ -23,6 +23,8 @@ describe('CompaniesService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     mockCompanyRepo = {
       findAndCount: jest.fn(),
       findOne: jest.fn(),

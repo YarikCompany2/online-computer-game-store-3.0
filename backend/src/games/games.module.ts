@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Game } from './entities/game.entity';
 import { CategoriesModule } from '../categories/categories.module';
 import { CompaniesModule } from '../companies/companies.module';
+import { Category } from '../categories/entities/category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game]),
+    TypeOrmModule.forFeature([Game, Category]),
     CategoriesModule,
     CompaniesModule,
   ],
