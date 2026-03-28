@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLibraryDto } from './dto/create-library.dto';
 import { UpdateLibraryDto } from './dto/update-library.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Library } from './entities/library.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class LibraryService {
-  create(createLibraryDto: CreateLibraryDto) {
-    return 'This action adds a new library';
-  }
+  constructor(
+    @InjectRepository(Library)
+    private readonly libraryRepository: Repository<Library>
+  ) {}
 
-  findAll() {
-    return `This action returns all library`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} library`;
-  }
-
-  update(id: number, updateLibraryDto: UpdateLibraryDto) {
-    return `This action updates a #${id} library`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} library`;
+  async findAllByUser(userId: string) {
+    return await this.libraryRepository.find({
+      where: { userId },
+      relations: ['game', 'game.categories', 'game.company'],
+      order: { purchaseDate: 'DESC' }
+    });
   }
 }
