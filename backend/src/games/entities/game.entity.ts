@@ -19,11 +19,11 @@ export class Game {
     @Column({ type: 'text' })
     description: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
     price: number;
 
-    @Column({ name: 'file_url', length: 500, nullable: true })
-    fileUrl: string;
+    @Column({ type: 'varchar', name: 'file_url', length: 500, nullable: true })
+    fileUrl: string | null;
 
     @Column({
         type: 'enum',

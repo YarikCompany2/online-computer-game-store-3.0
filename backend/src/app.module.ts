@@ -9,6 +9,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { AuthModule } from './auth/auth.module';
 import { GamesModule } from './games/games.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SeederModule } from './database/seeder.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CategoriesModule } from './categories/categories.module';
     AuthModule,
     GamesModule,
     CategoriesModule,
+    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],

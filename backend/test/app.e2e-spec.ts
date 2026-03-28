@@ -3,9 +3,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { SeederService } from '../src/database/seeder.service';
 
 describe('Authentication & Companies (e2e)', () => {
   let app: INestApplication<App>;
+  let seeder: SeederService;
 
   const testUser = {
     email: `tester${Date.now()}@example.com`,
@@ -25,6 +27,11 @@ describe('Authentication & Companies (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
+
+    seeder = app.get(SeederService);
+
+    await seeder.seed();
+    console.log('Test Database Seeded.');
   });
 
   afterAll(async () => {
