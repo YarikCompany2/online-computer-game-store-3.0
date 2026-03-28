@@ -1,4 +1,5 @@
-import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Cart } from "../../cart/entities/cart.entity";
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 export enum UserRole {
     USER = 'user',
@@ -38,4 +39,7 @@ export class User {
 
     @DeleteDateColumn({ name: 'deleted_at', select: false })
     deletedAt: Date;
+
+    @OneToMany(() => Cart, (cart) => cart.user)
+    cartItems: Cart[];
 }

@@ -1,6 +1,7 @@
+import { Cart } from "../../cart/entities/cart.entity";
 import { Category } from "../../categories/entities/category.entity";
 import { Company } from "../../companies/entities/company.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 export enum GameStatus {
     ACTIVE = 'active',
@@ -52,4 +53,7 @@ export class Game {
         inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
     })
     categories: Category[];
+
+    @OneToMany(() => Cart, (cart) => cart.game)
+    cartItems: Cart[];
 }

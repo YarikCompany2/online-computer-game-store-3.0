@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { GamesModule } from './games/games.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SeederModule } from './database/seeder.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SeederModule } from './database/seeder.module';
     GamesModule,
     CategoriesModule,
     SeederModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

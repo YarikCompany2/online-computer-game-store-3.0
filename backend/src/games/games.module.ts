@@ -6,14 +6,16 @@ import { Game } from './entities/game.entity';
 import { CategoriesModule } from '../categories/categories.module';
 import { CompaniesModule } from '../companies/companies.module';
 import { Category } from '../categories/entities/category.entity';
+import { Cart } from '../cart/entities/cart.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game, Category]),
+    TypeOrmModule.forFeature([Game, Category, Cart]),
     CategoriesModule,
     CompaniesModule,
   ],
   controllers: [GamesController],
   providers: [GamesService],
+  exports: [TypeOrmModule, GamesService]
 })
 export class GamesModule {}
