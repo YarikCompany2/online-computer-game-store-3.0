@@ -2,9 +2,11 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game } from './entities/game.entity';
+import { Game, GameStatus } from './entities/game.entity';
 import { In, Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 
 @Injectable()
 export class GamesService {
@@ -14,6 +16,46 @@ export class GamesService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>
   ) {}
+
+  async findAll(
+    paginationDto: PaginationDto,
+    search?: string,
+    categoryId?: number
+  ): Promise<PaginatedResource<Game>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.gameRepository.createQueryBuilder('game')
+      .leftJoinAndSelect('game.categories', 'category')
+      .leftJoinAndSelect('game.company', 'company')
+      .where('game.status = :status', { status: GameStatus.ACTIVE });
+
+    if (search) {
+      queryBuilder.andWhere('LOWER(game.title) LIKE LOWER(:search)', {
+        search: `%${search}%`
+      });
+    }
+
+    if (categoryId) {
+      queryBuilder.andWhere('category.id = :categoryId', { categoryId } );
+    }
+
+    const [data, total] = await queryBuilder
+      .orderBy('game.createdAt', 'DESC')
+      .take(limit)
+      .skip(skip)
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        totalItems: total,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
+  }
 
   async create(createGameDto: CreateGameDto, companyId: string): Promise<Game> {
     const { categoryIds, ...gameData } = createGameDto;

@@ -1,12 +1,22 @@
-import { Controller, Get, Post, Body, Request, Param, Delete, UseGuards, ForbiddenException, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Request, Param, Delete, UseGuards, ForbiddenException, Patch, Query } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('games')
 export class GamesController {
   constructor(private readonly gamesService: GamesService) {}
+
+  @Get()
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query('search') search?: string,
+    @Query('categoryId') categoryId?: number,
+  ) {
+    return this.gamesService.findAll(paginationDto, search, categoryId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()

@@ -8,6 +8,16 @@ import { BadRequestException, NotFoundException } from "@nestjs/common";
 describe('GamesService', () => {
   let service: GamesService;
 
+  const mockQueryBuilder = {
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn(),
+  }
+
   const mockGameRepository = {
     create: jest.fn().mockImplementation((dto) => dto),
     save: jest.fn().mockImplementation((game) => 
@@ -15,6 +25,7 @@ describe('GamesService', () => {
     ),
     findOne: jest.fn(),
     softDelete: jest.fn(),
+    createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
   };
 
   const mockCategoryRepository = {
@@ -43,6 +54,44 @@ describe('GamesService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('findAll', () => {
+    it('should return paginated games without filters', async () => {
+      const mockGames = [{ title: 'Terraria' }, { title: 'Factorio' }];
+      const totalCount = 2;
+
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([mockGames, totalCount]);
+
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      expect(result.data).toEqual(mockGames);
+      expect(result.meta.totalItems).toBe(totalCount);
+      expect(mockGameRepository.createQueryBuilder).toHaveBeenCalledWith('game');
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
+    });
+
+    it('should apply search filter when search string is provided', async () => {
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll({ page: 1, limit: 10 }, 'witcher');
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        expect.stringContaining('LOWER(game.title) LIKE LOWER(:search)'),
+        { search: '%witcher%'}
+      );
+    });
+
+    it('should apply category filter when categoryId is provided', async () => {
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll({ page: 1, limit: 10 }, undefined, 5);
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'category.id = :categoryId',
+        { categoryId: 5 }
+      );
+    });
   });
 
   describe('create', () => {
