@@ -1,26 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCartDto } from './dto/create-cart.dto';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cart } from './entities/cart.entity';
+import { Repository } from 'typeorm';
+import { AddToCartDto } from './dto/add-to-cart.dto';
 
 @Injectable()
 export class CartService {
-  create(createCartDto: CreateCartDto) {
-    return 'This action adds a new cart';
+  constructor(
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>
+  ) {}
+
+  async addToCart(userId: string, dto: AddToCartDto): Promise<Cart> {
+    const { gameId } = dto;
+
+    const existingItem = await this.cartRepository.findOne({ where: { userId, gameId }});
+
+    if (existingItem) {
+      throw new BadRequestException('This game is already in your cart');
+    }
+
+    const cartItem = this.cartRepository.create({ userId, gameId });
+    return await this.cartRepository.save(cartItem);
   }
 
-  findAll() {
-    return `This action returns all cart`;
+  async getMyCart(userId: string): Promise<Cart[]> {
+    return await this.cartRepository.find({
+      where: { userId },
+      relations: ['game', 'game.categories', 'game.company']
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cart`;
+  async removeFromCart(userId: string, gameId: string): Promise<void> {
+    const result = await this.cartRepository.delete({ userId, gameId });
+
+    if (result.affected === 0) {
+      throw new NotFoundException('Item not found in your cart');
+    }
   }
 
-  update(id: number, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} cart`;
+  async clearCart(userId: string): Promise<void> {
+    await this.cartRepository.delete({ userId });
   }
 }
