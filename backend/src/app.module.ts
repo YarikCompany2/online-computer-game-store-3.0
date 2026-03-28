@@ -11,6 +11,8 @@ import { GamesModule } from './games/games.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SeederModule } from './database/seeder.module';
 import { CartModule } from './cart/cart.module';
+import { OrdersModule } from './orders/orders.module';
+import { LibraryModule } from './library/library.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { CartModule } from './cart/cart.module';
     CategoriesModule,
     SeederModule,
     CartModule,
+    OrdersModule,
+    LibraryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

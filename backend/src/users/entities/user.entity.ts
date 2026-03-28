@@ -1,5 +1,7 @@
+import { Order } from "../../orders/entities/order.entity";
 import { Cart } from "../../cart/entities/cart.entity";
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Library } from "../../library/entities/library.entity";
 
 export enum UserRole {
     USER = 'user',
@@ -42,4 +44,10 @@ export class User {
 
     @OneToMany(() => Cart, (cart) => cart.user)
     cartItems: Cart[];
+
+    @OneToMany(() => Order, (order) => order.user)
+    orders: Order[];
+
+    @OneToMany(() => Library, (lib) => lib.user)
+    libraryItems: Library[];
 }
