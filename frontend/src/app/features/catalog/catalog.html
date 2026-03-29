@@ -1,0 +1,20 @@
+<div class="catalog-container">
+  <h1>Game Store</h1>
+  
+  <div *ngIf="isLoading" class="loader">
+    Loading games...
+  </div>
+
+  <div class="game-grid" *ngIf="!isLoading">
+    <div *ngFor="let game of games" class="game-card">
+      <h3>{{ game.title }}</h3>
+      <p>{{ game.description }}</p>
+      <div class="price-tag">
+        Price: {{ game.price === 0 ? 'FREE' : '$' + game.price }}
+      </div>
+      <div class="studio-tag">
+        Studio: {{ game.company?.name || 'Unknown' }}
+      </div>
+    </div>
+  </div>
+</div>
