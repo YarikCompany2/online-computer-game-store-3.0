@@ -4,6 +4,7 @@ import { Category } from "../../categories/entities/category.entity";
 import { Company } from "../../companies/entities/company.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Requirement } from "../../requirements/entities/requirement.entity";
+import { Review } from "../../reviews/entities/review.entity";
 
 export enum GameStatus {
     ACTIVE = 'active',
@@ -64,4 +65,7 @@ export class Game {
 
     @OneToMany(() => Requirement, (req) => req.game, { cascade: true })
     requirements: Requirement[];
+
+    @OneToMany(() => Review, (review) => review.game)
+    reviews: Review[];
 }

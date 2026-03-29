@@ -6,9 +6,10 @@ import { User } from './entities/user.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Library } from '../library/entities/library.entity';
 import { Cart } from '../cart/entities/cart.entity';
+import { Review } from '../reviews/entities/review.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Order, Library, Cart])],
+  imports: [TypeOrmModule.forFeature([User, Order, Library, Cart, Review])],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService, TypeOrmModule],

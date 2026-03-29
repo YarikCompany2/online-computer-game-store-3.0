@@ -15,6 +15,7 @@ import { UsersModule } from "../users/users.module";
 import { Company, CompanyType } from "../companies/entities/company.entity";
 import { Media } from "../media/entities/media.entity";
 import { Requirement } from "../requirements/entities/requirement.entity";
+import { Review } from "../reviews/entities/review.entity";
 
 describe('OrdersService (Integration)', () => {
   let service: OrdersService;
@@ -33,11 +34,11 @@ describe('OrdersService (Integration)', () => {
           username: 'postgres',
           password: '!super@password!',
           database: 'gamestore_test',
-          entities: [Order, OrderItem, User, Game, Library, Cart, Category, Company, Media, Requirement],
+          entities: [Order, OrderItem, User, Game, Library, Cart, Category, Company, Media, Requirement, Review],
           synchronize: true,
           dropSchema: true,
         }),
-        TypeOrmModule.forFeature([Order, OrderItem, User, Game, Library, Cart, Category, Company, Media, Requirement]),
+        TypeOrmModule.forFeature([Order, OrderItem, User, Game, Library, Cart, Category, Company, Media, Requirement, Review]),
         CartModule,
         UsersModule,
       ],
