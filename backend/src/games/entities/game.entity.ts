@@ -5,6 +5,7 @@ import { Company } from "../../companies/entities/company.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Requirement } from "../../requirements/entities/requirement.entity";
 import { Review } from "../../reviews/entities/review.entity";
+import { Discount } from "../../discounts/entities/discount.entity";
 
 export enum GameStatus {
     ACTIVE = 'active',
@@ -68,4 +69,11 @@ export class Game {
 
     @OneToMany(() => Review, (review) => review.game)
     reviews: Review[];
+
+    @Column({ name: 'promotion_id', type: 'uuid', nullable: true })
+    promotionId: string | null;
+
+    @ManyToOne(() => Discount, (discount) => discount.games)
+    @JoinColumn({ name: 'promotion_id' })
+    discount: Discount;
 }

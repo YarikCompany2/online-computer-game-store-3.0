@@ -16,6 +16,7 @@ import { LibraryModule } from './library/library.module';
 import { MediaModule } from './media/media.module';
 import { RequirementsModule } from './requirements/requirements.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { DiscountsModule } from './discounts/discounts.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     MediaModule,
     RequirementsModule,
     ReviewsModule,
+    DiscountsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

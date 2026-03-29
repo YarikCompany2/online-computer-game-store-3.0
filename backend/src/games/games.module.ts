@@ -9,11 +9,12 @@ import { Category } from '../categories/entities/category.entity';
 import { Cart } from '../cart/entities/cart.entity';
 import { Media } from '../media/entities/media.entity';
 import { Requirement } from '../requirements/entities/requirement.entity';
-import { Review } from 'src/reviews/entities/review.entity';
+import { Review } from '../reviews/entities/review.entity';
+import { Discount } from '../discounts/entities/discount.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review]),
+    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review, Discount]),
     CategoriesModule,
     CompaniesModule,
   ],
