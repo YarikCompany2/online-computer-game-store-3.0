@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../core/services/game';
 import { IGame } from '../../core/interfaces/game.interface';
@@ -12,19 +12,20 @@ import { IGame } from '../../core/interfaces/game.interface';
 })
 export class CatalogComponent implements OnInit {
   private gameService = inject(GameService);
-  games: IGame[] = [];
-  isLoading = true;
+
+  games = signal<IGame[]>([]);
+  isLoading = signal<boolean>(true);
 
   ngOnInit() {
     this.gameService.getGames(1, 20).subscribe({
       next: (response) => {
-        this.games = response.data;
-        this.isLoading = false;
+        this.games.set(response.data);
+        this.isLoading.set(false);
         console.log('Games loaded successfully');
       },
       error: (err) => {
         console.error('Failed to load games:', err);
-        this.isLoading = false;
+        this.isLoading.set(false);
       }
     });
   }
