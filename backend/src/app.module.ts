@@ -13,6 +13,8 @@ import { SeederModule } from './database/seeder.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { LibraryModule } from './library/library.module';
+import { MediaModule } from './media/media.module';
+import { RequirementsModule } from './requirements/requirements.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { LibraryModule } from './library/library.module';
     CartModule,
     OrdersModule,
     LibraryModule,
+    MediaModule,
+    RequirementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,10 +7,12 @@ import { CategoriesModule } from '../categories/categories.module';
 import { CompaniesModule } from '../companies/companies.module';
 import { Category } from '../categories/entities/category.entity';
 import { Cart } from '../cart/entities/cart.entity';
+import { Media } from '../media/entities/media.entity';
+import { Requirement } from '../requirements/entities/requirement.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game, Category, Cart]),
+    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement]),
     CategoriesModule,
     CompaniesModule,
   ],

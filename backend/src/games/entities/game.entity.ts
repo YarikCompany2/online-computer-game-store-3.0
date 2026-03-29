@@ -1,7 +1,9 @@
+import { Media } from "src/media/entities/media.entity";
 import { Cart } from "../../cart/entities/cart.entity";
 import { Category } from "../../categories/entities/category.entity";
 import { Company } from "../../companies/entities/company.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Requirement } from "src/requirements/entities/requirement.entity";
 
 export enum GameStatus {
     ACTIVE = 'active',
@@ -56,4 +58,10 @@ export class Game {
 
     @OneToMany(() => Cart, (cart) => cart.game)
     cartItems: Cart[];
+
+    @OneToMany(() => Media, (media) => media.game, { cascade: true })
+    media: Media[];
+
+    @OneToMany(() => Requirement, (req) => req.game, { cascade: true })
+    requirements: Requirement[];
 }
