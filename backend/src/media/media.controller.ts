@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Request, UseGuards, Forbidde
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('media')

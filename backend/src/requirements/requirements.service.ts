@@ -4,7 +4,7 @@ import { UpdateRequirementDto } from './dto/update-requirement.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Requirement } from './entities/requirement.entity';
 import { Repository } from 'typeorm';
-import { Game } from 'src/games/entities/game.entity';
+import { Game } from '../games/entities/game.entity';
 
 @Injectable()
 export class RequirementsService {

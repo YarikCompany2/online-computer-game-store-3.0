@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Request, UseGuards, Forbidde
 import { RequirementsService } from './requirements.service';
 import { CreateRequirementDto } from './dto/create-requirement.dto';
 import { UpdateRequirementDto } from './dto/update-requirement.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('requirements')

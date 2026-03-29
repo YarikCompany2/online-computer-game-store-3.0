@@ -4,7 +4,7 @@ import { UpdateMediaDto } from './dto/update-media.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Media } from './entities/media.entity';
 import { Repository } from 'typeorm';
-import { Game } from 'src/games/entities/game.entity';
+import { Game } from '../games/entities/game.entity';
 
 @Injectable()
 export class MediaService {
