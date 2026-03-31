@@ -8,6 +8,13 @@ export interface ICompany {
   name: string;
 }
 
+export interface IMedia {
+  id: string;
+  fileUrl: string;
+  type: 'image' | 'video';
+  isMain: boolean;
+}
+
 export interface IGame {
   id: string;
   title: string;
@@ -17,6 +24,7 @@ export interface IGame {
   company: ICompany | null;
   categories: ICategory[];
   fileUrl?: string;
+  media: IMedia[];
   createdAt: string;
 }
 

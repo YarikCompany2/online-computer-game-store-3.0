@@ -1,32 +1,63 @@
-<div class="p-8 max-w-7xl mx-auto">
-  <h1 class="text-4xl font-bold mb-8 text-indigo-400">Featured Games</h1>
-  
+<div class="p-8">
+  <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-8">
+    Featured Games
+  </h1>
+
   @if (isLoading()) {
-    <div class="flex justify-center items-center h-64">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+    <div class="flex flex-col items-center justify-center h-64">
+      <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-400">Loading catalog...</p>
     </div>
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      
       @for (game of games(); track game.id) {
-        <div class="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-indigo-500 transition-all shadow-lg group">
-          <div class="h-48 bg-gray-700 flex items-center justify-center relative">
-            <span class="text-gray-500 group-hover:scale-110 transition-transform">{{game.title}}</span>
-          </div>
-          <div class="p-5">
-            <h3 class="text-xl font-bold mb-2 truncate">{{ game.title }}</h3>
-            <p class="text-gray-400 text-sm h-10 overflow-hidden mb-4">{{ game.description }}</p>
+        <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-indigo-500 transition-all duration-300 group shadow-lg">
+          
+          <div class="h-48 bg-slate-800 overflow-hidden relative group">
+            @let mainImage = game.media?.find(m => m.isMain);
+
+            @if (mainImage) {
+              <img [src]="mainImage.fileUrl" 
+                   [alt]="game.title" 
+                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            } @else {
+              <div class="w-full h-full flex flex-col items-center justify-center bg-slate-700 text-slate-500">
+                <span class="text-4xl">🎮</span>
+                <span class="text-[10px] mt-2 uppercase tracking-widest">No Cover Found</span>
+              </div>
+            }
             
-            <div class="flex justify-between items-center mt-4">
-              <span class="text-2xl font-bold text-green-400">
-                {{ game.price === 0 ? 'FREE' : '$' + game.price }}
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          </div>
+
+          <div class="p-5">
+            <h3 class="text-xl font-bold mb-1 truncate text-white">{{ game.title }}</h3>
+            <p class="text-gray-400 text-xs mb-4 line-clamp-2 h-8">{{ game.description }}</p>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-xl font-black text-green-400">
+                {{ +game.price === 0 ? 'FREE' : '$' + game.price }}
               </span>
-              <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-95">
                 Add to Cart
               </button>
             </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-700">
+              <span class="text-[10px] px-2 py-1 bg-gray-700 rounded-md text-gray-300 uppercase">
+                {{ game.company?.name || 'Indie Studio' }}
+              </span>
+            </div>
           </div>
+
+        </div>
+      } @empty {
+        <div class="col-span-full text-center py-20 bg-gray-800/50 rounded-3xl border border-dashed border-gray-700">
+          <p class="text-gray-400">No games found in the store.</p>
         </div>
       }
+
     </div>
   }
 </div>

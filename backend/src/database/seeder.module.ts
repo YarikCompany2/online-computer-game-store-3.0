@@ -5,9 +5,10 @@ import { Company } from "../companies/entities/company.entity";
 import { Game } from "../games/entities/game.entity";
 import { User } from "../users/entities/user.entity";
 import { SeederService } from "./seeder.service";
+import { Media } from "../media/entities/media.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Category, Game, User, Company])],
+    imports: [TypeOrmModule.forFeature([Category, Game, User, Company, Media])],
     providers: [SeederService],
     exports: [SeederService],
 })

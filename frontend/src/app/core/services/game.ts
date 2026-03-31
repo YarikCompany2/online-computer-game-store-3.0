@@ -21,4 +21,18 @@ export class GameService {
 
     return this.http.get<IPaginatedResponse<IGame>>(this.apiUrl, { params });
   }
+
+  onFileSelected(event: any, gameId: string) {
+  const file: File = event.target.files[0];
+  
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('gameId', gameId);
+
+    this.http.post('http://localhost:3000/media/upload', formData).subscribe(res => {
+      console.log('Cover uploaded!', res);
+    });
+  }
+}
 }

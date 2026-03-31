@@ -28,6 +28,6 @@ export class Media {
     isMain: boolean;
 
     @ManyToOne(() => Game, (game) => game.media)
-    @JoinColumn({ name: 'game_id '})
+    @JoinColumn({ name: 'game_id' })
     game: Game;
 }

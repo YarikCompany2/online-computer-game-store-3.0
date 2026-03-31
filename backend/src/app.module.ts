@@ -17,6 +17,8 @@ import { MediaModule } from './media/media.module';
 import { RequirementsModule } from './requirements/requirements.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { DiscountsModule } from './discounts/discounts.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -37,6 +39,11 @@ import { DiscountsModule } from './discounts/discounts.module';
         synchronize: true,
         dropSchema: process.env.NODE_ENV === 'test',
       }),
+    }),
+
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
     }),
 
     UsersModule,

@@ -6,6 +6,7 @@ import { Game, GameStatus } from "../games/entities/game.entity";
 import { User, UserRole } from "../users/entities/user.entity";
 import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'; 
+import { Media, MediaType } from "../media/entities/media.entity";
 
 @Injectable()
 export class SeederService {
@@ -14,6 +15,7 @@ export class SeederService {
     @InjectRepository(Company) private companyRepo: Repository<Company>,
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Game) private gameRepo: Repository<Game>,
+    @InjectRepository(Media) private mediaRepo: Repository<Media>,
   ) {}
 
   async seed() {
@@ -43,6 +45,7 @@ export class SeederService {
       { name: '11 bit studios', ownerEmail: 'pawel@11bit.com', type: CompanyType.BOTH },
       { name: 'ConcernedApe', ownerEmail: 'eric@stardew.com', type: CompanyType.DEVELOPER },
       { name: 'ToyAndYarikCompany', ownerEmail: 'toyandyarik@gmail.com', type: CompanyType.BOTH },
+      { name: 'Fury Studios', ownerEmail: 'contact@furystudios.com', type: CompanyType.DEVELOPER },
     ];
 
     const compMap = new Map<string, string>();
@@ -98,7 +101,7 @@ export class SeederService {
     console.log('Additional employees added to companies');
 
     const gamesData = [
-      { title: 'Terraria', priсe: 9.99, comp: 'Re-Logic', cats: ['Indie', 'Action', 'Survival'], desc: 'Dig, Flight, Explore, Build.'},
+      { title: 'Terraria', price: 9.99, comp: 'Re-Logic', cats: ['Indie', 'Action', 'Survival'], desc: 'Dig, Flight, Explore, Build.' },
       { title: 'Factorio', price: 35.00, comp: 'Wube Software', cats: ['Strategy', 'Simulation', 'Management'], desc: 'The factory must grow.'},
       { title: 'Hearts of Iron IV', price: 49.99, comp: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Victory is at your fingertips.'},
       { title: 'Europa Universalis IV', price: 39.99, comp: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Rule your nation through the centuries.'},
@@ -110,31 +113,40 @@ export class SeederService {
       { title: 'Mindustry', price: 9.99, comp: 'AnukenDev', cats: ['Indie', 'Strategy', 'Management'], desc: 'Tower-defense factory game.' },
       { title: 'Frostpunk', price: 29.99, comp: '11 bit studios', cats: ['Strategy', 'Survival', 'Management'], desc: 'The city must survive.' },
       { title: 'Stardew Valley', price: 14.99, comp: 'ConcernedApe', cats: ['Indie', 'RPG', 'Simulation'], desc: 'Open-ended country-life RPG.' },
-      { title: 'Kingdom Two Crowns', price: 19.99, comp: 'ToyAndYarikCompany', cats: ['Indie', 'Strategy', 'Adventure'], desc: 'Build your kingdom and secure it from the Greed.' },
-      { title: 'Kingdom: Classic', price: 4.99, comp: 'ToyAndYarikCompany', cats: ['Indie', 'Strategy'], desc: 'Minimalist side-scrolling strategy.' },
+      { title: 'Kingdom Two Crowns', price: 19.99, comp: 'Fury Studios', cats: ['Indie', 'Strategy', 'Adventure'], desc: 'Build your kingdom and secure it from the Greed.' },
+      { title: 'Kingdom: Classic', price: 4.99, comp: 'Fury Studios', cats: ['Indie', 'Strategy'], desc: 'Minimalist side-scrolling strategy.' },
       { title: 'Doodle Jump Like', price: 0.00, comp: 'ToyAndYarikCompany', cats: ['Arcade', 'Indie'], desc: 'Jump high and avoid monsters!', fileUrl: 'https://github.com/toysmbb/Doodle-jump-like' },
     ];
 
     for (const g of gamesData) {
-      const exists = await this.gameRepo.findOne({ where: { title: g.title } });
-      if (!exists) {
-        const gameCats = g.cats.map(catName => catMap.get(catName)).filter(Boolean) as Category[];
-        const companyId = compMap.get(g.comp);
+      let game = await this.gameRepo.findOne({ where: { title: g.title } });
 
-        await this.gameRepo.save(this.gameRepo.create({
+      if (!game) {
+        const gameCats = g.cats.map(name => catMap.get(name)).filter((c): c is Category => !!c);
+        const companyId = compMap.get(g.comp)!;
+
+        game = await this.gameRepo.save(this.gameRepo.create({
           title: g.title,
           description: g.desc,
           price: g.price,
           status: GameStatus.ACTIVE,
           companyId: companyId,
           categories: gameCats,
-          fileUrl: g.fileUrl || null
+        }));
+      }
+
+      const mediaExists = await this.mediaRepo.findOne({ where: { gameId: game.id, isMain: true } });
+      
+      if (!mediaExists) {
+        const fileName = g.title.toLowerCase().replace(/ /g, '_') + '.jpg';
+
+        await this.mediaRepo.save(this.mediaRepo.create({
+          gameId: game.id,
+          fileUrl: `http://localhost:3000/uploads/covers/${fileName}`,
+          type: MediaType.IMAGE,
+          isMain: true
         }));
       }
     }
-
-    console.log('All games seeded successfully');
   }
-
-  
 }

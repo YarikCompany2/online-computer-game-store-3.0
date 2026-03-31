@@ -28,6 +28,7 @@ export class GamesService {
     const queryBuilder = this.gameRepository.createQueryBuilder('game')
       .leftJoinAndSelect('game.categories', 'category')
       .leftJoinAndSelect('game.company', 'company')
+      .leftJoinAndSelect('game.media', 'media')
       .where('game.status = :status', { status: GameStatus.ACTIVE });
 
     if (search) {

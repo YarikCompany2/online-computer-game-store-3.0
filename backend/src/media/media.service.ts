@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Media } from './entities/media.entity';
+import { Media, MediaType } from './entities/media.entity';
 import { Repository } from 'typeorm';
 import { Game } from '../games/entities/game.entity';
 
@@ -12,6 +12,33 @@ export class MediaService {
     @InjectRepository(Media) private mediaRepo: Repository<Media>,
     @InjectRepository(Game) private gameRepo: Repository<Game>,
   ) {}
+
+  async handleFileUpload(file: Express.Multer.File, gameId: string, companyId: string) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+
+    const game = await this.gameRepo.findOne({ where: { id: gameId } });
+    
+    if (!game) {
+      throw new NotFoundException('Game not found');
+    }
+
+    if (game.companyId !== companyId) {
+      throw new ForbiddenException('You can only add media to your own games');
+    }
+
+    const fileUrl = `http://localhost:3000/uploads/covers/${file.filename}`;
+
+    const media = this.mediaRepo.create({
+      gameId,
+      fileUrl,
+      type: MediaType.IMAGE,
+      isMain: true,
+    });
+
+    return await this.mediaRepo.save(media);
+  }
 
   async create(dto: CreateMediaDto, companyId: string) {
     const game = await this.gameRepo.findOne({ where: { id: dto.gameId } });
