@@ -17,6 +17,25 @@ export class GamesService {
     private readonly categoryRepository: Repository<Category>
   ) {}
 
+  async findOne(id: string): Promise<Game> {
+    const game = await this.gameRepository.findOne({
+      where: { id },
+      relations: [
+        'categories', 
+        'developer', 
+        'publisher', 
+        'media', 
+        'requirements'
+      ], 
+    });
+
+    if (!game) {
+      throw new NotFoundException(`Game with ID ${id} not found`);
+    }
+
+    return game;
+  }
+
   async findAll(
     paginationDto: PaginationDto,
     search?: string,

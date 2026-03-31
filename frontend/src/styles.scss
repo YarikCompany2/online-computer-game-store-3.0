@@ -2,4 +2,14 @@
 
 body {
   @apply bg-gray-900 text-white min-h-screen;
+  
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 0.6; } 
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
 }

@@ -21,7 +21,8 @@ export interface IGame {
   description: string;
   price: number;
   status: string;
-  company: ICompany | null;
+  developer: ICompany | null;
+  publisher: ICompany | null;
   categories: ICategory[];
   fileUrl?: string;
   media: IMedia[];

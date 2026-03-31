@@ -9,6 +9,11 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class GamesController {
   constructor(private readonly gamesService: GamesService) {}
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.gamesService.findOne(id);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto,

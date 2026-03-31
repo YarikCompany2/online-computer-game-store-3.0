@@ -1,0 +1,65 @@
+@if (game(); as g) {
+  <div class="min-h-screen relative">
+    <div class="absolute top-0 left-0 w-full h-[600px] -z-10 overflow-hidden">
+      @let bg = g.media?.find(m => m.isMain)?.fileUrl;
+      <img [src]="bg" class="w-full h-full object-cover blur-3xl opacity-30 scale-110">
+    </div>
+
+    <div class="max-w-7xl mx-auto px-8 pt-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+      
+      <div class="lg:col-span-2 space-y-8">
+        <h1 class="text-6xl font-black italic uppercase tracking-tighter">{{ g.title }}</h1>
+        
+        <div class="aspect-video bg-slate-800 rounded-[32px] overflow-hidden shadow-2xl border border-white/5">
+          <img [src]="bg" class="w-full h-full object-cover">
+        </div>
+
+        <div class="bg-slate-900/50 backdrop-blur-md p-8 rounded-[32px] border border-white/5">
+          <h3 class="text-xl font-bold mb-4 text-indigo-400">About this game</h3>
+          <p class="text-slate-300 leading-relaxed text-lg">{{ g.description }}</p>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="bg-indigo-600 p-8 rounded-[40px] shadow-2xl shadow-indigo-500/20 text-center">
+          <div class="text-4xl font-black mb-6">
+            {{ +g.price === 0 ? 'FREE' : '$' + g.price }}
+          </div>
+          <button class="w-full bg-white text-indigo-600 py-4 rounded-2xl font-black text-xl hover:scale-105 transition-transform active:scale-95 shadow-xl">
+            ADD TO CART
+          </button>
+        </div>
+
+        <div class="bg-slate-900/80 p-6 rounded-[32px] border border-white/5 space-y-4">
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-500">Developer</span>
+            <span class="text-white font-medium">{{ g.developer?.name }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-500">Publisher</span>
+            <span class="text-white font-medium">{{ g.publisher?.name }}</span>
+          </div>
+          <div class="flex flex-wrap gap-2 pt-2">
+            @for (cat of g.categories; track cat.id) {
+              <span class="px-3 py-1 bg-slate-800 text-xs rounded-full text-indigo-300 border border-indigo-500/20">
+                {{ cat.name }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-8 pt-8">
+        <a routerLink="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+          Back to Store
+        </a>
+      </div>
+
+    </div>
+  </div>
+} @else {
+  <div class="flex justify-center items-center h-96">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
+  </div>
+}
