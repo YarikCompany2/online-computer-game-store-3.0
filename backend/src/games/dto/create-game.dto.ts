@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Min } from "class-validator";
 import { GameStatus } from "../entities/game.entity";
 
 export class CreateGameDto {
@@ -23,4 +23,8 @@ export class CreateGameDto {
     @IsArray()
     @IsInt({ each: true })
     categoryIds: number[];
+
+    @IsOptional()
+    @IsUUID()
+    publisherId?: string;
 }

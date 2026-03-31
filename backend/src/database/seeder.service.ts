@@ -39,13 +39,14 @@ export class SeederService {
       { name: 'Wube Software', ownerEmail: 'kovarex@wube.com', type: CompanyType.DEVELOPER},
       { name: 'Paradox Interactive', ownerEmail: 'fred@paradox.com', type: CompanyType.BOTH },
       { name: 'Klei Entertainment', ownerEmail: 'jamie@klei.com', type: CompanyType.DEVELOPER },
-      { name: 'Ludeon Studios', ownerEmail: 'typan@ludeon.com', type: CompanyType.DEVELOPER },
+      { name: 'Ludeon Studios', ownerEmail: 'tynan@ludeon.com', type: CompanyType.DEVELOPER },
       { name: 'Mouldy Toof Studios', ownerEmail: 'chris@mouldy.com', type: CompanyType.DEVELOPER },
-      { name: 'AnukenDev', ownerEmail: 'anuken@mindustry', type: CompanyType.DEVELOPER },
+      { name: 'AnukenDev', ownerEmail: 'anuken@mindustry.com', type: CompanyType.DEVELOPER },
       { name: '11 bit studios', ownerEmail: 'pawel@11bit.com', type: CompanyType.BOTH },
       { name: 'ConcernedApe', ownerEmail: 'eric@stardew.com', type: CompanyType.DEVELOPER },
       { name: 'ToyAndYarikCompany', ownerEmail: 'toyandyarik@gmail.com', type: CompanyType.BOTH },
       { name: 'Fury Studios', ownerEmail: 'contact@furystudios.com', type: CompanyType.DEVELOPER },
+      { name: 'Raw Fury', ownerEmail: 'hello@rawfury.com', type: CompanyType.PUBLISHER },
     ];
 
     const compMap = new Map<string, string>();
@@ -101,21 +102,21 @@ export class SeederService {
     console.log('Additional employees added to companies');
 
     const gamesData = [
-      { title: 'Terraria', price: 9.99, comp: 'Re-Logic', cats: ['Indie', 'Action', 'Survival'], desc: 'Dig, Flight, Explore, Build.' },
-      { title: 'Factorio', price: 35.00, comp: 'Wube Software', cats: ['Strategy', 'Simulation', 'Management'], desc: 'The factory must grow.'},
-      { title: 'Hearts of Iron IV', price: 49.99, comp: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Victory is at your fingertips.'},
-      { title: 'Europa Universalis IV', price: 39.99, comp: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Rule your nation through the centuries.'},
-      { title: 'Crusader Kings III', price: 49.99, comp: 'Paradox Interactive', cats: ['Strategy', 'RPG'], desc: 'Love, fight, scheme, and claim greatness.' },
-      { title: 'Don\'t Starve', price: 14.99, comp: 'Klei Entertainment', cats: ['Indie', 'Survival', 'Adventure'], desc: 'Fight for survival in a dark world.' },
-      { title: 'Oxygen Not Included', price: 24.99, comp: 'Klei Entertainment', cats: ['Simulation', 'Management', 'Indie'], desc: 'Space-colony simulation game.' },
-      { title: 'RimWorld', price: 34.99, comp: 'Ludeon Studios', cats: ['Indie', 'Simulation', 'Management'], desc: 'Sci-fi colony sim driven by an intelligent AI.' },
-      { title: 'The Escapists', price: 17.99, comp: 'Mouldy Toof Studios', cats: ['Indie', 'Strategy', 'Action'], desc: 'Prison escape simulator.' },
-      { title: 'Mindustry', price: 9.99, comp: 'AnukenDev', cats: ['Indie', 'Strategy', 'Management'], desc: 'Tower-defense factory game.' },
-      { title: 'Frostpunk', price: 29.99, comp: '11 bit studios', cats: ['Strategy', 'Survival', 'Management'], desc: 'The city must survive.' },
-      { title: 'Stardew Valley', price: 14.99, comp: 'ConcernedApe', cats: ['Indie', 'RPG', 'Simulation'], desc: 'Open-ended country-life RPG.' },
-      { title: 'Kingdom Two Crowns', price: 19.99, comp: 'Fury Studios', cats: ['Indie', 'Strategy', 'Adventure'], desc: 'Build your kingdom and secure it from the Greed.' },
-      { title: 'Kingdom: Classic', price: 4.99, comp: 'Fury Studios', cats: ['Indie', 'Strategy'], desc: 'Minimalist side-scrolling strategy.' },
-      { title: 'Doodle Jump Like', price: 0.00, comp: 'ToyAndYarikCompany', cats: ['Arcade', 'Indie'], desc: 'Jump high and avoid monsters!', fileUrl: 'https://github.com/toysmbb/Doodle-jump-like' },
+      { title: 'Terraria', price: 9.99, dev: 'Re-Logic', pub: 'Re-Logic', cats: ['Indie', 'Action', 'Survival'], desc: 'Dig, Fight, Explore, Build.' },
+      { title: 'Factorio', price: 35.00, dev: 'Wube Software', pub: 'Wube Software', cats: ['Strategy', 'Simulation', 'Management'], desc: 'The factory must grow.' },
+      { title: 'Hearts of Iron IV', price: 49.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Victory is at your fingertips.' },
+      { title: 'Europa Universalis IV', price: 39.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Rule your nation through the centuries.' },
+      { title: 'Crusader Kings III', price: 49.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'RPG'], desc: 'Love, fight, scheme, and claim greatness.' },
+      { title: 'Don\'t Starve', price: 14.99, dev: 'Klei Entertainment', pub: 'Klei Entertainment', cats: ['Indie', 'Survival', 'Adventure'], desc: 'Fight for survival in a dark world.' },
+      { title: 'Oxygen Not Included', price: 24.99, dev: 'Klei Entertainment', pub: 'Klei Entertainment', cats: ['Simulation', 'Management', 'Indie'], desc: 'Space-colony simulation game.' },
+      { title: 'RimWorld', price: 34.99, dev: 'Ludeon Studios', pub: 'Ludeon Studios', cats: ['Indie', 'Simulation', 'Management'], desc: 'Sci-fi colony sim driven by an intelligent AI.' },
+      { title: 'The Escapists', price: 17.99, dev: 'Mouldy Toof Studios', pub: 'Mouldy Toof Studios', cats: ['Indie', 'Strategy', 'Action'], desc: 'Prison escape simulator.' },
+      { title: 'Mindustry', price: 9.99, dev: 'AnukenDev', pub: 'AnukenDev', cats: ['Indie', 'Strategy', 'Management'], desc: 'Tower-defense factory game.' },
+      { title: 'Frostpunk', price: 29.99, dev: '11 bit studios', pub: '11 bit studios', cats: ['Strategy', 'Survival', 'Management'], desc: 'The city must survive.' },
+      { title: 'Stardew Valley', price: 14.99, dev: 'ConcernedApe', pub: 'ConcernedApe', cats: ['Indie', 'RPG', 'Simulation'], desc: 'Open-ended country-life RPG.' },
+      { title: 'Kingdom Two Crowns', price: 19.99, dev: 'Fury Studios', pub: 'Raw Fury', cats: ['Indie', 'Strategy', 'Adventure'], desc: 'Build your kingdom and secure it from the Greed.' },
+      { title: 'Kingdom: Classic', price: 4.99, dev: 'Fury Studios', pub: 'Raw Fury', cats: ['Indie', 'Strategy'], desc: 'Minimalist side-scrolling strategy.' },
+      { title: 'Doodle Jump Like', price: 0.00, dev: 'ToyAndYarikCompany', pub: 'ToyAndYarikCompany', cats: ['Arcade', 'Indie'], desc: 'Jump high and avoid monsters!', fileUrl: 'https://github.com/toysmbb/Doodle-jump-like' },
     ];
 
     for (const g of gamesData) {
@@ -123,15 +124,19 @@ export class SeederService {
 
       if (!game) {
         const gameCats = g.cats.map(name => catMap.get(name)).filter((c): c is Category => !!c);
-        const companyId = compMap.get(g.comp)!;
+
+        const developerId = compMap.get(g.dev)!;
+        const publisherId = compMap.get(g.pub)!;
 
         game = await this.gameRepo.save(this.gameRepo.create({
           title: g.title,
           description: g.desc,
           price: g.price,
           status: GameStatus.ACTIVE,
-          companyId: companyId,
+          developerId: developerId,
+          publisherId: publisherId, 
           categories: gameCats,
+          fileUrl: g.fileUrl || null
         }));
       }
 

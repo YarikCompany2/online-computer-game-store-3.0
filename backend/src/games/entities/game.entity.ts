@@ -43,12 +43,19 @@ export class Game {
     @DeleteDateColumn({ name: 'deleted_at', select: false })
     deletedAt: Date;
 
-    @Column({ name: 'company_id', type: 'uuid' })
-    companyId: string;
+    @Column({ name: 'developer_id', type: 'uuid' })
+    developerId: string;
 
-    @ManyToOne(() => Company)
-    @JoinColumn({ name: 'company_id' })
-    company: Company;
+    @ManyToOne(() => Company, (company) => company.developedGames)
+    @JoinColumn({ name: 'developer_id' })
+    developer: Company;
+
+    @Column({ name: 'publisher_id', type: 'uuid' })
+    publisherId: string;
+
+    @ManyToOne(() => Company, (company) => company.publishedGames)
+    @JoinColumn({ name: 'publisher_id' })
+    publisher: Company;
 
     @ManyToMany(() => Category, (category) => category.games)
     @JoinTable({

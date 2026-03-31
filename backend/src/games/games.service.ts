@@ -27,7 +27,8 @@ export class GamesService {
 
     const queryBuilder = this.gameRepository.createQueryBuilder('game')
       .leftJoinAndSelect('game.categories', 'category')
-      .leftJoinAndSelect('game.company', 'company')
+      .leftJoinAndSelect('game.developer', 'developer')
+      .leftJoinAndSelect('game.publisher', 'publisher')
       .leftJoinAndSelect('game.media', 'media')
       .where('game.status = :status', { status: GameStatus.ACTIVE });
 
@@ -59,7 +60,7 @@ export class GamesService {
   }
 
   async create(createGameDto: CreateGameDto, companyId: string): Promise<Game> {
-    const { categoryIds, ...gameData } = createGameDto;
+    const { categoryIds, publisherId, ...gameData } = createGameDto;
 
     const categories = await this.categoryRepository.findBy({
       id: In(categoryIds),
@@ -71,7 +72,8 @@ export class GamesService {
 
     const game = this.gameRepository.create({
       ...gameData,
-      companyId,
+      developerId: companyId,
+      publisherId: publisherId || companyId,
       categories,
     });
 
@@ -80,7 +82,7 @@ export class GamesService {
 
   async update(id: string, updateGameDto: UpdateGameDto, companyId: string): Promise<Game> {
     const game = await this.gameRepository.findOne({
-      where: { id, companyId },
+      where: { id, developerId: companyId },
       relations: ['categories']
     });
 
@@ -106,7 +108,7 @@ export class GamesService {
   }
 
   async remove(id: string, companyId: string) {
-    const game = await this.gameRepository.findOne({ where: { id, companyId } });
+    const game = await this.gameRepository.findOne({ where: { id, developerId: companyId } });
 
     if (!game) {
       throw new NotFoundException('Game not found or you do not have permission');

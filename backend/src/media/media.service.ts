@@ -24,7 +24,7 @@ export class MediaService {
       throw new NotFoundException('Game not found');
     }
 
-    if (game.companyId !== companyId) {
+    if (game.developerId !== companyId) {
       throw new ForbiddenException('You can only add media to your own games');
     }
 
@@ -44,7 +44,7 @@ export class MediaService {
     const game = await this.gameRepo.findOne({ where: { id: dto.gameId } });
     if (!game) throw new NotFoundException('Game not found');
 
-    if (game.companyId !== companyId) {
+    if (game.developerId !== companyId) {
       throw new ForbiddenException('You can only add media to your own games');
     }
 
@@ -58,7 +58,7 @@ export class MediaService {
       relations: ['game']
     });
     if (!media) throw new NotFoundException('Media not found');
-    if (media.game.companyId !== companyId) throw new ForbiddenException('Access denied');
+    if (media.game.developerId !== companyId) throw new ForbiddenException('Access denied');
 
     return await this.mediaRepo.remove(media);
   }

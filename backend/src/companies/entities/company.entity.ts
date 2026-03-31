@@ -37,6 +37,9 @@ export class Company {
     @DeleteDateColumn({ name: 'deleted_at', select: false })
     deletedAt: Date;
 
-    @OneToMany(() => Game, (game) => game.company)
-    games: Game[];
+    @OneToMany(() => Game, (game) => game.developer)
+    developedGames: Game[];
+
+    @OneToMany(() => Game, (game) => game.publisher)
+    publishedGames: Game[];
 }

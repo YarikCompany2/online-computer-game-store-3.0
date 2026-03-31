@@ -16,7 +16,7 @@ export class RequirementsService {
   async create(dto: CreateRequirementDto, companyId: string) {
     const game = await this.gameRepo.findOne({ where: { id: dto.gameId }});
     if (!game) throw new NotFoundException('Game not found');
-    if (game.companyId !== companyId) throw new ForbiddenException('Access denied');
+    if (game.developerId !== companyId) throw new ForbiddenException('Access denied');
 
     const req = this.reqRepo.create(dto);
     return await this.reqRepo.save(req);
@@ -29,7 +29,7 @@ export class RequirementsService {
     });
 
     if (!req) throw new NotFoundException('Requirement not found');
-    if (req.game.companyId !== companyId) throw new ForbiddenException('Access denied');
+    if (req.game.developerId !== companyId) throw new ForbiddenException('Access denied');
 
     return await this.reqRepo.remove(req);
   }
