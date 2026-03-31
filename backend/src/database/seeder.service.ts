@@ -8,6 +8,18 @@ import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'; 
 import { Media, MediaType } from "../media/entities/media.entity";
 
+interface IGameSeed {
+  title: string;
+  price: number;
+  dev: string;
+  pub: string;
+  cats: string[];
+  desc: string;
+  fileUrl?: string;
+  image?: string;
+  screenshots?: string[]; 
+}
+
 @Injectable()
 export class SeederService {
   constructor(
@@ -101,22 +113,22 @@ export class SeederService {
     }
     console.log('Additional employees added to companies');
 
-    const gamesData = [
-      { title: 'Terraria', price: 9.99, dev: 'Re-Logic', pub: 'Re-Logic', cats: ['Indie', 'Action', 'Survival'], desc: 'Dig, Fight, Explore, Build.' },
-      { title: 'Factorio', price: 35.00, dev: 'Wube Software', pub: 'Wube Software', cats: ['Strategy', 'Simulation', 'Management'], desc: 'The factory must grow.' },
-      { title: 'Hearts of Iron IV', price: 49.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Victory is at your fingertips.' },
-      { title: 'Europa Universalis IV', price: 39.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Rule your nation through the centuries.' },
-      { title: 'Crusader Kings III', price: 49.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'RPG'], desc: 'Love, fight, scheme, and claim greatness.' },
-      { title: 'Don\'t Starve', price: 14.99, dev: 'Klei Entertainment', pub: 'Klei Entertainment', cats: ['Indie', 'Survival', 'Adventure'], desc: 'Fight for survival in a dark world.' },
-      { title: 'Oxygen Not Included', price: 24.99, dev: 'Klei Entertainment', pub: 'Klei Entertainment', cats: ['Simulation', 'Management', 'Indie'], desc: 'Space-colony simulation game.' },
-      { title: 'RimWorld', price: 34.99, dev: 'Ludeon Studios', pub: 'Ludeon Studios', cats: ['Indie', 'Simulation', 'Management'], desc: 'Sci-fi colony sim driven by an intelligent AI.' },
-      { title: 'The Escapists', price: 17.99, dev: 'Mouldy Toof Studios', pub: 'Mouldy Toof Studios', cats: ['Indie', 'Strategy', 'Action'], desc: 'Prison escape simulator.' },
-      { title: 'Mindustry', price: 9.99, dev: 'AnukenDev', pub: 'AnukenDev', cats: ['Indie', 'Strategy', 'Management'], desc: 'Tower-defense factory game.' },
-      { title: 'Frostpunk', price: 29.99, dev: '11 bit studios', pub: '11 bit studios', cats: ['Strategy', 'Survival', 'Management'], desc: 'The city must survive.' },
-      { title: 'Stardew Valley', price: 14.99, dev: 'ConcernedApe', pub: 'ConcernedApe', cats: ['Indie', 'RPG', 'Simulation'], desc: 'Open-ended country-life RPG.' },
-      { title: 'Kingdom Two Crowns', price: 19.99, dev: 'Fury Studios', pub: 'Raw Fury', cats: ['Indie', 'Strategy', 'Adventure'], desc: 'Build your kingdom and secure it from the Greed.' },
-      { title: 'Kingdom: Classic', price: 4.99, dev: 'Fury Studios', pub: 'Raw Fury', cats: ['Indie', 'Strategy'], desc: 'Minimalist side-scrolling strategy.' },
-      { title: 'Doodle Jump Like', price: 0.00, dev: 'ToyAndYarikCompany', pub: 'ToyAndYarikCompany', cats: ['Arcade', 'Indie'], desc: 'Jump high and avoid monsters!', fileUrl: 'https://github.com/toysmbb/Doodle-jump-like' },
+    const gamesData: IGameSeed[] = [
+      { title: 'Terraria', price: 9.99, dev: 'Re-Logic', pub: 'Re-Logic', cats: ['Indie', 'Action', 'Survival'], desc: 'Dig, Fight, Explore, Build.', image: 'terraria/terraria.jpg', screenshots: ['terraria/terraria1.png'] },
+      { title: 'Factorio', price: 35.00, dev: 'Wube Software', pub: 'Wube Software', cats: ['Strategy', 'Simulation', 'Management'], desc: 'The factory must grow.', image: 'factorio/factorio.jpg' },
+      { title: 'Hearts of Iron IV', price: 49.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Victory is at your fingertips.', image: 'hearts_of_iron_iv/hearts_of_iron_iv.jpg' },
+      { title: 'Europa Universalis IV', price: 39.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'Simulation'], desc: 'Rule your nation through the centuries.', image: 'europa_universalis_iv/europa_universalis_iv.jpg' },
+      { title: 'Crusader Kings III', price: 49.99, dev: 'Paradox Interactive', pub: 'Paradox Interactive', cats: ['Strategy', 'RPG'], desc: 'Love, fight, scheme, and claim greatness.', image: 'crusader_kings_iii/crusader_kings_iii.jpg' },
+      { title: 'Don\'t Starve', price: 14.99, dev: 'Klei Entertainment', pub: 'Klei Entertainment', cats: ['Indie', 'Survival', 'Adventure'], desc: 'Fight for survival in a dark world.', image: `don't_starve/don't_starve.jpg` },
+      { title: 'Oxygen Not Included', price: 24.99, dev: 'Klei Entertainment', pub: 'Klei Entertainment', cats: ['Simulation', 'Management', 'Indie'], desc: 'Space-colony simulation game.', image: 'oxygen_not_included/oxygen_not_included.jpg' },
+      { title: 'RimWorld', price: 34.99, dev: 'Ludeon Studios', pub: 'Ludeon Studios', cats: ['Indie', 'Simulation', 'Management'], desc: 'Sci-fi colony sim driven by an intelligent AI.', image: 'rimworld/rimworld.jpg' },
+      { title: 'The Escapists', price: 17.99, dev: 'Mouldy Toof Studios', pub: 'Mouldy Toof Studios', cats: ['Indie', 'Strategy', 'Action'], desc: 'Prison escape simulator.', image: 'the_escapists/the_escapists.jpg' },
+      { title: 'Mindustry', price: 9.99, dev: 'AnukenDev', pub: 'AnukenDev', cats: ['Indie', 'Strategy', 'Management'], desc: 'Tower-defense factory game.', image: 'mindustry/mindustry.jpg' },
+      { title: 'Frostpunk', price: 29.99, dev: '11 bit studios', pub: '11 bit studios', cats: ['Strategy', 'Survival', 'Management'], desc: 'The city must survive.', image: 'frostpunk/frostpunk.jpg' },
+      { title: 'Stardew Valley', price: 14.99, dev: 'ConcernedApe', pub: 'ConcernedApe', cats: ['Indie', 'RPG', 'Simulation'], desc: 'Open-ended country-life RPG.', image: 'stardew_valley/stardew_valley.jpg' },
+      { title: 'Kingdom Two Crowns', price: 19.99, dev: 'Fury Studios', pub: 'Raw Fury', cats: ['Indie', 'Strategy', 'Adventure'], desc: 'Build your kingdom and secure it from the Greed.', image: 'kingdom_two_crowns/kingdom_two_crowns.jpg' },
+      { title: 'Kingdom: Classic', price: 4.99, dev: 'Fury Studios', pub: 'Raw Fury', cats: ['Indie', 'Strategy'], desc: 'Minimalist side-scrolling strategy.', image: 'kingdom:_classic/kingdom:_classic.jpg' },
+      { title: 'Doodle Jump Like', price: 0.00, dev: 'ToyAndYarikCompany', pub: 'ToyAndYarikCompany', cats: ['Arcade', 'Indie'], desc: 'Jump high and avoid monsters!', fileUrl: 'https://github.com/toysmbb/Doodle-jump-like', image: 'doodle_jump_like/doodle_jump_like.jpg' },
     ];
 
     for (const g of gamesData) {
@@ -124,7 +136,6 @@ export class SeederService {
 
       if (!game) {
         const gameCats = g.cats.map(name => catMap.get(name)).filter((c): c is Category => !!c);
-
         const developerId = compMap.get(g.dev)!;
         const publisherId = compMap.get(g.pub)!;
 
@@ -134,23 +145,33 @@ export class SeederService {
           price: g.price,
           status: GameStatus.ACTIVE,
           developerId: developerId,
-          publisherId: publisherId, 
+          publisherId: publisherId,
           categories: gameCats,
           fileUrl: g.fileUrl || null
         }));
       }
 
-      const mediaExists = await this.mediaRepo.findOne({ where: { gameId: game.id, isMain: true } });
-      
-      if (!mediaExists) {
-        const fileName = g.title.toLowerCase().replace(/ /g, '_') + '.jpg';
-
+      const mainExists = await this.mediaRepo.findOne({ where: { gameId: game.id, isMain: true } });
+      if (!mainExists) {
         await this.mediaRepo.save(this.mediaRepo.create({
           gameId: game.id,
-          fileUrl: `http://localhost:3000/uploads/covers/${fileName}`,
+          fileUrl: `http://localhost:3000/uploads/covers/${g.image}`,
           type: MediaType.IMAGE,
           isMain: true
         }));
+      }
+
+      for (const shot of g.screenshots || 'placeholder.png') {
+        const url = `http://localhost:3000/uploads/covers/${shot}`;
+        const exists = await this.mediaRepo.findOne({ where: { gameId: game.id, fileUrl: url } });
+        if (!exists) {
+          await this.mediaRepo.save(this.mediaRepo.create({
+            gameId: game.id,
+            fileUrl: url,
+            type: MediaType.IMAGE,
+            isMain: false
+          }));
+        }
       }
     }
   }

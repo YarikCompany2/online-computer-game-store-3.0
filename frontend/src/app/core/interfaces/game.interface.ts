@@ -26,6 +26,7 @@ export interface IGame {
   categories: ICategory[];
   fileUrl?: string;
   media: IMedia[];
+  requirements: IRequirement[]; 
   createdAt: string;
 }
 
@@ -37,4 +38,14 @@ export interface IPaginatedResponse<T> {
     totalPages: number;
     currentPage: number;
   };
+}
+
+export interface IRequirement {
+  id: string;
+  type: 'minimum' | 'recommended';
+  os: string;
+  processor: string;
+  ram: string;
+  gpu: string;
+  storage: string;
 }
