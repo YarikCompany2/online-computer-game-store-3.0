@@ -18,26 +18,43 @@
         
         <div class="lg:col-span-8 space-y-12">
           
-          <header class="space-y-2">
-            <div class="flex flex-wrap gap-2 mb-4">
-              @for (cat of g.categories; track cat.id) {
-                <span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-indigo-500/20">
-                  {{ cat.name }}
-                </span>
-              }
-            </div>
-            <h1 class="text-7xl font-black italic uppercase tracking-tighter leading-none">{{ g.title }}</h1>
-          </header>
-
-          <div class="space-y-4">
+          <div class="space-y-6">
+  
             <div class="aspect-video rounded-[32px] overflow-hidden border border-white/10 shadow-2xl bg-black relative">
               @if (selectedMedia()) {
                 <img [src]="selectedMedia()?.fileUrl" 
-                    class="w-full h-full object-cover transition-opacity duration-300" 
-                    style="filter: none !important; blur: 0 !important;">
+                    class="w-full h-full object-cover transition-all duration-300"
+                    style="filter: none; opacity: 1;"> 
               }
-              <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]"></div>
+              
             </div>
+
+            <div class="flex justify-center gap-3">
+              @for (m of screenshotsOnly(); track m.id) {
+                <button (click)="selectMedia(m)" 
+                    class="group/dot p-2 -m-2 focus:outline-none">
+                  <div [class.w-10]="selectedMedia()?.id === m.id"
+                      [class.bg-indigo-500]="selectedMedia()?.id === m.id"
+                      [class.bg-white/20]="selectedMedia()?.id !== m.id"
+                      class="h-1.5 w-2 rounded-full transition-all duration-500 shadow-sm group-hover/dot:bg-white/60">
+                  </div>
+                </button>
+              }
+            </div>
+
+          </div>
+
+          <div class="flex gap-4 overflow-x-auto py-4 px-1 custom-scrollbar overflow-visible">
+            @for (m of screenshotsOnly(); track m.id) {
+              <div (click)="selectMedia(m)" 
+                  [class.ring-2]="selectedMedia()?.id === m.id"
+                  [class.ring-indigo-500]="selectedMedia()?.id === m.id"
+                  [class.opacity-100]="selectedMedia()?.id === m.id"
+                  [class.scale-105]="selectedMedia()?.id === m.id"
+                  class="flex-shrink-0 w-32 aspect-video rounded-xl overflow-hidden cursor-pointer border border-white/5 opacity-50 hover:opacity-100 transition-all duration-300 transform bg-slate-800">
+                <img [src]="m.fileUrl" class="w-full h-full object-cover">
+              </div>
+            }
           </div>
 
           <div class="space-y-4">
