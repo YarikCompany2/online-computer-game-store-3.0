@@ -15,7 +15,7 @@ export class LibraryService {
   async findAllByUser(userId: string) {
     return await this.libraryRepository.find({
       where: { userId },
-      relations: ['game', 'game.categories', 'game.company'],
+      relations: ['game', 'game.categories', 'game.developer'],
       order: { purchaseDate: 'DESC' }
     });
   }

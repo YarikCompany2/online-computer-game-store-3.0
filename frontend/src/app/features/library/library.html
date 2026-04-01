@@ -1,0 +1,96 @@
+<div class="p-12 max-w-7xl mx-auto space-y-12">
+  
+  <header class="flex items-end gap-6 mb-16">
+    <div class="w-20 h-20 bg-indigo-600 rounded-[28px] flex items-center justify-center text-4xl shadow-2xl shadow-indigo-500/40">
+      📚
+    </div>
+    <div>
+      <h1 class="text-5xl font-black italic tracking-tighter uppercase text-white leading-none">Your Library</h1>
+      <p class="text-slate-500 font-bold uppercase text-xs tracking-[0.3em] mt-3 ml-1">Purchased Games</p>
+    </div>
+  </header>
+
+  @if (!auth.isLoggedIn()) {
+    <div class="text-center py-32 bg-slate-900/20 border border-white/5 rounded-[40px] flex flex-col items-center space-y-6">
+      <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center text-2xl opacity-50">👤</div>
+      <div class="space-y-2">
+        <h2 class="text-3xl font-black text-white uppercase italic tracking-tighter">Access Denied</h2>
+        <p class="text-slate-500 text-lg">Please log in to your account to see your library.</p>
+      </div>
+      <button routerLink="/login" 
+              class="bg-indigo-600 hover:bg-indigo-500 text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all active:scale-95">
+        Log In Now
+      </button>
+    </div>
+  } 
+  
+  @else if (isLoading()) {
+    <div class="flex justify-center py-20">
+      <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } 
+  
+  @else if (ownedGames().length === 0) {
+    <div class="text-center py-32 bg-slate-900/20 border border-white/5 rounded-[40px] space-y-6">
+      <p class="text-slate-400 text-xl font-medium">You don't own any games yet.</p>
+      <button routerLink="/" class="text-indigo-400 font-black hover:underline uppercase tracking-widest text-sm">
+        Browse the Store
+      </button>
+    </div>
+  } 
+  
+  @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (item of ownedGames(); track item.id) {
+        <div class="group bg-slate-900/40 border border-white/5 rounded-[32px] overflow-hidden hover:border-indigo-500/30 transition-all duration-500 shadow-xl">
+          <div class="aspect-video relative overflow-hidden">
+             <img [src]="item.game.media?.[0]?.fileUrl" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+             <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-80"></div>
+          </div>
+          <div class="p-8 space-y-6">
+            <h3 class="text-2xl font-black text-white truncate">{{ item.game.title }}</h3>
+            <div class="flex items-center justify-between gap-4">
+              <button [routerLink]="['/game', item.game.id]" class="flex-1 py-3 px-4 rounded-xl border border-white/10 text-slate-400 font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-all">
+                Details
+              </button>
+              <button (click)="openDownloadDialog(item.game.title)" class="flex-[2] py-3 px-4 rounded-xl bg-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition-all">
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showDownloadModal()) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
+    <div class="w-full max-w-lg bg-[#0f172a] border border-indigo-500/30 p-10 rounded-[48px] shadow-2xl text-center relative overflow-hidden">
+      
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-600/20 blur-[80px] rounded-full"></div>
+
+      <div class="relative z-10 space-y-8">
+        <div class="w-20 h-20 bg-indigo-600/10 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto text-3xl">
+          🚀
+        </div>
+
+        <div class="space-y-2">
+          <h2 class="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">Ready to play?</h2>
+          <p class="text-slate-400">To start playing <span class="text-indigo-400 font-bold">{{ selectedGameName() }}</span>, you need our official desktop client.</p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all active:scale-95 uppercase tracking-widest">
+            Download the Launcher
+          </button>
+          <button (click)="closeDownloadDialog()" class="w-full py-4 text-slate-500 font-bold hover:text-white transition-colors uppercase tracking-widest text-xs">
+            Maybe later
+          </button>
+        </div>
+
+        <p class="text-[10px] text-slate-600 uppercase font-bold tracking-[0.2em]">Available for Windows & MacOS</p>
+      </div>
+    </div>
+  </div>
+}
