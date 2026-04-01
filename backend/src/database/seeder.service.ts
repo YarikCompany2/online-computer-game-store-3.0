@@ -94,7 +94,7 @@ export class SeederService {
     const employees = [
       { email: 'dev1@paradox.com', username: 'ParadoxDev_1', comp: 'Paradox Interactive'},
       { email: 'dev2@paradox.com', username: 'ParadoxDev_2', comp: 'Paradox Interactive'},
-      { email: 'yarik@gmail.com', username: 'YarikCompany', comp: 'Toy Studio' },
+      { email: 'yarik@gmail.com', username: 'YarikCompany', comp: 'ToyAndYarikCompany' },
     ];
 
     for (const emp of employees) {

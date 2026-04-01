@@ -18,21 +18,20 @@ export class AuthService {
     ) {}
 
     async login(loginDto: LoginDto) {
-        const { email, password } = loginDto;
+        const { identifier, password } = loginDto;
 
-        const user = await this.usersService.findByEmail(email);
-        const errorMessage = 'Uncorrect email or password';
+        const user = await this.usersService.findInternalByIdentifier(identifier);
 
         if (!user) {
-            throw new UnauthorizedException(errorMessage);
+            throw new UnauthorizedException('Invalid credentials');
         }
 
         const isMatch = user ? await bcrypt.compare(password, user.passwordHash) : false;
         if (!isMatch) {
-            throw new UnauthorizedException(errorMessage);
+            throw new UnauthorizedException('Uncorrect login or password');
         }
 
-        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId);
+        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId, user.username, user.balance);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
@@ -54,19 +53,21 @@ export class AuthService {
             throw new UnauthorizedException('Access denied');
         }
 
-        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId);
+        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId, user.username, user.balance);
 
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
     }
 
-    private async getTokens(userId: string, email: string, role: string, companyId: string | null) {
+    private async getTokens(userId: string, email: string, role: string, companyId: string | null, username: string, balance: number) {
         const accessTokenPayload = {
             sub: userId,
             email,
             role,
             companyId,
+            username,
+            balance,
             tokenType: 'access',
         };
 

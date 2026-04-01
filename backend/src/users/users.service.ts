@@ -22,6 +22,13 @@ export class UsersService {
       throw new BadRequestException('User with the same email already exists');
     }
 
+    const existingUsername = await this.userRepository.findOne({
+      where: { username: createUserDto.username },
+    });
+    if (existingUsername) {
+      throw new BadRequestException('Username is already taken');
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
 
@@ -35,6 +42,25 @@ export class UsersService {
     const { passwordHash, ...result } = savedUser;
 
     return result as User;
+  }
+
+  async findByIdentifier(identifier: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: [
+        { email: identifier },
+        { username: identifier }
+      ],
+    });
+  }
+
+  async findInternalByIdentifier(identifier: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: [
+        { email: identifier },
+        { username: identifier }
+      ],
+      select: ['id', 'email', 'role', 'companyId', 'username', 'passwordHash', 'refreshTokenHash', 'balance'],
+    });
   }
 
   async update(id: string, updateData: Partial<User>) {
@@ -59,7 +85,7 @@ export class UsersService {
   async findOneInternal(id: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'role', 'companyId', 'refreshTokenHash'],
+      select: ['id', 'email', 'role', 'companyId', 'username', 'refreshTokenHash', 'balance'],
     });
   }
 
