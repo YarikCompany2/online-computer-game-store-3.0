@@ -51,7 +51,9 @@ export class GamesService {
   async findAll(
     paginationDto: PaginationDto,
     search?: string,
-    categoryId?: number
+    categoryId?: number,
+    minPrice?: number,
+    maxPrice?: number,
   ): Promise<PaginatedResource<Game>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
@@ -71,6 +73,14 @@ export class GamesService {
 
     if (categoryId) {
       queryBuilder.andWhere('category.id = :categoryId', { categoryId } );
+    }
+
+    if (minPrice !== undefined) {
+      queryBuilder.andWhere('game.price >= :minPrice', { minPrice });
+    }
+
+    if (maxPrice !== undefined) {
+      queryBuilder.andWhere('game.price <= :maxPrice', { maxPrice });
     }
 
     const [data, total] = await queryBuilder

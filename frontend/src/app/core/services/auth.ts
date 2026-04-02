@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { computed, inject, Injectable, signal } from '@angular/core';
 
@@ -25,6 +25,25 @@ export class AuthService {
     return this.http.post<any>(`http://localhost:3000/auth/login`, credentials).pipe(
       tap(res => {
         localStorage.setItem('access_token', res.accessToken);
+        localStorage.setItem('refresh_token', res.refreshToken);
+        this._accessToken.set(res.accessToken);
+      })
+    );
+  }
+
+  refreshToken() {
+    const userId = this.currentUser()?.sub;
+    const refreshToken = localStorage.getItem('refresh_token');
+
+    if (!userId || !refreshToken) return throwError(() => new Error('No tokens'));
+
+    return this.http.post<any>(`http://localhost:3000/auth/refresh`, { 
+      userId, 
+      refreshToken 
+    }).pipe(
+      tap(res => {
+        localStorage.setItem('access_token', res.accessToken);
+        localStorage.setItem('refresh_token', res.refreshToken);
         this._accessToken.set(res.accessToken);
       })
     );

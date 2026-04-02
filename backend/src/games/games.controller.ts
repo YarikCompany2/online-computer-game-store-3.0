@@ -20,8 +20,10 @@ export class GamesController {
     @Query() paginationDto: PaginationDto,
     @Query('search') search?: string,
     @Query('categoryId') categoryId?: number,
+    @Query('minPrice') minPrice?: number,
+    @Query('maxPrice') maxPrice?: number,
   ) {
-    return this.gamesService.findAll(paginationDto, search, categoryId);
+    return this.gamesService.findAll(paginationDto, search, categoryId, minPrice, maxPrice);
   }
 
   @UseGuards(JwtAuthGuard)

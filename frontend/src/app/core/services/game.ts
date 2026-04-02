@@ -12,7 +12,7 @@ export class GameService {
   private auth = inject(AuthService);
   private apiUrl = 'http://localhost:3000/games';
 
-  getGames(page: number = 1, limit: number = 10, search?: string): Observable<IPaginatedResponse<IGame>> {
+  getGames(page: number = 1, limit: number = 10, search?: string, categoryId?: number, minPrice?: number, maxPrice?: number): Observable<IPaginatedResponse<IGame>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
@@ -20,6 +20,10 @@ export class GameService {
     if (search) {
       params = params.set('search', search);
     }
+    if (categoryId) params = params.set('categoryId', categoryId.toString());
+
+    if (minPrice !== undefined) params = params.set('minPrice', minPrice.toString());
+    if (maxPrice !== undefined) params = params.set('maxPrice', maxPrice.toString());
 
     return this.http.get<IPaginatedResponse<IGame>>(this.apiUrl, { params });
   }

@@ -3,17 +3,56 @@
   <app-sidebar class="w-64 h-full flex-shrink-0"></app-sidebar>
 
   <div class="flex-1 flex flex-col overflow-y-auto relative">
-    
     <header class="p-6 sticky top-0 bg-[#020617]/80 backdrop-blur-md z-50 flex items-center justify-between gap-4">
       
-      <div class="flex-1 max-w-4xl mx-auto relative transition-all duration-300">
+      <div class="flex-1 max-w-4xl mx-auto relative group">
         <input type="text" 
+              #searchInput
+              (keyup.enter)="onSearchSubmit(searchInput.value)"
               placeholder="Search for games..." 
-              class="w-full bg-slate-900 border border-indigo-500/30 rounded-full py-3 px-12 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-xl">
+              class="w-full bg-slate-900 border border-white/10 rounded-full py-4 px-14 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-2xl">
         
-        <div class="absolute left-5 top-3.5 opacity-40 text-white">
+        <div class="absolute left-6 top-4.5 opacity-40 text-white">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </div>
+
+        <button (click)="isFilterMenuOpen.set(!isFilterMenuOpen())"
+                [class.text-indigo-400]="isFilterMenuOpen()"
+                class="absolute right-4 top-2.5 p-2 rounded-full hover:bg-white/5 transition-all text-slate-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="8" x2="14" y2="8"/><line x1="18" y1="16" x2="22" y2="16"/></svg>
+        </button>
+
+        @if (isFilterMenuOpen()) {
+          <div class="absolute top-full mt-4 right-0 w-[400px] bg-[#0f172a] border border-white/10 rounded-[32px] shadow-2xl p-8 z-[100] animate-in fade-in zoom-in duration-200">
+            <div class="space-y-8">
+              <h4 class="text-xs font-black uppercase tracking-[0.3em] text-indigo-400">Advanced Filters</h4>
+
+              <div class="space-y-4">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Price Range</label>
+                <div class="flex items-center gap-4">
+                  <input type="number" placeholder="Min" 
+                        [(ngModel)]="minPriceInput"
+                        class="w-1/2 bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white focus:outline-none">
+                  <div class="w-4 h-px bg-slate-700"></div>
+                  <input type="number" placeholder="Max" 
+                        [(ngModel)]="maxPriceInput"
+                        class="w-1/2 bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white focus:outline-none">
+                </div>
+              </div>
+
+              <button (click)="applyFilters()" 
+                      class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95">
+                Apply Filters
+              </button>
+
+              <button (click)="resetFilters()" 
+                      class="w-full text-slate-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
+                Reset All
+              </button>
+            </div>
+          </div>
+          <div class="fixed inset-0 z-[90]" (click)="isFilterMenuOpen.set(false)"></div>
+        }
       </div>
 
       <div class="flex items-center gap-6">

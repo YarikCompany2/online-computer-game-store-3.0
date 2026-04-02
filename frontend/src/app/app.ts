@@ -8,6 +8,7 @@ import { CartService } from './core/services/cart';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from './core/services/toast';
+import { SearchStateService } from './core/services/search-state';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,7 @@ export class App implements OnInit {
   auth = inject(AuthService);
   cart = inject(CartService);
   toast = inject(ToastService);
+  searchState = inject(SearchStateService);
 
   isAuthPage = toSignal(
     this.router.events.pipe(
@@ -39,9 +41,16 @@ export class App implements OnInit {
     this.isMenuOpen.set(false);
   }
 
+  onSearchSubmit(value: string) {
+    this.searchState.setSearch(value.trim());
+  }
+
   isDeleteModalOpen = signal(false);
   confirmUsernameInput = signal('');
   isDeleting = signal(false);
+  isFilterMenuOpen = signal(false);
+  minPriceInput: number | null = null;
+  maxPriceInput: number | null = null;
 
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
@@ -77,5 +86,17 @@ export class App implements OnInit {
         }
       });
     }
+  }
+
+  applyFilters() {
+    this.searchState.setPriceRange(this.minPriceInput, this.maxPriceInput);
+    this.isFilterMenuOpen.set(false);
+  }
+
+  resetFilters() {
+    this.minPriceInput = null;
+    this.maxPriceInput = null;
+    this.searchState.clearAll();
+    this.isFilterMenuOpen.set(false);
   }
 }
