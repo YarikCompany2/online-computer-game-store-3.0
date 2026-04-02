@@ -26,7 +26,8 @@ export interface IGame {
   categories: ICategory[];
   fileUrl?: string;
   media: IMedia[];
-  requirements: IRequirement[]; 
+  requirements: IRequirement[];
+  isOwned: boolean;
   createdAt: string;
 }
 

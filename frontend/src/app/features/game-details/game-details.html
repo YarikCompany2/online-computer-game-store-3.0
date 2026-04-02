@@ -70,16 +70,37 @@
         </div> 
 
         <div class="lg:col-span-4 space-y-6">
-          
+  
           <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-1 rounded-[40px] shadow-2xl shadow-indigo-500/20">
             <div class="bg-[#0f172a] p-8 rounded-[38px] flex flex-col items-center">
-               <div class="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-2">Own it today</div>
-               <div class="text-5xl font-black mb-8 text-white">
-                {{ +g.price === 0 ? 'FREE' : '$' + g.price }}
-               </div>
-               <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-xl shadow-lg shadow-indigo-500/30 transition-all active:scale-95">
-                ADD TO CART
-               </button>
+              
+              @if (g.isOwned) {
+                <div class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  In your library
+                </div>
+                <div class="text-4xl font-black mb-8 text-white italic">OWNED</div>
+                
+                <button routerLink="/library" 
+                        class="w-full bg-slate-800 hover:bg-slate-700 text-white py-5 rounded-2xl font-black text-xl border border-white/5 transition-all active:scale-95">
+                  GO TO LIBRARY
+                </button>
+              } @else {
+                <div class="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-2">Own it today</div>
+                <div class="text-5xl font-black mb-8 text-white">
+                  {{ +g.price === 0 ? 'FREE' : '$' + g.price }}
+                </div>
+                
+                <button (click)="addToCart()" 
+                        [disabled]="isAddingToCart()"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-xl shadow-lg shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-50">
+                  <div class="flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    {{ isAddingToCart() ? 'ADDING...' : 'ADD TO CART' }}
+                  </div>
+                </button>
+              }
+
             </div>
           </div>
 

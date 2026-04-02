@@ -10,8 +10,9 @@ export class GamesController {
   constructor(private readonly gamesService: GamesService) {}
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.gamesService.findOne(id);
+  findOne(@Param('id') id: string, @Request() req) {
+    const userId = req.user?.userId;
+    return this.gamesService.findOne(id, userId);
   }
 
   @Get()

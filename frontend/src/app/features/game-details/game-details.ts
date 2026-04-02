@@ -1,8 +1,11 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GameService } from '../../core/services/game';
 import { IGame, IMedia } from '../../core/interfaces/game.interface';
+import { CartService } from '../../core/services/cart';
+import { AuthService } from '../../core/services/auth';
+import { ToastService } from '../../core/services/toast';
 
 @Component({
   selector: 'app-game-details',
@@ -14,10 +17,15 @@ import { IGame, IMedia } from '../../core/interfaces/game.interface';
 export class GameDetailsComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private gameService = inject(GameService);
+  private cartService = inject(CartService);
+  public auth = inject(AuthService);
+  private router = inject(Router);
+  private toast = inject(ToastService)
   
   game = signal<IGame | null>(null);
   isLoading = signal(true);
   selectedMedia = signal<IMedia | null>(null);
+  isAddingToCart = signal(false);
 
   private autoSlideInterval: any;
   private isAutoSlidingActive = signal(true);
@@ -41,6 +49,28 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  addToCart() {
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const game = this.game();
+    if (!game) return;
+
+    this.isAddingToCart.set(true);
+    this.cartService.addToCart(game.id).subscribe({
+      next: () => {
+        this.toast.show(`${game.title} added to cart!`, 'success');
+        this.isAddingToCart.set(false);
+      },
+      error: (err) => {
+        this.toast.show(err.error?.message || 'Error adding to cart', 'error');
+        this.isAddingToCart.set(false);
+      }
+    });
   }
   
   ngOnDestroy() {

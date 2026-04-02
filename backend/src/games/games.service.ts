@@ -7,6 +7,8 @@ import { In, Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginatedResource } from '../common/interfaces/paginated-resource.interface';
+import { GameWithOwnership } from '../common/interfaces/game-response.interface';
+import { Library } from '../library/entities/library.entity';
 
 @Injectable()
 export class GamesService {
@@ -14,10 +16,12 @@ export class GamesService {
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
     @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Library)
+    private readonly libraryRepository: Repository<Library>
   ) {}
 
-  async findOne(id: string): Promise<Game> {
+  async findOne(id: string, userId?: string): Promise<GameWithOwnership> {
     const game = await this.gameRepository.findOne({
       where: { id },
       relations: [
@@ -33,7 +37,15 @@ export class GamesService {
       throw new NotFoundException(`Game with ID ${id} not found`);
     }
 
-    return game;
+    let isOwned = false;
+    if (userId) {
+      const ownership = await this.libraryRepository.findOne({
+        where: { userId, gameId: id }
+      });
+      isOwned = !!ownership;
+    }
+
+    return { ...game, isOwned };
   }
 
   async findAll(

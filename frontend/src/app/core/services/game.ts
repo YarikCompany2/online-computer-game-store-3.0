@@ -1,13 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IGame, IPaginatedResponse } from '../interfaces/game.interface';
+import { AuthService } from './auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
   private http = inject(HttpClient);
+  private auth = inject(AuthService);
   private apiUrl = 'http://localhost:3000/games';
 
   getGames(page: number = 1, limit: number = 10, search?: string): Observable<IPaginatedResponse<IGame>> {
@@ -37,6 +39,13 @@ export class GameService {
   }
 
   getGameById(id: string): Observable<IGame> {
-    return this.http.get<IGame>(`${this.apiUrl}/${id}`);
+    let headers = new HttpHeaders();
+    const token = this.auth.getAccessToken();
+
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return this.http.get<IGame>(`${this.apiUrl}/${id}`, { headers });
   }
 }

@@ -45,6 +45,14 @@ export class OrdersService {
       const savedOrder = await queryRunner.manager.save(order);
 
       for (const item of cartItems) {
+        const alreadyOwned = await queryRunner.manager.findOne(Library, {
+          where: { userId, gameId: item.gameId }
+        });
+
+        if (alreadyOwned) {
+          throw new BadRequestException(`You already own "${item.game.title}". Please remove it from cart.`);
+        }
+
         const orderItem = queryRunner.manager.create(OrderItem, {
           orderId: savedOrder.id,
           gameId: item.gameId,

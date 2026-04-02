@@ -1,11 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './core/components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
 import { filter, map } from 'rxjs';
 import { AuthService } from './core/services/auth';
+import { CartService } from './core/services/cart';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from './core/services/toast';
 
 @Component({
   selector: 'app-root',
@@ -13,9 +15,11 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink, FormsModule],
   templateUrl: './app.html'
 })
-export class App {
+export class App implements OnInit {
   router = inject(Router);
   auth = inject(AuthService);
+  cart = inject(CartService);
+  toast = inject(ToastService);
 
   isAuthPage = toSignal(
     this.router.events.pipe(
@@ -38,6 +42,12 @@ export class App {
   isDeleteModalOpen = signal(false);
   confirmUsernameInput = signal('');
   isDeleting = signal(false);
+
+  ngOnInit() {
+    if (this.auth.isLoggedIn()) {
+      this.cart.getCart().subscribe();
+    }
+  }
 
   openDeleteModal() {
     this.isMenuOpen.set(false);
