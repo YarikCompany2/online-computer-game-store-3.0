@@ -29,7 +29,8 @@ export class GamesService {
         'developer', 
         'publisher', 
         'media', 
-        'requirements'
+        'requirements',
+        'requirements.platforms'
       ], 
     });
 

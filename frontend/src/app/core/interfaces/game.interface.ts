@@ -45,8 +45,14 @@ export interface IRequirement {
   id: string;
   type: 'minimum' | 'recommended';
   os: string;
+  platforms: IPlatform[];
   processor: string;
   ram: string;
   gpu: string;
   storage: string;
+}
+
+export interface IPlatform {
+  id: number;
+  name: string;
 }

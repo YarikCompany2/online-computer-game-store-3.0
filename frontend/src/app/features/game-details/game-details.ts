@@ -105,4 +105,12 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
     this.isAutoSlidingActive.set(false);
     this.stopAutoSlide();
   }
+
+  minRequirements = computed(() => 
+    this.game()?.requirements.find(r => r.type === 'minimum')
+  );
+
+  recRequirements = computed(() => 
+    this.game()?.requirements.find(r => r.type === 'recommended')
+  );
 }

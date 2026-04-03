@@ -7,6 +7,8 @@ import { User, UserRole } from "../users/entities/user.entity";
 import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'; 
 import { Media, MediaType } from "../media/entities/media.entity";
+import { Requirement, RequirementType } from "../requirements/entities/requirement.entity";
+import { Platform } from "../platform/entities/platform.entity";
 
 interface IGameSeed {
   title: string;
@@ -28,6 +30,8 @@ export class SeederService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Game) private gameRepo: Repository<Game>,
     @InjectRepository(Media) private mediaRepo: Repository<Media>,
+    @InjectRepository(Requirement) private reqRepo: Repository<Requirement>,
+    @InjectRepository(Platform) private platformRepo: Repository<Platform>,
   ) {}
 
   async seed() {
@@ -174,5 +178,49 @@ export class SeederService {
         }
       }
     }
+
+    let win = await this.platformRepo.findOne({ where: { name: 'Windows' } });
+    if (!win) win = await this.platformRepo.save(this.platformRepo.create({ name: 'Windows' }));
+
+    let mac = await this.platformRepo.findOne({ where: { name: 'macOS' } });
+    if (!mac) mac = await this.platformRepo.save(this.platformRepo.create({ name: 'macOS' }));
+
+    let lin = await this.platformRepo.findOne({ where: { name: 'Linux' } });
+    if (!lin) lin = await this.platformRepo.save(this.platformRepo.create({ name: 'Linux' }));
+
+    const allSavedGames = await this.gameRepo.find();
+    const allPlatforms = [win, mac, lin];
+
+    for (const game of allSavedGames) {
+      const hasReqs = await this.reqRepo.findOne({ where: { gameId: game.id } });
+
+      if (!hasReqs) {
+        const minReq = this.reqRepo.create({
+          gameId: game.id,
+          type: RequirementType.MINIMUM,
+          platforms: allPlatforms,
+          os: 'Windows 10 / Monterey / Ubuntu',
+          processor: 'Intel Core i5',
+          ram: '8 GB',
+          gpu: 'NVIDIA GTX 760',
+          storage: '50 GB'
+        });
+        await this.reqRepo.save(minReq);
+
+        const recReq = this.reqRepo.create({
+          gameId: game.id,
+          type: RequirementType.RECOMMENDED,
+          platforms: allPlatforms,
+          os: 'Windows 11 / Sonoma / SteamOS',
+          processor: 'Intel Core i7',
+          ram: '16 GB',
+          gpu: 'NVIDIA GTX 1080 Ti',
+          storage: '50 GB'
+        });
+        await this.reqRepo.save(recReq);
+      }
+    }
+
+    console.log('System Requirements seeded');
   }
 }

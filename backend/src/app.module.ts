@@ -19,6 +19,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { DiscountsModule } from './discounts/discounts.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PlatformModule } from './platform/platform.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { join } from 'path';
     RequirementsModule,
     ReviewsModule,
     DiscountsModule,
+    PlatformModule,
   ],
   controllers: [AppController],
   providers: [AppService],

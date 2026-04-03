@@ -1,5 +1,6 @@
+import { Platform } from "../../platform/entities/platform.entity";
 import { Game } from "../../games/entities/game.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 export enum RequirementType {
   MINIMUM = 'minimum',
@@ -39,4 +40,8 @@ export class Requirement {
   @ManyToOne(() => Game, (game) => game.requirements)
   @JoinColumn({ name: 'game_id' })
   game: Game;
+
+  @ManyToMany(() => Platform, (platform) => platform.requirements)
+  @JoinTable({ name: 'requirement_platforms' })
+  platforms: Platform[];
 }
