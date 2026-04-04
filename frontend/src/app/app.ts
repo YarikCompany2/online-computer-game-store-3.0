@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './core/components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
@@ -9,11 +9,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from './core/services/toast';
 import { SearchStateService } from './core/services/search-state';
+import { ReviewModalService } from './core/services/review-modal';
+import { ReviewService } from './core/services/review';
+import { TopUpModalComponent } from './core/components/top-up-modal/top-up-modal';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink, FormsModule],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink, FormsModule, TopUpModalComponent],
   templateUrl: './app.html'
 })
 export class App implements OnInit {
@@ -22,6 +25,22 @@ export class App implements OnInit {
   cart = inject(CartService);
   toast = inject(ToastService);
   searchState = inject(SearchStateService);
+  reviewModal = inject(ReviewModalService);
+
+  private reviewService = inject(ReviewService);
+
+  reviewRating = signal(5);
+  reviewComment = signal('');
+  isSubmittingReview = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (this.reviewModal.isOpen()) {
+        this.reviewRating.set(this.reviewModal.initialRating());
+        this.reviewComment.set(this.reviewModal.initialComment());
+      }
+    }, {allowSignalWrites: true})
+  }
 
   isAuthPage = toSignal(
     this.router.events.pipe(
@@ -98,5 +117,40 @@ export class App implements OnInit {
     this.maxPriceInput = null;
     this.searchState.clearAll();
     this.isFilterMenuOpen.set(false);
+  }
+
+  submitReviewFromGlobal() {
+    const gameId = this.reviewModal.gameId();
+    if (!gameId) return;
+
+    const request = this.reviewModal.isEditing() 
+      ? this.reviewService.updateReview(this.reviewModal.reviewId()!, this.reviewRating(), this.reviewComment())
+      : this.reviewService.createReview(gameId, this.reviewRating(), this.reviewComment());
+    
+    request.subscribe(() => {
+      this.toast.show('Done!', 'success');
+      this.reviewModal.close();
+      location.reload();
+    });
+  }
+
+  confirmDeleteReviewFromGlobal() {
+    const id = this.reviewModal.reviewId();
+    if (id) {
+      this.reviewService.deleteReview(id).subscribe({
+        next: () => {
+          this.toast.show('Review removed', 'success');
+          this.reviewModal.close();
+          window.location.reload();
+        }
+      });
+    }
+  }
+
+  isTopUpModalOpen = signal(false);
+
+  openTopUp() {
+    this.isMenuOpen.set(false);
+    this.isTopUpModalOpen.set(true);
   }
 }

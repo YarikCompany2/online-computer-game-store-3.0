@@ -46,7 +46,14 @@
       @for (item of ownedGames(); track item.id) {
         <div class="group bg-slate-900/40 border border-white/5 rounded-[32px] overflow-hidden hover:border-indigo-500/30 transition-all duration-500 shadow-xl">
           <div class="aspect-video relative overflow-hidden">
-             <img [src]="item.game.media?.[0]?.fileUrl" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+              <div class="aspect-video relative overflow-hidden">
+                @let cover = item.game.media.find(m => m.isMain)?.fileUrl;
+                
+                <img [src]="cover || 'assets/placeholder.png'" 
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                
+              <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-80"></div>
+            </div>
              <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-80"></div>
           </div>
           <div class="p-8 space-y-6">

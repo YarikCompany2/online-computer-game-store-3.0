@@ -6,12 +6,15 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
 import { UpdateResult } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { Transaction, TransactionType } from './entities/transaction.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private dataSource: DataSource,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -76,6 +79,40 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async topUpBalance(userId: string, amount: number): Promise<User> {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+        const user = await queryRunner.manager.findOne(User, { where: { id: userId } });
+        if (!user) throw new NotFoundException('User not found');
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const transactionLog = queryRunner.manager.create(Transaction, {
+            userId,
+            amount,
+            type: TransactionType.TOPUP,
+            description: 'Wallet top-up via Mock Payment Gateway'
+        });
+        await queryRunner.manager.save(transactionLog);
+
+        const newBalance = Number(user.balance) + Number(amount);
+        await queryRunner.manager.update(User, userId, { balance: newBalance });
+
+        await queryRunner.commitTransaction();
+
+        return this.findOne(userId);
+    } catch (err) {
+        await queryRunner.rollbackTransaction();
+        throw err;
+    } finally {
+        await queryRunner.release();
+    }
   }
 
   async findByEmail(email: string): Promise<User | null> {

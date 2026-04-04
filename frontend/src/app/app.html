@@ -84,9 +84,19 @@
                   <p class="text-[10px] text-slate-500 truncate">{{ auth.currentUser()?.email }}</p>
                 </div>
 
-                <div class="p-6 border-b border-white/5">
-                  <p class="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mb-1">Wallet Balance</p>
-                  <p class="text-2xl font-black text-emerald-400 italic">${{ auth.currentUser()?.balance || '0.00' }}</p>
+                <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                  <div>
+                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mb-1">Wallet Balance</p>
+                    <p class="text-2xl font-black text-emerald-400 italic">${{ auth.currentUser()?.balance || '0.00' }}</p>
+                  </div>
+                  
+                  <button (click)="$event.stopPropagation(); openTopUp()" 
+                    class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all active:scale-95 flex items-center justify-center border border-emerald-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
                 </div>
                 
                 <div class="p-3 space-y-1">
@@ -118,6 +128,10 @@
     </main>
     
   </div>
+  @if (isTopUpModalOpen()) {
+    <app-top-up-modal (close)="isTopUpModalOpen.set(false)"></app-top-up-modal>
+  }
+
   @if (isDeleteModalOpen()) {
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
       <div class="w-full max-w-md bg-slate-900 border border-rose-500/30 p-8 rounded-[40px] shadow-2xl shadow-rose-500/10">
@@ -175,6 +189,69 @@
       <p class="text-white font-black uppercase tracking-widest text-[10px]">
         {{ data.message }}
       </p>
+    </div>
+  </div>
+}
+
+@if (reviewModal.isOpen()) {
+  <div class="fixed inset-0 z-[999] flex items-center justify-center p-6 bg-[#020617]/80 backdrop-blur-xl animate-in fade-in duration-300">
+    <div class="w-full max-w-2xl bg-[#0f172a] border border-white/10 p-10 rounded-[48px] shadow-2xl relative overflow-hidden">
+      <div class="relative z-10 space-y-8">
+        <h2 class="text-3xl font-black text-white italic tracking-tighter uppercase">
+          {{ reviewModal.isEditing() ? 'Edit Review' : 'Share thoughts on ' + reviewModal.gameTitle() }}
+        </h2>
+          
+        <div class="flex gap-1 bg-white/5 p-2 rounded-2xl border border-white/5">
+          @for (star of [1,2,3,4,5]; track star) {
+            <button (click)="reviewRating.set(star)" class="transition-transform active:scale-90 p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                    [attr.fill]="reviewRating() >= star ? '#818cf8' : 'none'" 
+                    [attr.stroke]="reviewRating() >= star ? '#818cf8' : '#334155'"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </button>
+          }
+        </div>
+
+        <textarea [ngModel]="reviewComment()" (ngModelChange)="reviewComment.set($event)"
+                  placeholder="What did you like or dislike about the game?"
+                  class="w-full bg-slate-900 border border-white/5 rounded-[32px] p-8 text-slate-200 outline-none focus:border-indigo-500/50 transition-all min-h-[200px] resize-none text-lg"></textarea>
+
+        <div class="flex gap-4">
+          <button (click)="reviewModal.close()" 
+                  class="flex-1 py-5 rounded-2xl font-bold text-slate-500 hover:text-white hover:bg-white/5 transition-all uppercase tracking-widest text-xs">
+            Discard
+          </button>
+          <button (click)="submitReviewFromGlobal()" 
+                  [disabled]="isSubmittingReview() || !reviewComment().trim()"
+                  class="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all active:scale-95">
+            {{ isSubmittingReview() ? 'Processing...' : (reviewModal.isEditing() ? 'Update Review' : 'Publish Review') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (reviewModal.isDeleteOpen()) {
+  <div class="fixed inset-0 z-[130] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-200">
+    <div class="w-full max-w-sm bg-slate-900 border border-rose-500/20 p-8 rounded-[40px] shadow-2xl text-center">
+      <div class="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+      </div>
+      
+      <h3 class="text-xl font-black text-white uppercase italic tracking-tighter mb-2">Delete Review?</h3>
+      <p class="text-slate-500 text-sm mb-8">This action will permanently remove your feedback from this game.</p>
+
+      <div class="flex flex-col gap-2">
+        <button (click)="confirmDeleteReviewFromGlobal()" 
+                class="w-full bg-rose-600 hover:bg-rose-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
+          Yes, Delete
+        </button>
+        <button (click)="reviewModal.close()" 
+                class="w-full py-4 text-slate-500 font-bold hover:text-white transition-colors uppercase text-[10px] tracking-widest">
+          Cancel
+        </button>
+      </div>
     </div>
   </div>
 }

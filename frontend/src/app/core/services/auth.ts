@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { tap, throwError } from 'rxjs';
+import { Observable, switchMap, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { IAuthResponse } from '../interfaces/auth.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -56,6 +57,12 @@ export class AuthService {
   logout() {
     localStorage.removeItem('access_token');
     this._accessToken.set(null);
+  }
+
+  topUp(amount: number): Observable<IAuthResponse> {
+    return this.http.post<IAuthResponse>(`http://localhost:3000/users/top-up`, { amount }).pipe(
+      switchMap(() => this.refreshToken())
+    );
   }
 
   deleteAccount() {

@@ -6,11 +6,14 @@ import { IGame, IMedia } from '../../core/interfaces/game.interface';
 import { CartService } from '../../core/services/cart';
 import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast';
+import { IReview, ReviewService } from '../../core/services/review';
+import { FormsModule } from '@angular/forms';
+import { ReviewModalService } from '../../core/services/review-modal';
 
 @Component({
   selector: 'app-game-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './game-details.html',
   styleUrl: './game-details.scss'
 })
@@ -21,11 +24,15 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
   public auth = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService)
+  private reviewService = inject(ReviewService);
+  public reviewModal = inject(ReviewModalService);
   
   game = signal<IGame | null>(null);
   isLoading = signal(true);
   selectedMedia = signal<IMedia | null>(null);
   isAddingToCart = signal(false);
+
+  reviews = signal<IReview[]>([]);
 
   private autoSlideInterval: any;
   private isAutoSlidingActive = signal(true);
@@ -46,6 +53,7 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
           
           this.isLoading.set(false);
           this.startAutoSlide();
+          this.loadReviews(id);
         }
       });
     }
@@ -113,4 +121,44 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
   recRequirements = computed(() => 
     this.game()?.requirements.find(r => r.type === 'recommended')
   );
+
+  loadReviews(gameId: string) {
+    this.reviewService.getByGame(gameId).subscribe(data => this.reviews.set(data));
+  }
+
+  myReview = computed(() => 
+    this.reviews().find(r => r.user.username === this.auth.currentUser()?.username)
+  );
+
+  isEditing = signal(false);
+
+  deleteMyReview(id: string) {
+    if (confirm('Delete this review?')) {
+      this.reviewService.deleteReview(id).subscribe(() => {
+        this.toast.show('Deleted', 'success');
+        this.loadReviews(this.game()!.id);
+      });
+    }
+  }
+
+  startEdit() {
+    const rev = this.myReview();
+    const g = this.game();
+    if (rev && g) {
+      this.reviewModal.open(g.id, g.title, {
+        id: rev.id,
+        rating: rev.rating,
+        comment: rev.comment,
+      });
+    }
+  }
+
+  openWriteModal() {
+    const g = this.game();
+    if (g) this.reviewModal.open(g.id, g.title);
+  }
+
+  closeReviewModal() {
+    this.reviewModal.close();
+  }
 }

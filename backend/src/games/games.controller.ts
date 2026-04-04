@@ -4,12 +4,14 @@ import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 
 @Controller('games')
 export class GamesController {
   constructor(private readonly gamesService: GamesService) {}
 
   @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
   findOne(@Param('id') id: string, @Request() req) {
     const userId = req.user?.userId;
     return this.gamesService.findOne(id, userId);

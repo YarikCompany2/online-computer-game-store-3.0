@@ -3,6 +3,7 @@ import { CartService } from '../../core/services/cart';
 import { Router, RouterLink } from '@angular/router';
 import { ToastService } from '../../core/services/toast';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-cart',
@@ -14,6 +15,7 @@ export class CartComponent implements OnInit {
   private cartService = inject(CartService);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private auth = inject(AuthService);
 
   items = signal<any[]>([]);
   isCheckingOut = signal(false);
@@ -48,7 +50,13 @@ export class CartComponent implements OnInit {
       next: () => {
         this.toast.show('Purchase successful!', 'success');
         this.cartService.cartItemsCount.set(0);
-        this.router.navigate(['/library']);
+        
+        this.auth.refreshToken().subscribe({
+          next: () => {
+            this.router.navigate(['/library']);
+          },
+          error: () => this.router.navigate(['/library'])
+        });
       },
       error: (err) => {
         this.toast.show(err.error?.message || 'Insufficient balance', 'error');

@@ -28,6 +28,10 @@ export interface IGame {
   media: IMedia[];
   requirements: IRequirement[];
   isOwned: boolean;
+  discount?: {
+    discountPercent: number;
+    isActive: boolean;
+  }
   createdAt: string;
 }
 
