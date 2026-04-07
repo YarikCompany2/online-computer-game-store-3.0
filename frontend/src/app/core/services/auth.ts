@@ -22,6 +22,11 @@ export class AuthService {
     }
   });
 
+  isCompanyOwner = computed(() => {
+    const user = this.currentUser();
+    return !!user?.companyId; 
+  });
+
   login(credentials: any) {
     return this.http.post<any>(`http://localhost:3000/auth/login`, credentials).pipe(
       tap(res => {

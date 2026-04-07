@@ -5,6 +5,7 @@ import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { LibraryComponent } from './features/library/library';
 import { CartComponent } from './features/cart/cart';
+import { DashboardComponent } from './features/dashboard/dashboard';
 
 export const routes: Routes = [
   { path: '', component: CatalogComponent },
@@ -13,4 +14,5 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'library', component: LibraryComponent },
   { path: 'cart', component: CartComponent },
+  { path: 'dashboard', component: DashboardComponent },
 ];

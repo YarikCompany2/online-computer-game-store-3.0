@@ -45,22 +45,22 @@
           </div>
 
           <div class="space-y-2">
-              <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-4">Expiry</label>
-              <input type="text" 
-                    [ngModel]="cardExpiry()" 
-                    (ngModelChange)="formatExpiry($event)"
-                    placeholder="MM/YY" 
-                    maxlength="5"
-                    [class.border-rose-500]="showErrors() && (!isMonthValid() || !isYearValid())"
-                    class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-white outline-none focus:border-emerald-500/50 transition-all">
-              
-              @if (showErrors() && !isMonthValid()) {
-                <p class="text-[8px] text-rose-500 ml-4 uppercase font-bold">Month must be between 01 and 12</p>
-              }
-              
-              @if (showErrors() && isMonthValid() && !isYearValid()) {
-                <p class="text-[8px] text-rose-500 ml-4 uppercase font-bold">Card has expired</p>
-              }
+            <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-4">Expiry</label>
+            <input type="text" 
+                  [ngModel]="cardExpiry()" 
+                  (ngModelChange)="formatExpiry($event)"
+                  placeholder="MM/YY" 
+                  maxlength="5"
+                  [class.border-rose-500]="showErrors() && (!isMonthValid() || !isYearValid())"
+                  class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-white outline-none focus:border-emerald-500/50 transition-all">
+            
+            @if (showErrors() && !isMonthValid()) {
+              <p class="text-[8px] text-rose-500 ml-4 uppercase font-bold">Month must be between 01 and 12</p>
+            }
+            
+            @if (showErrors() && isMonthValid() && !isYearValid()) {
+              <p class="text-[8px] text-rose-500 ml-4 uppercase font-bold">Card has expired</p>
+            }
           </div>
 
           <div class="space-y-2">

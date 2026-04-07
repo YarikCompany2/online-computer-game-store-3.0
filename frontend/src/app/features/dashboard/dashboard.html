@@ -1,0 +1,82 @@
+<div class="p-12 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-500">
+  
+  <header class="flex justify-between items-end mb-16">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-12 h-1 bg-emerald-500 rounded-full"></span>
+        <span class="text-emerald-500 font-black uppercase text-[10px] tracking-[0.4em]">Business Intelligence</span>
+      </div>
+      <h1 class="text-6xl font-black italic uppercase text-white leading-none tracking-tighter">Dev Hub</h1>
+      <p class="text-slate-500 font-bold uppercase text-xs tracking-widest mt-4 ml-1">
+        Performance analytics for your studio
+      </p>
+    </div>
+    
+    @if (isOwner()) {
+      <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-5 rounded-[24px] font-black text-xs uppercase tracking-widest transition-all shadow-2xl shadow-indigo-600/20 active:scale-95">
+        Release New Game
+      </button>
+    }
+  </header>
+
+  @if (isLoading()) {
+    <div class="flex justify-center py-40">
+      <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else if (stats()) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-slate-900/40 border border-white/5 p-10 rounded-[48px] backdrop-blur-xl relative overflow-hidden group">
+        <div class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-500/10 blur-3xl group-hover:bg-emerald-500/20 transition-all"></div>
+        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-6">Total Revenue</p>
+        <p class="text-6xl font-black text-emerald-400 italic tracking-tighter">${{ stats()?.totalRevenue | number:'1.2-2' }}</p>
+      </div>
+
+      <div class="bg-slate-900/40 border border-white/5 p-10 rounded-[48px] backdrop-blur-xl group">
+        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-6">Units Sold</p>
+        <p class="text-6xl font-black text-white italic tracking-tighter">{{ stats()?.totalSales }}</p>
+      </div>
+
+      <div class="bg-slate-900/40 border border-white/5 p-10 rounded-[48px] backdrop-blur-xl group">
+        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-6">Portfolio Size</p>
+        <p class="text-6xl font-black text-indigo-400 italic tracking-tighter">{{ stats()?.activeGamesCount }}</p>
+      </div>
+    </div>
+
+    <div class="space-y-6 pt-8">
+      <h3 class="text-xl font-black text-white uppercase italic tracking-widest ml-4">Detailed Breakdown</h3>
+      
+      <div class="bg-slate-900/20 border border-white/5 rounded-[48px] overflow-hidden backdrop-blur-md shadow-2xl">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-white/5">
+            <tr>
+              <th class="p-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Project</th>
+              <th class="p-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Price</th>
+              <th class="p-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Copies Sold</th>
+              <th class="p-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Revenue</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            @for (game of stats()?.games; track game.id) {
+              <tr class="hover:bg-white/[0.02] transition-all cursor-default group">
+                <td class="p-8 flex items-center gap-6">
+                  <div class="w-24 aspect-video rounded-xl overflow-hidden bg-slate-800 border border-white/10">
+                    <img [src]="game.mainCover || 'assets/placeholder.png'" class="w-full h-full object-cover">
+                  </div>
+                  <div>
+                    <p class="font-black text-xl text-white uppercase italic leading-none group-hover:text-emerald-400 transition-colors">{{ game.title }}</p>
+                    <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mt-2">ID: {{ game.id.substring(0,8) }}</p>
+                  </div>
+                </td>
+                <td class="p-8 text-center font-bold text-slate-400 font-mono">${{ game.price }}</td>
+                <td class="p-8 text-center font-black text-2xl text-white italic">{{ game.salesCount }}</td>
+                <td class="p-8 text-right font-black text-2xl text-emerald-500 italic tracking-tight">
+                  ${{ game.totalRevenue | number:'1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
