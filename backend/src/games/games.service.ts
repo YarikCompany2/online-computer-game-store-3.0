@@ -3,12 +3,13 @@ import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatus } from './entities/game.entity';
-import { In, Repository } from 'typeorm';
+import { ILike, In, Not, Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 import { GameWithOwnership } from '../common/interfaces/game-response.interface';
 import { Library } from '../library/entities/library.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class GamesService {
@@ -40,10 +41,11 @@ export class GamesService {
 
     let isOwned = false;
     if (userId) {
+      const user = await this.libraryRepository.manager.findOne(User, { where: { id: userId } });
       const ownership = await this.libraryRepository.findOne({
         where: { userId, gameId: id }
       });
-      isOwned = !!ownership;
+      isOwned = !!ownership || (user?.companyId === game.developerId);
     }
 
     return { ...game, isOwned };
@@ -102,6 +104,15 @@ export class GamesService {
   }
 
   async create(createGameDto: CreateGameDto, companyId: string): Promise<Game> {
+    const existingGame = await this.gameRepository
+        .createQueryBuilder('game')
+        .where('LOWER(game.title) = LOWER(:title)', { title: createGameDto.title })
+        .getOne();
+
+    if (existingGame) {
+      throw new BadRequestException(`The title "${createGameDto.title}" is already taken by another game.`);
+    }
+
     const { categoryIds, publisherId, ...gameData } = createGameDto;
 
     const categories = await this.categoryRepository.findBy({
@@ -132,6 +143,19 @@ export class GamesService {
       throw new NotFoundException('Game not found or you do not have permission');
     }
 
+    if (updateGameDto.title && updateGameDto.title !== game.title) {
+      const duplicate = await this.gameRepository.findOne({
+        where: { 
+          title: ILike(updateGameDto.title),
+          id: Not(id) 
+        }
+      });
+
+      if (duplicate) {
+        throw new BadRequestException(`The title "${updateGameDto.title}" is already taken by another game.`);
+      }
+    }
+
     const { categoryIds, ...updateData } = updateGameDto;
 
     if (categoryIds) {
@@ -147,6 +171,28 @@ export class GamesService {
     Object.assign(game, updateData);
 
     return await this.gameRepository.save(game);
+  }
+
+  async getBuildPath(gameId: string) {
+    const game = await this.gameRepository.findOne({ 
+      where: { id: gameId },
+      select: ['id', 'buildUrl', 'title']
+    });
+    
+    if (!game || !game.buildUrl) {
+      throw new NotFoundException('Game build not found');
+    }
+    return game;
+  }
+
+  async updateBuildUrl(gameId: string, path: string) {
+    const game = await this.gameRepository.findOne({ where: { id: gameId } });
+    if (!game) throw new NotFoundException('Game not found');
+
+    await this.gameRepository.update(gameId, { buildUrl: path });
+    
+    console.log(`[Database] Build path updated for "${game.title}": ${path}`);
+    return { success: true, path };
   }
 
   async remove(id: string, companyId: string) {

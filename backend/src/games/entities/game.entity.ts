@@ -18,7 +18,7 @@ export class Game {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ length: 255 })
+    @Column({ length: 255, unique: true })
     title: string;
 
     @Column({ type: 'text' })
@@ -29,6 +29,9 @@ export class Game {
 
     @Column({ type: 'varchar', name: 'file_url', length: 500, nullable: true })
     fileUrl: string | null;
+
+    @Column({ name: 'build_url', nullable: true, select: false })
+    buildUrl: string;
 
     @Column({
         type: 'enum',

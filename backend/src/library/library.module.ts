@@ -11,5 +11,6 @@ import { Order } from '../orders/entities/order.entity';
   imports: [TypeOrmModule.forFeature([Library, User, Game, Order])],
   controllers: [LibraryController],
   providers: [LibraryService],
+  exports: [LibraryService],
 })
 export class LibraryModule {}

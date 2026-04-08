@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Game } from '../games/entities/game.entity';
@@ -34,10 +34,12 @@ export class CompanyDashboardService {
       return {
         id: game.id,
         title: game.title,
+        description: game.description,
         price: game.price,
         salesCount: gameSales.length,
         totalRevenue: revenue,
-        mainCover: game.media.find(m => m.isMain)?.fileUrl || null
+        mainCover: game.media.find(m => m.isMain)?.fileUrl || null,
+        status: game.status
       };
     });
 
@@ -49,6 +51,35 @@ export class CompanyDashboardService {
       totalSales,
       activeGamesCount: games.length,
       games: gamesStats
+    };
+  }
+
+  async getGameDetailStats(gameId: string, companyId: string) {
+    const game = await this.gameRepo.findOne({ 
+        where: { id: gameId, developerId: companyId } 
+    });
+    
+    if (!game) throw new NotFoundException('Game not found');
+
+    const salesData = await this.orderItemRepo
+      .createQueryBuilder('item')
+      .innerJoin('item.order', 'order')
+      .select("DATE(order.created_at)", "date")
+      .addSelect("COUNT(item.id)", "count")
+      .addSelect("SUM(item.priceAtPurchase)", "revenue")
+      .where("item.gameId = :gameId", { gameId })
+      .groupBy("date")
+      .orderBy("date", "ASC")
+      .getRawMany();
+
+    return {
+        title: game.title,
+        price: game.price,
+        history: salesData.map(d => ({
+            date: d.date,
+            count: Number(d.count),
+            revenue: Number(d.revenue)
+        }))
     };
   }
 }

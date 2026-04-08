@@ -13,6 +13,22 @@ export class MediaService {
     @InjectRepository(Game) private gameRepo: Repository<Game>,
   ) {}
 
+  async uploadGameMedia(file: Express.Multer.File, gameId: string, companyId: string, isMain: boolean) {
+    const game = await this.gameRepo.findOne({ where: { id: gameId } });
+    if (!game || game.developerId !== companyId) throw new ForbiddenException();
+
+    const fileUrl = `http://localhost:3000/uploads/covers/${file.filename}`;
+    
+    const media = this.mediaRepo.create({
+      gameId,
+      fileUrl,
+      type: MediaType.IMAGE,
+      isMain,
+    });
+
+    return await this.mediaRepo.save(media);
+  }
+
   async handleFileUpload(file: Express.Multer.File, gameId: string, companyId: string) {
     if (!file) {
       throw new BadRequestException('File is required');
@@ -50,6 +66,23 @@ export class MediaService {
 
     const media = this.mediaRepo.create(dto);
     return await this.mediaRepo.save(media);
+  }
+
+  async saveToDb(gameId: string, fileUrl: string, isMain: boolean, companyId: string) {
+    const game = await this.gameRepo.findOne({ where: { id: gameId } });
+    if (!game) throw new NotFoundException('Game not found');
+    if (game.developerId !== companyId) throw new ForbiddenException();
+
+    const media = this.mediaRepo.create({
+      gameId,
+      fileUrl,
+      type: MediaType.IMAGE,
+      isMain,
+    });
+
+    const saved = await this.mediaRepo.save(media);
+    console.log(`[Database] Linked image to "${game.title}" at path: ${fileUrl}`);
+    return saved;
   }
 
   async remove(id: string, companyId: string) {

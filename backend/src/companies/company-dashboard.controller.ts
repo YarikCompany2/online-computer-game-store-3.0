@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, ForbiddenException, Param } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompanyDashboardService } from './company-dashboard.service';
 
@@ -13,5 +13,10 @@ export class CompanyDashboardController {
       throw new ForbiddenException('You are not associated with any company');
     }
     return this.dashboardService.getStats(req.user.companyId);
+  }
+
+  @Get('game-stats/:id')
+  async getGameStats(@Param('id') gameId: string, @Request() req) {
+    return this.dashboardService.getGameDetailStats(gameId, req.user.companyId);
   }
 }

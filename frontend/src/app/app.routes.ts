@@ -6,6 +6,7 @@ import { RegisterComponent } from './features/auth/register/register';
 import { LibraryComponent } from './features/library/library';
 import { CartComponent } from './features/cart/cart';
 import { DashboardComponent } from './features/dashboard/dashboard';
+import { GameAnalyticsComponent } from './features/dashboard/game-analytics';
 
 export const routes: Routes = [
   { path: '', component: CatalogComponent },
@@ -15,4 +16,5 @@ export const routes: Routes = [
   { path: 'library', component: LibraryComponent },
   { path: 'cart', component: CartComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'dashboard/game/:id', component: GameAnalyticsComponent }
 ];

@@ -4,6 +4,8 @@ import { LibraryService } from '../../core/services/library';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth';
+import { ILibraryItem } from '../../core/interfaces/game.interface';
+import { GameService } from '../../core/services/game';
 
 @Component({
   selector: 'app-library',
@@ -13,9 +15,10 @@ import { AuthService } from '../../core/services/auth';
 })
 export class LibraryComponent implements OnInit {
   private libraryService = inject(LibraryService);
+  private gameService = inject(GameService);
   public auth = inject(AuthService);
   
-  ownedGames = signal<any[]>([]);
+  ownedGames = signal<ILibraryItem[]>([]);
   isLoading = signal(true);
   
   showDownloadModal = signal(false);
@@ -33,6 +36,10 @@ export class LibraryComponent implements OnInit {
     } else {
       this.isLoading.set(false);
     }
+  }
+
+  onDownloadClick(gameId: string) {
+    this.gameService.downloadGame(gameId);
   }
 
   openDownloadDialog(gameTitle: string) {

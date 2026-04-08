@@ -1,0 +1,66 @@
+<div class="fixed inset-0 z-[200] overflow-y-auto bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
+  
+  <div class="min-h-full flex items-center justify-center p-4 md:p-10">
+    
+    <div class="w-full max-w-2xl bg-[#0f172a] border border-white/10 p-6 md:p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+      
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-600/10 blur-[80px] rounded-full"></div>
+
+      <header class="mb-10 text-center relative z-10">
+        <h2 class="text-3xl font-black text-white italic uppercase tracking-tighter">Edit Project</h2>
+        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Update game details and pricing</p>
+      </header>
+
+      <div class="space-y-6 relative z-10">
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-4">Title</label>
+          <input type="text" [(ngModel)]="editData.title"
+                 class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-white outline-none focus:border-indigo-500/50 transition-all">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-4">Description</label>
+          <textarea [(ngModel)]="editData.description" rows="5"
+                    class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-white outline-none focus:border-indigo-500/50 transition-all resize-none"></textarea>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-4">Price ($)</label>
+          <div class="flex items-center bg-slate-900 border border-white/5 rounded-2xl px-6 focus-within:border-indigo-500/50 transition-all">
+            <span class="text-indigo-400 font-black text-xl italic mr-3 select-none">$</span>
+            <input type="number" [(ngModel)]="editData.price"
+                   placeholder="0.00"
+                   class="flex-1 bg-transparent border-none py-4 text-white text-xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+          </div>
+        </div>
+
+        <div class="pt-8 border-t border-white/5 space-y-4">
+          <p class="text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 ml-4">Danger Zone</p>
+          
+          <div class="flex gap-4">
+            <button (click)="toggleStatus()" 
+                    class="flex-1 py-4 rounded-xl border border-white/10 text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all">
+               {{ game.status === 'active' ? 'Deactivate (Hide)' : 'Activate (Show)' }}
+            </button>
+
+            <button (click)="deleteGame()" 
+                    class="flex-1 py-4 rounded-xl border border-rose-500/20 text-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10 font-bold text-[10px] uppercase tracking-widest transition-all">
+               Delete Game
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 pt-6">
+          <button (click)="close.emit()" 
+                  class="flex-1 py-5 text-slate-500 font-bold hover:text-white uppercase tracking-widest text-xs transition-colors">
+            Discard Changes
+          </button>
+          <button (click)="save()" [disabled]="isLoading()"
+                  class="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all active:scale-95 disabled:opacity-50">
+            {{ isLoading() ? 'SAVING...' : 'UPDATE SETTINGS' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { Library } from '../library/entities/library.entity';
 import { User } from '../users/entities/user.entity';
+import { Game } from '../games/entities/game.entity';
 
 @Injectable()
 export class CartService {
@@ -15,7 +16,9 @@ export class CartService {
     @InjectRepository(Library)
     private readonly libraryRepository: Repository<Library>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Game)
+    private readonly gameRepository: Repository<Game>,
   ) {}
 
   async addToCart(userId: string, dto: AddToCartDto): Promise<Cart> {
@@ -24,6 +27,15 @@ export class CartService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found. Please log in again');
+    }
+
+    const game = await this.gameRepository.findOne({ where: { id: gameId } });
+    if (!game) throw new NotFoundException('Game not found');
+
+    if (user.companyId && user.companyId === game.developerId) {
+      throw new BadRequestException(
+        'As the developer of this game, you already have full access. You cannot purchase your own project.'
+      );
     }
 
     const alreadyOwned = await this.libraryRepository.findOne({ where: { userId, gameId } });

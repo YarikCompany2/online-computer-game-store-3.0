@@ -8,13 +8,13 @@
       <section class="relative w-full h-[550px] rounded-[48px] overflow-hidden group shadow-2xl border border-white/5 bg-[#020617] animate-in fade-in duration-700">
         <div class="absolute inset-0 z-0">
           @if (mainCover) {
-            <img [src]="mainCover" class="w-full h-full object-cover blur-[120px] opacity-60 scale-125 transition-all duration-1000">
+            <img [src]="mainCover" crossorigin="anonymous" class="w-full h-full object-cover blur-[120px] opacity-60 scale-125 transition-all duration-1000">
           }
         </div>
 
         <div class="absolute inset-0 z-10 flex justify-center">
           @if (mainCover) {
-            <img [src]="mainCover" class="h-full w-auto object-contain opacity-100 animate-fade-in shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+            <img [src]="mainCover" crossorigin="anonymous" class="h-full w-auto object-contain opacity-100 animate-fade-in shadow-[0_0_100px_rgba(0,0,0,0.8)]">
           }
         </div>
 
@@ -110,18 +110,14 @@
           <div [routerLink]="['/game', game.id]" 
               class="group bg-slate-900/40 border border-slate-800/50 rounded-[40px] overflow-hidden hover:border-indigo-500/50 transition-all duration-500 cursor-pointer hover:-translate-y-2 shadow-xl flex flex-col h-full relative">
             
-            <div class="aspect-[16/10] w-full overflow-hidden relative bg-slate-800 flex items-center justify-center">
+            <div class="aspect-video w-full overflow-hidden relative bg-slate-800">
               @let cover = game.media.find(m => m.isMain)?.fileUrl;
-              @if (cover) {
-                <img [src]="cover" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-              } @else {
-                <div class="text-slate-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="15.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="12.5" r=".5" fill="currentColor"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/></svg>
-                </div>
-              }
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
               
-              <div class="absolute bottom-4 right-6 text-2xl font-black text-white italic drop-shadow-lg">
+              <img [src]="cover || 'assets/placeholder.png'" 
+                  crossorigin="anonymous" 
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+              
+              <div class="absolute bottom-4 right-6 text-2xl font-black text-white italic">
                 {{ +game.price === 0 ? 'FREE' : '$' + game.price }}
               </div>
             </div>

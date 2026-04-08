@@ -60,3 +60,13 @@ export interface IPlatform {
   id: number;
   name: string;
 }
+
+export interface ILibraryItem {
+  id: string;
+  userId: string;
+  gameId: string;
+  orderId: string | null;
+  purchaseDate: string;
+  game: IGame;
+  accessType: 'purchased' | 'developer';
+}

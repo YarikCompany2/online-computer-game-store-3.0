@@ -43,8 +43,16 @@ import { PlatformModule } from './platform/platform.module';
     }),
 
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads',
+      rootPath: join(process.cwd()),
+      serveRoot: '/',
+      serveStaticOptions: {
+        index: false,
+        setHeaders: (res) => {
+          res.set('Access-Control-Allow-Origin', '*');
+          res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+          res.set('Cross-Origin-Embedder-Policy', 'require-corp');
+        },
+      },
     }),
 
     UsersModule,

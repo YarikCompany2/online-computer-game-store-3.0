@@ -42,6 +42,10 @@ export class GameService {
     }
   }
 
+  downloadGame(gameId: string) {
+    window.open(`http://localhost:3000/games/download/${gameId}`, '_blank');
+  }
+
   getGameById(id: string): Observable<IGame> {
     let headers = new HttpHeaders();
     const token = this.auth.getAccessToken();

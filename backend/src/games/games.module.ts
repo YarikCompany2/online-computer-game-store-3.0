@@ -12,12 +12,14 @@ import { Requirement } from '../requirements/entities/requirement.entity';
 import { Review } from '../reviews/entities/review.entity';
 import { Discount } from '../discounts/entities/discount.entity';
 import { Library } from '../library/entities/library.entity';
+import { LibraryModule } from '../library/library.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review, Discount, Library]),
     CategoriesModule,
     CompaniesModule,
+    LibraryModule,
   ],
   controllers: [GamesController],
   providers: [GamesService],
