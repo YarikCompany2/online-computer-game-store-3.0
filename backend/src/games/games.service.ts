@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { PaginatedResource } from '../common/interfaces/paginated-resource.inter
 import { GameWithOwnership } from '../common/interfaces/game-response.interface';
 import { Library } from '../library/entities/library.entity';
 import { User } from '../users/entities/user.entity';
+import { LibraryService } from 'src/library/library.service';
 
 @Injectable()
 export class GamesService {
@@ -19,7 +20,8 @@ export class GamesService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Library)
-    private readonly libraryRepository: Repository<Library>
+    private readonly libraryRepository: Repository<Library>,
+    private readonly libraryService: LibraryService,
   ) {}
 
   async findOne(id: string, userId?: string): Promise<GameWithOwnership> {
@@ -199,6 +201,18 @@ export class GamesService {
       throw new NotFoundException('Game build not found');
     }
     return game;
+  }
+
+  async getLaunchToken(userId: string, gameId: string) {
+    const hasAccess = await this.libraryService.checkAccess(userId, gameId);
+    if (!hasAccess) throw new ForbiddenException();
+
+    const token = Math.random().toString(36).substring(2, 15);
+    
+    return {
+      token: token,
+      url: `sadstore://launch/${gameId}/${token}`
+    };
   }
 
   async updateBuildUrl(gameId: string, path: string) {

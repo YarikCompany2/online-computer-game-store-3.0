@@ -54,6 +54,14 @@ export class GameService {
     window.open(`http://localhost:3000/games/download/${gameId}`, '_blank');
   }
 
+  launchViaLauncher(gameId: string) {
+    const token = this.auth.getAccessToken();
+    
+    const deepLink = `sadstore://open/${gameId}/${token}`;
+    
+    window.location.href = deepLink;
+  }
+
   getGameById(id: string): Observable<IGame> {
     let headers = new HttpHeaders();
     const token = this.auth.getAccessToken();
@@ -63,5 +71,9 @@ export class GameService {
     }
 
     return this.http.get<IGame>(`${this.apiUrl}/${id}`, { headers });
+  }
+
+  getLaunchInfo(gameId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/launch-info/${gameId}`);
   }
 }

@@ -29,7 +29,6 @@ export class GamesController {
     return this.gamesService.findOne(id, userId);
   }
 
-  
   @Get()
   findAll(@Query() filterDto: GetGamesFilterDto) {
     const { 
@@ -118,6 +117,12 @@ export class GamesController {
     const game = await this.gamesService.getBuildPath(gameId);
     
     return res.download(game.buildUrl, `${slugify(game.title)}.zip`); 
+  }
+
+  @Get('launch-info/:id')
+  @UseGuards(JwtAuthGuard)
+  async getLaunchInfo(@Param('id') gameId: string, @Request() req) {
+    return this.gamesService.getLaunchToken(req.user.userId, gameId);
   }
 
   @UseGuards(JwtAuthGuard)

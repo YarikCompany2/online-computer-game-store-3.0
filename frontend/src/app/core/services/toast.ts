@@ -16,4 +16,8 @@ export class ToastService {
       this.data.set(null);
     }, 3000);
   }
+
+  clear() {
+    this.data.set(null);
+  }
 }
