@@ -34,7 +34,9 @@ export class CatalogComponent implements OnInit {
         this.searchState.searchQuery(),
         this.searchState.selectedCategoryId(),
         this.searchState.minPrice() ?? undefined,
-        this.searchState.maxPrice() ?? undefined
+        this.searchState.maxPrice() ?? undefined,
+        this.searchState.sortBy(),
+        this.searchState.freeOnly()
       );
     }, { allowSignalWrites: true });
 
@@ -57,15 +59,31 @@ export class CatalogComponent implements OnInit {
     });
   }
 
-  loadGames(page: number, search?: string, categoryId?: number | null, minPrice?: number | null, maxPrice?: number | null) {
+  loadGames(
+    page: number, 
+    search?: string, 
+    categoryId?: number | null, 
+    minPrice?: number | null, 
+    maxPrice?: number | null,
+    sortBy: string = 'newest',
+    freeOnly: boolean = false
+  ) {
     this.isLoading.set(true);
     
-    this.gameService.getGames(page, this.itemsPerPage, search, categoryId ?? undefined, minPrice ?? undefined, maxPrice ?? undefined).subscribe({
+    this.gameService.getGames(
+      page, 
+      this.itemsPerPage, 
+      search ?? undefined, 
+      categoryId ?? undefined, 
+      minPrice ?? undefined, 
+      maxPrice ?? undefined,
+      sortBy,
+      freeOnly
+    ).subscribe({
       next: (response) => {
         this.games.set(response.data);
         this.totalPages.set(response.meta.totalPages);
         this.isLoading.set(false);
-
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (err) => {

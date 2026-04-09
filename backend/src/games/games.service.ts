@@ -57,51 +57,67 @@ export class GamesService {
     categoryId?: number,
     minPrice?: number,
     maxPrice?: number,
+    sortBy: string = 'newest',
+    freeOnly: boolean = false 
   ): Promise<PaginatedResource<Game>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.gameRepository.createQueryBuilder('game')
-      .leftJoinAndSelect('game.categories', 'category')
-      .leftJoinAndSelect('game.developer', 'developer')
-      .leftJoinAndSelect('game.publisher', 'publisher')
-      .leftJoinAndSelect('game.media', 'media')
-      .where('game.status = :status', { status: GameStatus.ACTIVE });
+        .leftJoinAndSelect('game.categories', 'category')
+        .leftJoinAndSelect('game.developer', 'developer')
+        .leftJoinAndSelect('game.media', 'media')
+        .where('game.status = :status', { status: GameStatus.ACTIVE });
 
-    if (search) {
-      queryBuilder.andWhere('LOWER(game.title) LIKE LOWER(:search)', {
-        search: `%${search}%`
-      });
+      if (search) {
+        queryBuilder.andWhere('LOWER(game.title) LIKE LOWER(:search)', { search: `%${search}%` });
+      }
+
+      if (categoryId) {
+        queryBuilder.andWhere('category.id = :categoryId', { categoryId });
+      }
+
+      if (freeOnly) {
+        queryBuilder.andWhere('game.price = 0');
+      } else {
+        if (minPrice !== undefined) queryBuilder.andWhere('game.price >= :minPrice', { minPrice });
+        if (maxPrice !== undefined) queryBuilder.andWhere('game.price <= :maxPrice', { maxPrice });
+      }
+
+      switch (sortBy) {
+        case 'oldest':
+          queryBuilder.orderBy('game.createdAt', 'ASC');
+          break;
+        case 'price_low':
+          queryBuilder.orderBy('game.price', 'ASC');
+          break;
+        case 'price_high':
+          queryBuilder.orderBy('game.price', 'DESC');
+          break;
+        case 'title':
+          queryBuilder.orderBy('game.title', 'ASC');
+          break;
+        case 'newest':
+        default:
+          queryBuilder.orderBy('game.createdAt', 'DESC');
+          break;
+      }
+
+      const [data, total] = await queryBuilder
+        .take(limit)
+        .skip(skip)
+        .getManyAndCount();
+
+      return {
+        data,
+        meta: {
+          totalItems: total,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(total / limit),
+          currentPage: page,
+        },
+      };
     }
-
-    if (categoryId) {
-      queryBuilder.andWhere('category.id = :categoryId', { categoryId } );
-    }
-
-    if (minPrice !== undefined) {
-      queryBuilder.andWhere('game.price >= :minPrice', { minPrice });
-    }
-
-    if (maxPrice !== undefined) {
-      queryBuilder.andWhere('game.price <= :maxPrice', { maxPrice });
-    }
-
-    const [data, total] = await queryBuilder
-      .orderBy('game.createdAt', 'DESC')
-      .take(limit)
-      .skip(skip)
-      .getManyAndCount();
-
-    return {
-      data,
-      meta: {
-        totalItems: total,
-        itemsPerPage: limit,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-      },
-    };
-  }
 
   async create(createGameDto: CreateGameDto, companyId: string): Promise<Game> {
     const existingGame = await this.gameRepository

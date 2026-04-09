@@ -12,6 +12,7 @@ import { diskStorage } from 'multer';
 import { slugify } from '../utils/slugify';
 import { join } from 'path';
 import * as fs from 'node:fs';
+import { GetGamesFilterDto } from './dto/get-games-filter.dto';
 
 @Controller('games')
 export class GamesController {
@@ -28,15 +29,28 @@ export class GamesController {
     return this.gamesService.findOne(id, userId);
   }
 
+  
   @Get()
-  findAll(
-    @Query() paginationDto: PaginationDto,
-    @Query('search') search?: string,
-    @Query('categoryId') categoryId?: number,
-    @Query('minPrice') minPrice?: number,
-    @Query('maxPrice') maxPrice?: number,
-  ) {
-    return this.gamesService.findAll(paginationDto, search, categoryId, minPrice, maxPrice);
+  findAll(@Query() filterDto: GetGamesFilterDto) {
+    const { 
+      search, 
+      categoryId, 
+      minPrice, 
+      maxPrice, 
+      sortBy, 
+      freeOnly, 
+      ...paginationProps 
+    } = filterDto;
+
+    return this.gamesService.findAll(
+      paginationProps, 
+      search, 
+      categoryId, 
+      minPrice, 
+      maxPrice,
+      sortBy,
+      freeOnly
+    );
   }
 
   @UseGuards(JwtAuthGuard)

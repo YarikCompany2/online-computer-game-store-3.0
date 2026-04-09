@@ -147,6 +147,30 @@ export class App implements OnInit {
     }
   }
 
+  restrictNumeric(event: KeyboardEvent) {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+      'ArrowLeft', 'ArrowRight', 'Home', 'End', '.'
+    ];
+
+    if (
+      allowedKeys.includes(event.key) ||
+      (event.ctrlKey === true || event.metaKey === true)
+    ) {
+      if (event.key === '.') {
+        const input = event.target as HTMLInputElement;
+        if (input.value.includes('.')) {
+          event.preventDefault();
+        }
+      }
+      return;
+    }
+
+    if (!/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
   isTopUpModalOpen = signal(false);
 
   openTopUp() {
