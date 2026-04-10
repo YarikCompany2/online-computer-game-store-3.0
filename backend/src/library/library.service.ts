@@ -35,7 +35,7 @@ export class LibraryService {
 
     const purchasedItems = await this.libraryRepository.find({
       where: { userId },
-      relations: ['game', 'game.categories', 'game.developer', 'game.media'],
+      relations: ['game', 'game.categories', 'game.developer', 'game.publisher', 'game.media'],
       order: { purchaseDate: 'DESC' }
     })
 
@@ -50,17 +50,20 @@ export class LibraryService {
     }));
 
     if (user?.companyId) {
-      const developedGames = await this.gameRepository.find({
-        where: { developerId: user.companyId },
-        relations: ['categories', 'developer', 'media']
+      const professionalGames = await this.gameRepository.find({
+        where: [
+          { developerId: user.companyId },
+          { publisherId: user.companyId }
+        ],
+        relations: ['categories', 'developer', 'publisher', 'media']
       });
 
-      developedGames.forEach(game => {
+      professionalGames.forEach(game => {
         const isAlreadyPresent = libraryItems.some(item => item.gameId === game.id);
         
         if (!isAlreadyPresent) {
           libraryItems.push({
-            id: `dev-access-${game.id}`,
+            id: `pro-access-${game.id}`,
             userId: userId,
             gameId: game.id,
             orderId: null,

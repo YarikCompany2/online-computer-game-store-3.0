@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IGame, IPaginatedResponse } from '../interfaces/game.interface';
 import { AuthService } from './auth';
+import { ILaunchResponse } from '../interfaces/launcher.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -73,7 +74,7 @@ export class GameService {
     return this.http.get<IGame>(`${this.apiUrl}/${id}`, { headers });
   }
 
-  getLaunchInfo(gameId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/launch-info/${gameId}`);
+  getLaunchInfo(gameId: string): Observable<ILaunchResponse> {
+    return this.http.get<ILaunchResponse>(`${this.apiUrl}/launch-info/${gameId}`);
   }
 }

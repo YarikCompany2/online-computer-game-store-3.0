@@ -37,24 +37,33 @@ export class CompaniesService {
     return savedCompany;
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<PaginatedResource<Company>> {
+  async findAll(paginationDto: PaginationDto, search?: string): Promise<PaginatedResource<Company>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
-    const [data, total] = await this.companyRepository.findAndCount({
-      take: limit,
-      skip: skip,
-    });
+    const queryBuilder = this.companyRepository.createQueryBuilder('company');
+
+    if (search && search.trim() !== '') {
+      queryBuilder.where('LOWER(company.name) LIKE LOWER(:search)', {
+        search: `%${search}%`,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .take(limit)
+      .skip(skip)
+      .orderBy('company.name', 'ASC')
+      .getManyAndCount();
 
     return {
       data,
       meta: {
         totalItems: total,
         itemsPerPage: limit,
-        totalPages: Math.ceil(total/ limit),
+        totalPages: Math.ceil(total / limit),
         currentPage: page,
-      }
-    }
+      },
+    };
   }
 
   async remove(id: string, ownerId: string) {

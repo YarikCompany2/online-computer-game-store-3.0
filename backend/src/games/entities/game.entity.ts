@@ -85,5 +85,5 @@ export class Game {
 
     @ManyToOne(() => Discount, (discount) => discount.games)
     @JoinColumn({ name: 'promotion_id' })
-    discount: Discount;
+    discount: Discount | null;
 }

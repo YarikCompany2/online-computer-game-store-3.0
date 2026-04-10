@@ -62,6 +62,53 @@
               </div>
             </div>
 
+            <div class="space-y-2 pt-4">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-4">
+                Developer Studio <span class="text-indigo-400">(Who created this?)</span>
+              </label>
+              
+              <div class="relative group">
+                <div class="relative">
+                  <input type="text" 
+                        [ngModel]="developerSearchQuery()" 
+                        (ngModelChange)="onSearchChange($event); isDropdownOpen.set(true)"
+                        (focus)="isDropdownOpen.set(true)"
+                        (blur)="toggleDropdown(false)"
+                        placeholder="Search for a studio or leave as 'Self'..." 
+                        class="w-full bg-slate-900 border border-white/5 rounded-2xl py-5 px-8 text-white outline-none focus:border-indigo-500/50 transition-all font-bold placeholder:text-slate-700">
+                  
+                  <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  </div>
+                </div>
+
+                @if (isDropdownOpen()) {
+                  <div class="absolute top-full mt-2 w-full bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    
+                    <button (click)="selectDeveloper(null)" 
+                            class="w-full text-left px-8 py-4 hover:bg-white/5 text-xs font-black uppercase tracking-widest text-indigo-400 border-b border-white/5 transition-colors">
+                      Self (My Company)
+                    </button>
+
+                    @for (comp of searchResults(); track comp.id) {
+                      @if (comp.id !== auth.currentUser()?.companyId) {
+                        <button (click)="selectDeveloper(comp)" 
+                                class="w-full text-left px-8 py-5 hover:bg-white/[0.03] text-sm font-bold text-slate-300 transition-all border-b border-white/[0.02] last:border-0">
+                          {{ comp.name }}
+                        </button>
+                      }
+                    }
+
+                    @if (searchResults().length === 0 && developerSearchQuery() !== '') {
+                      <div class="px-8 py-6 text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+                        No results found
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
             <div class="space-y-3 pt-4">
               <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">
                 Categories * <span class="text-indigo-400">(Select at least one)</span>

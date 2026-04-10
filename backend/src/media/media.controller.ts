@@ -19,17 +19,21 @@ export class MediaController {
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: (req, file, callback) => {
-        const folderName = slugify(req.body.gameTitle || req.body.gameId || 'temp');
+        const folderName = req.body.gameTitle 
+          ? slugify(req.body.gameTitle) 
+          : (req.body.gameId || 'temp');
+        
         const uploadPath = join(process.cwd(), 'uploads', 'covers', folderName);
-        if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+        }
         callback(null, uploadPath);
       },
       filename: (req, file, callback) => {
         const extension = extname(file.originalname);
-        const nameOnly = file.originalname.replace(extension, '');
-        const cleanName = slugify(nameOnly);
         const uniqueId = Math.random().toString(36).substring(2, 8);
-        
+        const cleanName = slugify(file.originalname.replace(extension, ''));
         callback(null, `${cleanName}-${uniqueId}${extension}`);
       },
     }),

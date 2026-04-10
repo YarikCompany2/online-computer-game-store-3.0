@@ -10,7 +10,7 @@ import { PaginatedResource } from '../common/interfaces/paginated-resource.inter
 import { GameWithOwnership } from '../common/interfaces/game-response.interface';
 import { Library } from '../library/entities/library.entity';
 import { User } from '../users/entities/user.entity';
-import { LibraryService } from 'src/library/library.service';
+import { LibraryService } from '../library/library.service';
 
 @Injectable()
 export class GamesService {
@@ -33,12 +33,25 @@ export class GamesService {
         'publisher', 
         'media', 
         'requirements',
-        'requirements.platforms'
+        'requirements.platforms',
+        'discount'
       ], 
     });
 
     if (!game) {
       throw new NotFoundException(`Game with ID ${id} not found`);
+    }
+
+    const now = new Date();
+
+    const isDiscountValid = 
+      game.discount && 
+      game.discount.isActive && 
+      now >= new Date(game.discount.startDate) && 
+      now <= new Date(game.discount.endDate);
+
+    if (game.discount && !isDiscountValid) {
+      game.discount = null;
     }
 
     let isOwned = false;
@@ -69,6 +82,7 @@ export class GamesService {
         .leftJoinAndSelect('game.categories', 'category')
         .leftJoinAndSelect('game.developer', 'developer')
         .leftJoinAndSelect('game.media', 'media')
+        .leftJoinAndSelect('game.discount', 'discount')
         .where('game.status = :status', { status: GameStatus.ACTIVE });
 
       if (search) {
@@ -110,6 +124,20 @@ export class GamesService {
         .skip(skip)
         .getManyAndCount();
 
+      const now = new Date();
+      data.forEach(game => {
+        if (game.discount) {
+          const isDiscountValid = 
+            game.discount.isActive && 
+            now >= new Date(game.discount.startDate) && 
+            now <= new Date(game.discount.endDate);
+
+          if (!isDiscountValid) {
+            game.discount = null;
+          }
+        }
+      });
+
       return {
         data,
         meta: {
@@ -131,7 +159,7 @@ export class GamesService {
       throw new BadRequestException(`The title "${createGameDto.title}" is already taken by another game.`);
     }
 
-    const { categoryIds, publisherId, ...gameData } = createGameDto;
+    const { categoryIds, developerId, publisherId, ...gameData } = createGameDto;
 
     const categories = await this.categoryRepository.findBy({
       id: In(categoryIds),
@@ -143,7 +171,7 @@ export class GamesService {
 
     const game = this.gameRepository.create({
       ...gameData,
-      developerId: companyId,
+      developerId: developerId || companyId,
       publisherId: publisherId || companyId,
       categories,
     });
@@ -223,6 +251,25 @@ export class GamesService {
     
     console.log(`[Database] Build path updated for "${game.title}": ${path}`);
     return { success: true, path };
+  }
+
+  private calculatePrice(game: Game) {
+    const now = new Date();
+    if (game.discount && game.discount.isActive && 
+        now >= game.discount.startDate && now <= game.discount.endDate) {
+      const discountAmount = (game.price * game.discount.discountPercent) / 100;
+      return {
+        hasDiscount: true,
+        originalPrice: Number(game.price),
+        discountPercent: game.discount.discountPercent,
+        currentPrice: Number((game.price - discountAmount).toFixed(2))
+      };
+    }
+    return {
+      hasDiscount: false,
+      originalPrice: Number(game.price),
+      currentPrice: Number(game.price)
+    };
   }
 
   async remove(id: string, companyId: string) {

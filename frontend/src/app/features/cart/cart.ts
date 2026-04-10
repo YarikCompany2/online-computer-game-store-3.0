@@ -20,9 +20,19 @@ export class CartComponent implements OnInit {
   items = signal<any[]>([]);
   isCheckingOut = signal(false);
 
-  totalPrice = computed(() => 
-    this.items().reduce((sum, item) => sum + Number(item.game.price), 0).toFixed(2)
-  );
+  totalPrice = computed(() => {
+    const sum = this.items().reduce((total, item) => {
+      let price = Number(item.game.price);
+      const disc = item.game.discount;
+
+      if (disc && disc.isActive) {
+        price = price * (1 - disc.discountPercent / 100);
+      }
+      return total + price;
+    }, 0);
+    
+    return sum.toFixed(2);
+  });
 
   ngOnInit() {
     this.loadCart();

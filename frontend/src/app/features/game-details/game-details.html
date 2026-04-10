@@ -307,9 +307,28 @@
                 </button>
               } @else {
                 <div class="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-2">Own it today</div>
-                <div class="text-5xl font-black mb-8 text-white">
-                  {{ +g.price === 0 ? 'FREE' : '$' + g.price }}
-                </div>
+    
+                  <div class="mb-8 text-center">
+                    @if (g.discount) {
+                      <div class="flex items-center gap-4">
+                        <span class="text-2xl text-slate-500 line-through italic decoration-rose-500/50">
+                          ${{ g.price }}
+                        </span>
+                        
+                        <span class="bg-emerald-500 text-black px-2 py-1 rounded-lg font-black text-sm">
+                          -{{ g.discount.discountPercent }}%
+                        </span>
+                      </div>
+
+                      <div class="text-6xl font-black text-white italic tracking-tighter mt-1">
+                        ${{ (g.price * (1 - g.discount.discountPercent / 100)) | number:'1.2-2' }}
+                      </div>
+                    } @else {
+                      <div class="text-5xl font-black text-white italic">
+                        {{ +g.price === 0 ? 'FREE' : '$' + g.price }}
+                      </div>
+                    }
+                  </div>
                 
                 <button (click)="addToCart()" 
                         [disabled]="isAddingToCart()"

@@ -29,9 +29,19 @@ export interface IGame {
   requirements: IRequirement[];
   isOwned: boolean;
   discount?: {
+    id: string;
+    name: string;
     discountPercent: number;
+    startDate: string;
+    endDate: string;
     isActive: boolean;
-  }
+  };
+  calculatedPrice?: {
+    hasDiscount: boolean;
+    originalPrice: number;
+    discountPercent: number;
+    currentPrice: number;
+  };
   createdAt: string;
 }
 

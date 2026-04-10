@@ -1,24 +1,32 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { Library } from '../library/entities/library.entity';
 
 @Injectable()
 export class ReviewsService {
   constructor(
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(Library)
+    private readonly libraryRepository: Repository<Library>,
   ) {}
 
   async create(userId: string, dto: CreateReviewDto) {
-    const existingReview = await this.reviewRepository.findOne({
+    const ownsGame = await this.libraryRepository.findOne({
       where: { userId, gameId: dto.gameId }
     });
 
-    if (existingReview) {
-      throw new BadRequestException('You have already reviewed this game');
+    if (!ownsGame) {
+      throw new ForbiddenException('You must own the game to leave a review.');
     }
+
+    const existing = await this.reviewRepository.findOne({
+      where: { userId, gameId: dto.gameId }
+    });
+    if (existing) throw new BadRequestException('You already reviewed this game.');
 
     const review = this.reviewRepository.create({ ...dto, userId });
     return await this.reviewRepository.save(review);

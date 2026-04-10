@@ -7,6 +7,12 @@ import { AuthService } from '../../core/services/auth';
 import { ILibraryItem } from '../../core/interfaces/game.interface';
 import { GameService } from '../../core/services/game';
 import { ToastService } from '../../core/services/toast';
+import { ILaunchResponse } from '../../core/interfaces/launcher.interface';
+
+interface ISelectedGame {
+  id: string;
+  title: string;
+}
 
 @Component({
   selector: 'app-library',
@@ -23,8 +29,8 @@ export class LibraryComponent implements OnInit {
   ownedGames = signal<ILibraryItem[]>([]);
   isLoading = signal(true);
   
-  showLauncherModal = signal(false);
-  selectedGameForLaunch = signal<{id: string, title: string} | null>(null);
+  showLauncherModal = signal<boolean>(false);
+  selectedGameForLaunch = signal<ISelectedGame | null>(null);
 
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
@@ -62,13 +68,15 @@ export class LibraryComponent implements OnInit {
     this.showLauncherModal.set(true);
   }
 
-  triggerDeepLink() {
+  triggerDeepLink(): void {
     const game = this.selectedGameForLaunch();
     if (game) {
-      this.gameService.launchViaLauncher(game.id);
-      
-      this.showLauncherModal.set(false);
-      this.selectedGameForLaunch.set(null);
+      this.gameService.getLaunchInfo(game.id).subscribe({
+        next: (res: ILaunchResponse) => {
+          window.location.href = res.url;
+          this.closeModal();
+        }
+      });
     }
   }
 

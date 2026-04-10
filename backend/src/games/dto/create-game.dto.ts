@@ -33,5 +33,9 @@ export class CreateGameDto {
 
     @IsOptional()
     @IsUUID()
+    developerId?: string;
+
+    @IsOptional()
+    @IsUUID()
     publisherId?: string;
 }

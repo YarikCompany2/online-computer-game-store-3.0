@@ -1,12 +1,6 @@
 import { Game } from "../../games/entities/game.entity";
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-export enum CompanyType {
-    PUBLISHER = 'publisher',
-    DEVELOPER = 'developer',
-    BOTH = 'both'
-}
-
 @Entity('companies')
 export class Company {
     @PrimaryGeneratedColumn('uuid')
@@ -20,13 +14,6 @@ export class Company {
 
     @Column({ name: 'logo_url', length: 255, nullable: true })
     logoUrl: string;
-
-    @Column({
-        type: 'enum',
-        enum: CompanyType,
-        default: CompanyType.DEVELOPER
-    })
-    type: CompanyType;
 
     @Column({ name: 'is_verified', default: false })
     isVerified: boolean;

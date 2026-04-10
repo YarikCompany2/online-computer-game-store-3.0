@@ -21,27 +21,36 @@
         <div class="absolute inset-y-0 left-0 w-full md:w-2/3 bg-gradient-to-r from-[#020617] via-[#020617]/40 to-transparent z-20"></div>
         <div class="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-[#020617] via-transparent to-transparent z-20"></div>
 
+        <!-- CAROUSEL PRICE LOGIC - FIXED TO USE activeGame -->
         <div class="absolute bottom-16 left-16 z-30 space-y-6 max-w-2xl">
-          <span class="px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black rounded-full uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/40">
+           <span class="px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black rounded-full uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/40">
             Featured & Recommended
           </span>
-          
-          <h2 class="text-7xl font-black text-white italic tracking-tighter uppercase leading-none drop-shadow-2xl">
+          <h2 class="text-7xl font-black text-white italic uppercase tracking-tighter leading-none drop-shadow-2xl">
             {{ activeGame.title }}
           </h2>
           
-          <p class="text-slate-200 text-lg font-medium opacity-90 line-clamp-2 max-w-md drop-shadow">
-            {{ activeGame.description }}
-          </p>
-
           <div class="flex items-center gap-8 pt-4">
             <button [routerLink]="['/game', activeGame.id]" 
                     class="bg-white text-black px-12 py-5 rounded-2xl font-black hover:bg-indigo-500 hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-2xl uppercase tracking-widest text-sm">
               View Details
             </button>
-            <span class="text-4xl font-black text-emerald-400 drop-shadow-md italic">
-              {{ +activeGame.price === 0 ? 'FREE' : '$' + activeGame.price }}
-            </span>
+
+            <div class="flex items-center gap-3">
+              @if (activeGame.discount) {
+                <div class="bg-emerald-500 text-black px-2 py-1 rounded-md font-black text-sm">-{{ activeGame.discount.discountPercent }}%</div>
+                <div class="flex flex-col items-end leading-none">
+                  <span class="text-slate-400 text-xs line-through italic">${{ activeGame.price }}</span>
+                  <span class="text-4xl font-black text-emerald-400 drop-shadow-md italic">
+                    ${{ (activeGame.price * (1 - activeGame.discount.discountPercent/100)) | number:'1.2-2' }}
+                  </span>
+                </div>
+              } @else {
+                <span class="text-4xl font-black text-white italic drop-shadow-md">
+                  {{ +activeGame.price === 0 ? 'FREE' : '$' + activeGame.price }}
+                </span>
+              }
+            </div>
           </div>
         </div>
 
@@ -117,8 +126,21 @@
                   crossorigin="anonymous" 
                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
               
-              <div class="absolute bottom-4 right-6 text-2xl font-black text-white italic">
-                {{ +game.price === 0 ? 'FREE' : '$' + game.price }}
+              <!-- GRID PRICE LOGIC - CORRECTED TO USE game -->
+              <div class="absolute bottom-4 right-6 flex items-center gap-2">
+                @if (game.discount) {
+                  <div class="bg-emerald-500 text-black px-1.5 py-0.5 rounded font-black text-[10px] uppercase">-{{ game.discount.discountPercent }}%</div>
+                  <div class="flex flex-col items-end leading-none">
+                    <span class="text-white/40 text-[10px] line-through italic">${{ game.price }}</span>
+                    <span class="text-xl font-black text-white italic drop-shadow-lg">
+                      ${{ (game.price * (1 - game.discount.discountPercent/100)) | number:'1.2-2' }}
+                    </span>
+                  </div>
+                } @else {
+                  <div class="text-2xl font-black text-white italic drop-shadow-lg">
+                    {{ +game.price === 0 ? 'FREE' : '$' + game.price }}
+                  </div>
+                }
               </div>
             </div>
 
@@ -151,13 +173,9 @@
     @if (!isLoading() && totalPages() > 1) {
       <div class="flex justify-center pt-12 pb-20">
         <div class="inline-flex items-center bg-slate-900/40 backdrop-blur-xl border border-white/5 p-2 rounded-[24px] shadow-2xl">
-          
-          <button (click)="prevPage()" 
-                  [disabled]="currentPage() === 1"
-                  class="w-14 h-14 flex items-center justify-center rounded-2xl text-slate-500 hover:text-white hover:bg-indigo-600 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300 group">
+          <button (click)="prevPage()" [disabled]="currentPage() === 1" class="w-14 h-14 flex items-center justify-center rounded-2xl text-slate-500 hover:text-white hover:bg-indigo-600 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300 group">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-active:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-
           <div class="px-8 flex items-center gap-4 border-x border-white/5">
             <div class="flex flex-col items-center">
               <span class="text-[8px] font-black uppercase tracking-[0.3em] text-indigo-500/60 mb-0.5">Page</span>
@@ -168,13 +186,9 @@
               </div>
             </div>
           </div>
-
-          <button (click)="nextPage()" 
-                  [disabled]="currentPage() === totalPages()"
-                  class="w-14 h-14 flex items-center justify-center rounded-2xl text-slate-500 hover:text-white hover:bg-indigo-600 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300 group">
+          <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" class="w-14 h-14 flex items-center justify-center rounded-2xl text-slate-500 hover:text-white hover:bg-indigo-600 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300 group">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-active:translate-x-1 transition-transform"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
-
         </div>
       </div>
     }

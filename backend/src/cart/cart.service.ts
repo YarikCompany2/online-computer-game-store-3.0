@@ -56,7 +56,7 @@ export class CartService {
   async getMyCart(userId: string): Promise<Cart[]> {
     return await this.cartRepository.find({
       where: { userId },
-      relations: ['game', 'game.categories', 'game.developer', 'game.media']
+      relations: ['game', 'game.categories', 'game.developer', 'game.media', 'game.discount']
     })
   }
 

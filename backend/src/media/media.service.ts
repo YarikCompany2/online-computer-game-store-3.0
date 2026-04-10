@@ -69,9 +69,20 @@ export class MediaService {
   }
 
   async saveToDb(gameId: string, fileUrl: string, isMain: boolean, companyId: string) {
+    console.log(`[Media Service] Attempting to link file. Game: ${gameId}, Company: ${companyId}`);
+
     const game = await this.gameRepo.findOne({ where: { id: gameId } });
-    if (!game) throw new NotFoundException('Game not found');
-    if (game.developerId !== companyId) throw new ForbiddenException();
+    if (!game) {
+      console.error(`[Media Error] Game ${gameId} not found!`);
+      throw new NotFoundException('Game not found');
+    }
+
+    const isOwner = game.developerId === companyId || game.publisherId === companyId;
+    
+    if (!isOwner) {
+      console.error(`[Media Error] Permission Denied. Game belongs to Dev: ${game.developerId} or Pub: ${game.publisherId}. User is: ${companyId}`);
+      throw new ForbiddenException('You do not have permission to upload media for this game');
+    }
 
     const media = this.mediaRepo.create({
       gameId,
@@ -81,7 +92,7 @@ export class MediaService {
     });
 
     const saved = await this.mediaRepo.save(media);
-    console.log(`[Database] Linked image to "${game.title}" at path: ${fileUrl}`);
+    console.log(`[Media Success] DB row created: ${saved.id}`);
     return saved;
   }
 

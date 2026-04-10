@@ -5,6 +5,11 @@ import { DataSource } from "typeorm";
 import { Order, OrderStatus } from "./entities/order.entity";
 import { OrderItem } from "./entities/order-item.entity";
 import { Library } from "../library/entities/library.entity";
+import { Cart } from "../cart/entities/cart.entity";
+
+interface CartItemWithCalculatedPrice extends Cart {
+  finalPrice: number;
+}
 
 @Injectable()
 export class OrdersService {
@@ -16,7 +21,6 @@ export class OrdersService {
 
   async checkout(userId: string) {
     const queryRunner = this.dataSource.createQueryRunner();
-
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -26,37 +30,42 @@ export class OrdersService {
         throw new BadRequestException('Your cart is empty');
       }
 
-      const totalAmount = cartItems.reduce(
-        (sum, item) => sum + Number(item.game.price),
-        0
-      );
+      const now = new Date();
+      const itemsWithCalculatedPrices: CartItemWithCalculatedPrice[] = cartItems.map(item => {
+        let finalPrice = Number(item.game.price);
+        const discount = item.game.discount;
+
+        if (discount && discount.isActive && 
+            now >= new Date(discount.startDate) && now <= new Date(discount.endDate)) {
+          const reduction = (finalPrice * discount.discountPercent) / 100;
+          finalPrice = finalPrice - reduction;
+        }
+
+        return {
+          ...item,
+          finalPrice: Number(finalPrice.toFixed(2))
+        } as CartItemWithCalculatedPrice;
+      });
+
+      const totalAmount = itemsWithCalculatedPrices.reduce((sum, item) => sum + item.finalPrice, 0);
 
       const user = await this.usersService.findOne(userId);
       if (user.balance < totalAmount) {
-        throw new BadRequestException('Insufficient balance on your account');
+        throw new BadRequestException('Insufficient balance');
       }
 
       const order = queryRunner.manager.create(Order, {
         userId,
-        totalAmount,
+        totalAmount: Number(totalAmount.toFixed(2)),
         status: OrderStatus.PAID,
       });
-
       const savedOrder = await queryRunner.manager.save(order);
 
-      for (const item of cartItems) {
-        const alreadyOwned = await queryRunner.manager.findOne(Library, {
-          where: { userId, gameId: item.gameId }
-        });
-
-        if (alreadyOwned) {
-          throw new BadRequestException(`You already own "${item.game.title}". Please remove it from cart.`);
-        }
-
+      for (const item of itemsWithCalculatedPrices) {
         const orderItem = queryRunner.manager.create(OrderItem, {
           orderId: savedOrder.id,
           gameId: item.gameId,
-          priceAtPurchase: item.game.price,
+          priceAtPurchase: item.finalPrice,
         });
         await queryRunner.manager.save(orderItem);
 
@@ -70,7 +79,6 @@ export class OrdersService {
 
       const newBalance = Number(user.balance) - totalAmount;
       await this.usersService.update(userId, { balance: newBalance });
-
       await this.cartService.clearCart(userId);
 
       await queryRunner.commitTransaction();

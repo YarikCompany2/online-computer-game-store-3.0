@@ -2,11 +2,13 @@ import { Component, EventEmitter, Output, inject, signal, OnInit, computed } fro
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../services/category';
-import { ICategory, IGame } from '../../interfaces/game.interface';
+import { ICategory, ICompany, IGame, IPaginatedResponse } from '../../interfaces/game.interface';
 import { DashboardService, ICreateGameDto, IUploadMediaResponse } from '../../services/dashboard';
 import { ToastService } from '../../services/toast';
 import { HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { debounceTime, distinctUntilChanged, firstValueFrom, Subject, switchMap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth';
 
 export type CreateStep = 'info' | 'media' | 'build';
 
@@ -17,9 +19,13 @@ export type CreateStep = 'info' | 'media' | 'build';
   templateUrl: './create-game-modal.html'
 })
 export class CreateGameModalComponent implements OnInit {
+  private http = inject(HttpClient);
   private catService = inject(CategoryService);
   private dashService = inject(DashboardService);
   private toast = inject(ToastService);
+  public auth = inject(AuthService);
+
+  private searchSubject = new Subject<string>();
 
   @Output() close = new EventEmitter<void>();
   @Output() created = new EventEmitter<void>();
@@ -36,12 +42,18 @@ export class CreateGameModalComponent implements OnInit {
   coverFile = signal<File | null>(null);
   gameFile = signal<File | null>(null);
   screenshotFiles = signal<File[]>([]);
+  allCompanies = signal<ICompany[]>([]);
+  developerSearchQuery = signal('');
+  isDropdownOpen = signal(false);
+  searchResults = signal<ICompany[]>([]);
 
   uploadedCover = signal<string | null>(null);
   uploadedScreenshots = signal<string[]>([]);
 
   coverPreview = signal<string | null>(null);
   screenshotsPreview = signal<string[]>([]);
+
+  selectedDeveloperId = signal<string | null>(null);
 
 
   isStep1Valid = computed(() => {
@@ -85,6 +97,49 @@ export class CreateGameModalComponent implements OnInit {
 
   ngOnInit() {
     this.catService.getCategories().subscribe(res => this.categories.set(res));
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        const url = query 
+          ? `http://localhost:3000/companies?limit=10&search=${query}`
+          : `http://localhost:3000/companies?limit=10`;
+        return this.http.get<IPaginatedResponse<ICompany>>(url);
+      })
+    ).subscribe(res => {
+      this.searchResults.set(res.data);
+    });
+
+    this.onSearchChange('');
+  }
+
+  onSearchChange(query: string) {
+    this.developerSearchQuery.set(query);
+    this.searchSubject.next(query);
+  }
+
+  filteredCompanies = computed(() => {
+    const query = this.developerSearchQuery().toLowerCase().trim();
+    const ownCompanyId = this.auth.currentUser()?.companyId;
+
+    if (!query) return this.allCompanies().filter(c => c.id !== ownCompanyId);
+
+    return this.allCompanies().filter(c => 
+      c.name.toLowerCase().includes(query) && 
+      c.id !== ownCompanyId
+    );
+  });
+
+  selectDeveloper(comp: ICompany | null) {
+    if (comp) {
+      this.selectedDeveloperId.set(comp.id);
+      this.developerSearchQuery.set(comp.name);
+    } else {
+      this.selectedDeveloperId.set(null);
+      this.developerSearchQuery.set('');
+    }
+    this.isDropdownOpen.set(false);
   }
 
   submitInfo(): void {
@@ -100,6 +155,10 @@ export class CreateGameModalComponent implements OnInit {
     } else {
       this.categoryIds.set([...current, id]);
     }
+  }
+
+  toggleDropdown(state: boolean) {
+    setTimeout(() => this.isDropdownOpen.set(state), 200);
   }
 
   async onFileSelected(event: Event, isMain: boolean) {
@@ -177,45 +236,27 @@ export class CreateGameModalComponent implements OnInit {
   }
 
   async publishGame() {
-    if (!this.isStep2Valid() || !this.gameFile()) {
-      this.toast.show('Please complete all requirements', 'error');
-      return;
-    }
-
+    if (!this.isStep2Valid() || !this.gameFile()) return;
+    
     this.isLoading.set(true);
 
-    const payload = {
-      title: this.title(),
-      description: this.description(),
-      price: this.price(),
-      categoryIds: this.categoryIds(),
-      status: 'active'
-    };
-
     try {
+      const payload = {
+        title: this.title(),
+        description: this.description(),
+        price: this.price(),
+        categoryIds: this.categoryIds(),
+        developerId: this.selectedDeveloperId() || undefined 
+      };
+
       const newGame = await firstValueFrom(this.dashService.createGame(payload));
-      const gameId = newGame.id;
+      await this.uploadAllMedia(newGame.id);
 
-      console.log(`[1/3] Game record created: ${gameId}`);
-
-      await this.uploadAllMedia(gameId);
-      console.log(`[2/3] Media assets linked`);
-
-      const buildData = new FormData();
-      buildData.append('gameId', gameId);
-      buildData.append('gameTitle', this.title());
-      buildData.append('file', this.gameFile()!);
-      
-      await firstValueFrom(this.dashService.uploadBuild(buildData));
-      console.log(`[3/3] Build archive deployed`);
-
-      this.toast.show('Game published successfully!', 'success');
+      this.toast.show('Published successfully!', 'success');
       this.created.emit();
       this.close.emit();
-
     } catch (err: any) {
-      console.error('Deployment Failed:', err);
-      this.toast.show(err.error?.message || 'Deployment failed. Check connection.', 'error');
+      this.toast.show(err.error?.message || 'Check terminal for errors', 'error');
     } finally {
       this.isLoading.set(false);
     }
@@ -237,17 +278,27 @@ export class CreateGameModalComponent implements OnInit {
   private async uploadAllMedia(gameId: string) {
     const uploadImg = async (file: File, isMain: boolean) => {
       const data = new FormData();
+      
       data.append('gameId', gameId);
       data.append('gameTitle', this.title());
       data.append('isMain', String(isMain));
-      data.append('file', file);
+      data.append('file', file); 
+      
       return await firstValueFrom(this.dashService.uploadMedia(data));
     };
 
     await uploadImg(this.coverFile()!, true);
-
     for (const file of this.screenshotFiles()) {
       await uploadImg(file, false);
+    }
+
+    if (this.gameFile()) {
+      const buildData = new FormData();
+      buildData.append('gameId', gameId);
+      buildData.append('gameTitle', this.title());
+      buildData.append('file', this.gameFile()!);
+      
+      await firstValueFrom(this.dashService.uploadBuild(buildData));
     }
   }
 

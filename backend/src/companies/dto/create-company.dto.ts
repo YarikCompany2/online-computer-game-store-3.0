@@ -1,6 +1,4 @@
 import { IsEnum, IsOptional, IsString, IsUrl, IsUUID } from "class-validator";
-import { CompanyType } from "../entities/company.entity";
-
 
 export class CreateCompanyDto {
     @IsString()
@@ -13,7 +11,4 @@ export class CreateCompanyDto {
     @IsOptional()
     @IsUrl()
     logoUrl?: string;
-
-    @IsEnum(CompanyType)
-    type: CompanyType;
 }

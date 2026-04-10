@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Company } from './entities/company.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { type PaginatedResource } from '../common/interfaces/paginated-resource.interface';
+import { GetCompaniesFilterDto } from './dto/get-companies-filter.dto';
 
 @Controller('companies')
 export class CompaniesController {
@@ -20,8 +21,9 @@ export class CompaniesController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResource<Company>> {
-    return this.companiesService.findAll(paginationDto);
+  findAll(@Query() filterDto: GetCompaniesFilterDto): Promise<PaginatedResource<Company>> {
+    const { search, ...paginationProps } = filterDto;
+    return this.companiesService.findAll(paginationProps, search);
   }
 
   @UseGuards(JwtAuthGuard)

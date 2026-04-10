@@ -4,6 +4,12 @@ import { Repository, In } from 'typeorm';
 import { Game } from '../games/entities/game.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 
+interface ISalesHistoryRaw {
+  date: string;
+  count: string;
+  revenue: string;
+}
+
 @Injectable()
 export class CompanyDashboardService {
   constructor(
@@ -13,7 +19,10 @@ export class CompanyDashboardService {
 
   async getStats(companyId: string) {
     const games = await this.gameRepo.find({
-      where: { developerId: companyId },
+      where: [
+        { developerId: companyId },
+        { publisherId: companyId }
+      ],
       relations: ['media']
     });
 
@@ -61,7 +70,7 @@ export class CompanyDashboardService {
     
     if (!game) throw new NotFoundException('Game not found');
 
-    const salesData = await this.orderItemRepo
+    const salesData: ISalesHistoryRaw[] = await this.orderItemRepo
       .createQueryBuilder('item')
       .innerJoin('item.order', 'order')
       .select("DATE(order.created_at)", "date")
