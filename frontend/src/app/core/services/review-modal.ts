@@ -37,5 +37,9 @@ export class ReviewModalService {
 
   close() {
     this.isOpen.set(false);
+    this.isDeleteOpen.set(false);
+    this.isEditing.set(false);
+    this.gameId.set(null);
+    this.reviewId.set(null);
   }
 }

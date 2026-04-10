@@ -31,6 +31,8 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
   isLoading = signal(true);
   selectedMedia = signal<IMedia | null>(null);
   isAddingToCart = signal(false);
+  reviewRating = signal(5);
+  reviewComment = signal('');
 
   reviews = signal<IReview[]>([]);
 
@@ -153,9 +155,27 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  submitReview() {
+    const gameId = this.game()?.id;
+    if (!gameId) return;
+
+    this.reviewService.createReview(gameId, this.reviewRating(), this.reviewComment()).subscribe({
+      next: () => {
+        this.toast.show('Review posted! Thank you.', 'success');
+        this.reviewComment.set('');
+        this.loadReviews(gameId);
+      },
+      error: (err) => this.toast.show(err.error?.message || 'Error posting review', 'error')
+    });
+  }
+
   openWriteModal() {
     const g = this.game();
     if (g) this.reviewModal.open(g.id, g.title);
+  }
+
+  openDelete(reviewId: string) {
+    this.reviewModal.openDelete(reviewId);
   }
 
   closeReviewModal() {
