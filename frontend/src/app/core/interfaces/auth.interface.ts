@@ -6,6 +6,7 @@ export interface IUserTokenPayload {
   username: string;
   balance: number;
   tokenType: 'access' | 'refresh';
+  avatarUrl: string | null;
   iat?: number;
   exp?: number;
 }

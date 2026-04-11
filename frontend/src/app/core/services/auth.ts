@@ -55,6 +55,12 @@ export class AuthService {
     );
   }
 
+  leaveCompany(): Observable<any> {
+    return this.http.patch(`http://localhost:3000/users/leave-company`, {}).pipe(
+      switchMap(() => this.refreshToken())
+    );
+  }
+
   register(userData: any) {
     return this.http.post(`http://localhost:3000/users/register`, userData);
   }

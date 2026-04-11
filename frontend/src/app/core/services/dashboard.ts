@@ -54,6 +54,10 @@ export class DashboardService {
     return this.http.post(`http://localhost:3000/games/upload-build`, formData);
   }
 
+  inviteMember(identifier: string): Observable<void> {
+    return this.http.post<void>(`http://localhost:3000/companies/invite`, { identifier });
+  }
+
   createGame(dto: ICreateGameDto): Observable<IGame> {
     return this.http.post<IGame>(`http://localhost:3000/games`, dto);
   }

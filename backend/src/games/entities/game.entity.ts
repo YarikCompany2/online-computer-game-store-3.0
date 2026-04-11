@@ -71,10 +71,10 @@ export class Game {
     @OneToMany(() => Cart, (cart) => cart.game)
     cartItems: Cart[];
 
-    @OneToMany(() => Media, (media) => media.game, { cascade: true })
+    @OneToMany(() => Media, (media) => media.game, { cascade: true, onDelete: 'CASCADE' })
     media: Media[];
 
-    @OneToMany(() => Requirement, (req) => req.game, { cascade: true })
+    @OneToMany(() => Requirement, (req) => req.game, { cascade: true, onDelete: 'CASCADE' })
     requirements: Requirement[];
 
     @OneToMany(() => Review, (review) => review.game)

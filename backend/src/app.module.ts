@@ -20,6 +20,8 @@ import { DiscountsModule } from './discounts/discounts.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PlatformModule } from './platform/platform.module';
+import { NotificationModule } from './notification/notification.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -69,6 +71,8 @@ import { PlatformModule } from './platform/platform.module';
     ReviewsModule,
     DiscountsModule,
     PlatformModule,
+    NotificationModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

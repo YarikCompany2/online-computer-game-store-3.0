@@ -40,6 +40,14 @@ export class User {
     @Column({ name: 'company_id', type: 'uuid', nullable: true })
     companyId: string | null;
 
+    @Column({ 
+      name: 'avatar_url', 
+      type: 'varchar', 
+      length: 500, 
+      nullable: true 
+    })
+    avatarUrl: string | null;
+
     @DeleteDateColumn({ name: 'deleted_at', select: false })
     deletedAt: Date;
 

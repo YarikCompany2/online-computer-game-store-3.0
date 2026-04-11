@@ -1,0 +1,38 @@
+<div class="p-12 max-w-7xl mx-auto space-y-12">
+  <header>
+    <h1 class="text-6xl font-black italic uppercase text-white tracking-tighter">Moderation Desk</h1>
+    <p class="text-indigo-400 font-bold uppercase text-[10px] tracking-[0.4em] mt-4 ml-1">Game Verification Pipeline</p>
+  </header>
+
+  <div class="bg-slate-900/20 border border-white/5 rounded-[48px] overflow-hidden backdrop-blur-md">
+    @if (pendingGames().length === 0) {
+      <div class="py-40 text-center">
+        <p class="text-slate-600 font-black uppercase tracking-[0.3em]">No games pending verification</p>
+      </div>
+    } @else {
+      <table class="w-full text-left">
+        <thead class="bg-white/5">
+          <tr>
+            <th class="p-8 text-[10px] font-black text-slate-500 uppercase">Project</th>
+            <th class="p-8 text-[10px] font-black text-slate-500 uppercase">Publisher</th>
+            <th class="p-8 text-[10px] font-black text-slate-500 uppercase text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          @for (game of pendingGames(); track game.id) {
+            <tr>
+              <td class="p-8 font-bold text-white uppercase italic">{{ game.title }}</td>
+              <td class="p-8 text-slate-400 font-mono text-xs">{{ game.publisher?.name }}</td>
+              <td class="p-8 text-right">
+                <button (click)="approve(game.id, game.title)" 
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
+                  Verify & Publish
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

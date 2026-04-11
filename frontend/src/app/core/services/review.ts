@@ -9,6 +9,7 @@ export interface IReview {
   createdAt: string;
   user: {
     username: string;
+    avatarUrl: string | null;
   };
 }
 

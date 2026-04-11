@@ -13,10 +13,12 @@ import { Review } from '../reviews/entities/review.entity';
 import { Discount } from '../discounts/entities/discount.entity';
 import { Library } from '../library/entities/library.entity';
 import { LibraryModule } from '../library/library.module';
+import { Notification } from '../notification/entities/notification.entity';
+import { Company } from '../companies/entities/company.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review, Discount, Library]),
+    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review, Discount, Company, Library, Notification]),
     CategoriesModule,
     CompaniesModule,
     LibraryModule,

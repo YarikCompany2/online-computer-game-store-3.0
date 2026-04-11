@@ -8,6 +8,7 @@ import { User, UserRole } from '../users/entities/user.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 import { UsersService } from '../users/users.service';
+import { Notification, NotificationStatus, NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class CompaniesService {
@@ -16,6 +17,8 @@ export class CompaniesService {
     private readonly companyRepository: Repository<Company>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Notification)
+    private readonly notificationRepository: Repository<Notification>,
     private readonly usersService: UsersService,
   ) {}
 
@@ -64,6 +67,42 @@ export class CompaniesService {
         currentPage: page,
       },
     };
+  }
+
+  async inviteUser(identifier: string, senderCompanyId: string) {
+    const targetUser = await this.usersService.findByIdentifier(identifier);
+    if (!targetUser) {
+      throw new NotFoundException(`User "${identifier}" not found`);
+    }
+
+    if (targetUser.companyId) {
+      throw new BadRequestException('This user is already a member of a studio');
+    }
+
+    const existingInvite = await this.notificationRepository.findOne({
+      where: {
+        recipientId: targetUser.id,
+        senderCompanyId: senderCompanyId,
+        type: NotificationType.COMPANY_INVITATION,
+        status: NotificationStatus.PENDING
+      }
+    });
+
+    if (existingInvite) {
+      throw new BadRequestException(
+        `You have already sent an invitation to ${targetUser.username}. Please wait for them to respond.`
+      );
+    }
+
+    const company = await this.companyRepository.findOne({ where: { id: senderCompanyId } });
+
+    return await this.notificationRepository.save({
+      recipientId: targetUser.id,
+      senderCompanyId: senderCompanyId,
+      type: NotificationType.COMPANY_INVITATION,
+      message: `The studio "${company?.name}" invited you to join their team.`,
+      status: NotificationStatus.PENDING
+    });
   }
 
   async remove(id: string, ownerId: string) {

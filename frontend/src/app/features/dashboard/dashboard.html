@@ -46,6 +46,31 @@
     </div>
 
     <div class="space-y-6 pt-8">
+      <div class="bg-slate-900/40 border border-white/5 p-10 rounded-[48px] backdrop-blur-xl mb-12 shadow-2xl relative overflow-hidden group">
+        <div class="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500/5 blur-3xl"></div>
+        
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-12 h-12 bg-indigo-600/10 text-indigo-400 rounded-2xl flex items-center justify-center border border-indigo-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-white uppercase italic tracking-widest leading-none">Recruit Team</h3>
+            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-2">Add members to your studio</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <input type="text" #inviteInput
+                placeholder="Enter username or email..."
+                class="flex-1 bg-slate-950/50 border border-white/5 rounded-2xl py-5 px-8 text-white outline-none focus:border-indigo-500/50 transition-all font-bold placeholder:text-slate-700">
+          
+          <button (click)="sendInvite(inviteInput.value); inviteInput.value = ''"
+                  class="bg-indigo-600 hover:bg-indigo-500 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-indigo-600/20">
+            Send Invite
+          </button>
+        </div>
+      </div>
+
       <h3 class="text-xl font-black text-white uppercase italic tracking-widest ml-4">Detailed Breakdown</h3>
       
       <div class="bg-slate-900/20 border border-white/5 rounded-[48px] overflow-hidden backdrop-blur-md shadow-2xl">

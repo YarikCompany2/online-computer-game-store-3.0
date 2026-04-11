@@ -7,6 +7,8 @@ import { LibraryComponent } from './features/library/library';
 import { CartComponent } from './features/cart/cart';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { GameAnalyticsComponent } from './features/dashboard/game-analytics';
+import { ModerationComponent } from './features/admin/moderation';
+import { AdminHubComponent } from './features/admin/admin-hub';
 
 export const routes: Routes = [
   { path: '', component: CatalogComponent },
@@ -16,5 +18,7 @@ export const routes: Routes = [
   { path: 'library', component: LibraryComponent },
   { path: 'cart', component: CartComponent },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'dashboard/game/:id', component: GameAnalyticsComponent }
+  { path: 'dashboard/game/:id', component: GameAnalyticsComponent },
+  { path: 'admin-hub', component: AdminHubComponent },
+  { path: 'moderation', component: ModerationComponent },
 ];

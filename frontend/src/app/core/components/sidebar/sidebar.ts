@@ -11,5 +11,5 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './sidebar.scss',
 })
 export class SidebarComponent {
-  authService = inject(AuthService);
+  public authService = inject(AuthService);
 }

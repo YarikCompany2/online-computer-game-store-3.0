@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Post, UseGuards, Request, Delete, Patch }
 import { ReviewsService } from "./reviews.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateReviewDto } from "./dto/create-review.dto";
+import { RolesGuard } from "../auth/roles.guard";
+import { UserRole } from "../users/entities/user.entity";
 
 @Controller('reviews')
 export class ReviewsController {
@@ -24,9 +26,15 @@ export class ReviewsController {
     return this.reviewsService.update(id, req.user.userId, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req) {
-    return this.reviewsService.remove(id, req.user.userId);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async remove(@Param('id') id: string, @Request() req) {
+    const user = req.user; 
+
+    if (user.role === 'admin' || user.role === 'moderator') {
+      return this.reviewsService.adminRemove(id);
+    }
+    
+    return this.reviewsService.remove(id, user.userId);
   }
 }

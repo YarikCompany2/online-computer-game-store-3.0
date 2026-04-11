@@ -19,11 +19,8 @@ export class CompanyDashboardService {
 
   async getStats(companyId: string) {
     const games = await this.gameRepo.find({
-      where: [
-        { developerId: companyId },
-        { publisherId: companyId }
-      ],
-      relations: ['media']
+      where: { publisherId: companyId }, 
+      relations: ['media', 'discount']
     });
 
     if (games.length === 0) {
@@ -64,11 +61,11 @@ export class CompanyDashboardService {
   }
 
   async getGameDetailStats(gameId: string, companyId: string) {
-    const game = await this.gameRepo.findOne({ 
-        where: { id: gameId, developerId: companyId } 
+    const game = await this.gameRepo.findOne({
+      where: { id: gameId, publisherId: companyId } 
     });
-    
-    if (!game) throw new NotFoundException('Game not found');
+  
+    if (!game) throw new NotFoundException('Game not found or you are not the publisher');
 
     const salesData: ISalesHistoryRaw[] = await this.orderItemRepo
       .createQueryBuilder('item')

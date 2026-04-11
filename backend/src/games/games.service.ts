@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Req } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +11,8 @@ import { GameWithOwnership } from '../common/interfaces/game-response.interface'
 import { Library } from '../library/entities/library.entity';
 import { User } from '../users/entities/user.entity';
 import { LibraryService } from '../library/library.service';
+import { Company } from '../companies/entities/company.entity';
+import { Notification, NotificationStatus, NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class GamesService {
@@ -21,6 +23,10 @@ export class GamesService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Library)
     private readonly libraryRepository: Repository<Library>,
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
+    @InjectRepository(Notification)
+    private readonly notificationRepository: Repository<Notification>,
     private readonly libraryService: LibraryService,
   ) {}
 
@@ -149,7 +155,7 @@ export class GamesService {
       };
     }
 
-  async create(createGameDto: CreateGameDto, companyId: string): Promise<Game> {
+  async create(createGameDto: CreateGameDto, companyId: string, creator: any): Promise<Game> {
     const existingGame = await this.gameRepository
         .createQueryBuilder('game')
         .where('LOWER(game.title) = LOWER(:title)', { title: createGameDto.title })
@@ -159,34 +165,65 @@ export class GamesService {
       throw new BadRequestException(`The title "${createGameDto.title}" is already taken by another game.`);
     }
 
-    const { categoryIds, developerId, publisherId, ...gameData } = createGameDto;
+    const { categoryIds, developerId, ...gameData } = createGameDto;
+    const targetDevId = developerId || companyId;
+    const isSelfPublishing = targetDevId === companyId;
 
-    const categories = await this.categoryRepository.findBy({
-      id: In(categoryIds),
-    });
-
-    if (categories.length !== categoryIds.length) {
-      throw new BadRequestException('One or more categories not found');
-    }
+    const categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
 
     const game = this.gameRepository.create({
       ...gameData,
-      developerId: developerId || companyId,
-      publisherId: publisherId || companyId,
+      developerId: targetDevId,
+      publisherId: companyId,
+      status: isSelfPublishing ? GameStatus.ACTIVE : GameStatus.INACTIVE,
       categories,
     });
 
-    return await this.gameRepository.save(game);
+    const savedGame = await this.gameRepository.save(game);
+
+    if (!isSelfPublishing) {
+      const publisherCompany = await this.companyRepository.findOne({ where: { id: companyId } });
+      const pubName = publisherCompany ? publisherCompany.name : 'A Publisher';
+
+      const devCompany = await this.companyRepository.findOne({ where: { id: targetDevId } });
+      
+      if (devCompany) {
+        
+        const existingGameNotif = await this.notificationRepository.findOne({
+          where: {
+            gameId: savedGame.id,
+            recipientId: devCompany.ownerId,
+          }
+        });
+
+        if (!existingGameNotif) {
+          const newNotif = this.notificationRepository.create({
+            recipientId: devCompany.ownerId,
+            gameId: savedGame.id,
+            message: `Company "${pubName}" wants to publish your game: "${savedGame.title}". Accept to make it public.`,
+            type: NotificationType.GAME_PUBLISH,
+            status: NotificationStatus.PENDING, 
+          });
+
+          await this.notificationRepository.save(newNotif);
+        }
+
+      }
+    }
+
+    return savedGame;
   }
 
   async update(id: string, updateGameDto: UpdateGameDto, companyId: string): Promise<Game> {
     const game = await this.gameRepository.findOne({
-      where: { id, developerId: companyId },
+      where: { id },
       relations: ['categories']
     });
 
-    if (!game) {
-      throw new NotFoundException('Game not found or you do not have permission');
+    if (!game) throw new NotFoundException('Game not found');
+
+    if (game.publisherId !== companyId) {
+      throw new ForbiddenException('Only the publisher can manage this game entry');
     }
 
     if (updateGameDto.title && updateGameDto.title !== game.title) {
@@ -243,6 +280,14 @@ export class GamesService {
     };
   }
 
+  async verifyGame(gameId: string) {
+    const game = await this.gameRepository.findOne({ where: { id: gameId } });
+    if (!game) throw new NotFoundException('Game not found');
+
+    await this.gameRepository.update(gameId, { status: GameStatus.ACTIVE });
+    return { message: `Game "${game.title}" has been approved and is now public.` };
+  }
+
   async updateBuildUrl(gameId: string, path: string) {
     const game = await this.gameRepository.findOne({ where: { id: gameId } });
     if (!game) throw new NotFoundException('Game not found');
@@ -273,10 +318,12 @@ export class GamesService {
   }
 
   async remove(id: string, companyId: string) {
-    const game = await this.gameRepository.findOne({ where: { id, developerId: companyId } });
+    const game = await this.gameRepository.findOne({ where: { id } });
 
-    if (!game) {
-      throw new NotFoundException('Game not found or you do not have permission');
+    if (!game) throw new NotFoundException('Game not found');
+
+    if (game.publisherId !== companyId) {
+      throw new ForbiddenException('Only the publisher can remove this game');
     }
 
     return await this.gameRepository.softDelete(id);

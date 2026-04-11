@@ -48,6 +48,13 @@ export class ReviewsService {
     return await this.reviewRepository.save(review);
   }
 
+  async adminRemove(id: string) {
+    const review = await this.reviewRepository.findOne({ where: { id } });
+    if (!review) throw new NotFoundException('Review not found');
+    
+    return await this.reviewRepository.remove(review);
+  }
+
   async remove(id: string, userId: string) {
     const review = await this.reviewRepository.findOne({ where: { id, userId } });
     if (!review) throw new NotFoundException('Review not found or access denied');

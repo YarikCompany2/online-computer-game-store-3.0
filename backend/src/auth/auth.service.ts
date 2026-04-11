@@ -19,21 +19,24 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const { identifier, password } = loginDto;
-
         const user = await this.usersService.findInternalByIdentifier(identifier);
 
-        if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
+        if (!user) throw new UnauthorizedException('Invalid credentials');
 
-        const isMatch = user ? await bcrypt.compare(password, user.passwordHash) : false;
-        if (!isMatch) {
-            throw new UnauthorizedException('Uncorrect login or password');
-        }
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) throw new UnauthorizedException('Incorrect login or password');
 
-        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId, user.username, user.balance);
+        const tokens = await this.getTokens(
+            user.id, 
+            user.email, 
+            user.role, 
+            user.companyId, 
+            user.username, 
+            user.balance, 
+            user.avatarUrl
+        );
+
         await this.updateRefreshToken(user.id, tokens.refreshToken);
-
         return tokens;
     }
 
@@ -53,14 +56,14 @@ export class AuthService {
             throw new UnauthorizedException('Access denied');
         }
 
-        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId, user.username, user.balance);
+        const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId, user.username, user.balance, user.avatarUrl);
 
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
     }
 
-    private async getTokens(userId: string, email: string, role: string, companyId: string | null, username: string, balance: number) {
+    private async getTokens(userId: string, email: string, role: string, companyId: string | null, username: string, balance: number, avatarUrl: string | null) {
         const accessTokenPayload = {
             sub: userId,
             email,
@@ -68,6 +71,7 @@ export class AuthService {
             companyId,
             username,
             balance,
+            avatarUrl,
             tokenType: 'access',
         };
 

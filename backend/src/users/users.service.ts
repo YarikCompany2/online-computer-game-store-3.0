@@ -8,12 +8,15 @@ import * as bcrypt from 'bcrypt'
 import { UpdateResult } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { Transaction, TransactionType } from './entities/transaction.entity';
+import { Company } from '../companies/entities/company.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
     private dataSource: DataSource,
   ) {}
 
@@ -62,13 +65,13 @@ export class UsersService {
         { email: identifier },
         { username: identifier }
       ],
-      select: ['id', 'email', 'role', 'companyId', 'username', 'passwordHash', 'refreshTokenHash', 'balance'],
+      select: ['id', 'email', 'role', 'companyId', 'username', 'passwordHash', 'refreshTokenHash', 'balance', 'avatarUrl'],
     });
   }
 
   async update(id: string, updateData: Partial<User>) {
     await this.userRepository.update(id, updateData);
-    return this.findOne(id);
+    return this.findOneInternal(id);
   }
 
   async findOne(id: string): Promise<User> {
@@ -122,8 +125,30 @@ export class UsersService {
   async findOneInternal(id: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'role', 'companyId', 'username', 'refreshTokenHash', 'balance'],
+      select: ['id', 'email', 'role', 'companyId', 'username', 'refreshTokenHash', 'balance', 'avatarUrl'],
     });
+  }
+
+  async leaveCompany(userId: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user || !user.companyId) {
+      throw new BadRequestException('You are not a member of any company');
+    }
+
+    const company = await this.companyRepository.findOne({ 
+      where: { id: user.companyId } 
+    });
+
+    if (company && company.ownerId === userId) {
+      throw new BadRequestException(
+        'As the CEO, you cannot leave the company. You must delete the studio via Dev Hub to resign.'
+      );
+    }
+
+    await this.userRepository.update(userId, { companyId: null });
+    
+    return this.findOne(userId);
   }
 
   async remove(id: string): Promise<UpdateResult> {

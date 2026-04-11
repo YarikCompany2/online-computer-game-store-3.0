@@ -12,6 +12,8 @@ import { SearchStateService } from './core/services/search-state';
 import { ReviewModalService } from './core/services/review-modal';
 import { ReviewService } from './core/services/review';
 import { TopUpModalComponent } from './core/components/top-up-modal/top-up-modal';
+import { INotification, NotificationService } from './core/services/notification';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -26,12 +28,19 @@ export class App implements OnInit {
   toast = inject(ToastService);
   searchState = inject(SearchStateService);
   reviewModal = inject(ReviewModalService);
+  http = inject(HttpClient);
 
   private reviewService = inject(ReviewService);
+  private notifService = inject(NotificationService);
+  private pollingInterval: any;
 
   reviewRating = signal(5);
   reviewComment = signal('');
   isSubmittingReview = signal(false);
+  isNotifMenuOpen = signal(false);
+  notifications = signal<INotification[]>([]);
+  isLeaveModalOpen = signal(false);
+  isLeaving = signal(false);
 
   constructor() {
     effect(() => {
@@ -64,6 +73,24 @@ export class App implements OnInit {
     this.searchState.setSearch(value.trim());
   }
 
+  onAvatarSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.http.patch<any>('http://localhost:3000/users/avatar', formData, {
+      headers: { Authorization: `Bearer ${this.auth.getAccessToken()}` }
+    }).subscribe({
+      next: (res) => {
+        this.toast.show('Avatar updated! Refreshing...', 'success');
+        this.auth.refreshToken().subscribe(() => window.location.reload());
+      },
+      error: () => this.toast.show('Avatar upload failed', 'error')
+    });
+  }
+
   isDeleteModalOpen = signal(false);
   confirmUsernameInput = signal('');
   isDeleting = signal(false);
@@ -74,7 +101,71 @@ export class App implements OnInit {
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
       this.cart.getCart().subscribe();
+      this.loadNotifications();
+      
+      this.startNotificationPolling();
     }
+    console.log('CURRENT USER DATA:', this.auth.currentUser());
+  }
+
+  startNotificationPolling() {
+    if (this.pollingInterval) clearInterval(this.pollingInterval);
+
+    this.pollingInterval = setInterval(() => {
+      if (this.auth.isLoggedIn()) {
+        this.notifService.getNotifications().subscribe(data => {
+          if (JSON.stringify(data) !== JSON.stringify(this.notifications())) {
+            this.notifications.set(data);
+            console.log('New notifications received');
+          }
+        });
+      }
+    }, 5000); 
+  }
+
+  ngOnDestroy() {
+    if (this.pollingInterval) clearInterval(this.pollingInterval);
+  }
+
+  loadNotifications() {
+    this.notifService.getNotifications().subscribe({
+      next: (data) => this.notifications.set(data),
+      error: () => console.error('Could not load notifications')
+    });
+  }
+
+  openLeaveModal() {
+    this.isMenuOpen.set(false);
+    this.isLeaveModalOpen.set(true);
+  }
+
+  confirmLeave() {
+    this.isLeaving.set(true);
+    this.auth.leaveCompany().subscribe({
+      next: () => {
+        this.toast.show('You have left the studio.', 'success');
+        this.isLeaveModalOpen.set(false);
+        this.isLeaving.set(false);
+        this.loadNotifications();
+      },
+      error: (err) => {
+        this.toast.show(err.error?.message || 'Action failed', 'error');
+        this.isLeaving.set(false);
+      }
+    });
+  }
+
+  respondToNotif(id: string, accept: boolean) {
+    this.notifService.respond(id, accept).subscribe({
+      next: (res: any) => {
+        this.toast.show(accept ? 'Partnership confirmed!' : 'Collaboration rejected and deleted', accept ? 'success' : 'error');
+        this.loadNotifications();
+        
+        if (accept) {
+           setTimeout(() => window.location.reload(), 1000);
+        }
+      }
+    });
   }
 
   openDeleteModal() {
@@ -102,6 +193,20 @@ export class App implements OnInit {
         error: (err) => {
           alert(err.error?.message || 'Error deleting account');
           this.isDeleting.set(false);
+        }
+      });
+    }
+  }
+
+  leaveCompany() {
+    if (confirm('Are you sure you want to leave your current studio?')) {
+      this.auth.leaveCompany().subscribe({
+        next: () => {
+          this.toast.show('You have left the studio.', 'success');
+          this.closeMenu();
+        },
+        error: (err) => {
+          this.toast.show(err.error?.message || 'Action failed', 'error');
         }
       });
     }

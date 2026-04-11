@@ -59,7 +59,7 @@ export class GamesController {
       throw new ForbiddenException('Only company owners can create games');
     }
 
-    return this.gamesService.create(createGameDto, req.user.companyId);
+    return this.gamesService.create(createGameDto, req.user.companyId, req.user);
   }
 
   @UseGuards(JwtAuthGuard)

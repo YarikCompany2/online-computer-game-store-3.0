@@ -251,5 +251,27 @@ export class SeederService {
     }
 
     console.log('System Requirements seeded');
+
+    const staffPass = await bcrypt.hash('secret123', 10);
+  
+    const staffMembers = [
+      { email: 'admin@sadstore.com', username: 'Platform_Admin', role: UserRole.ADMIN },
+      { email: 'mod1@sadstore.com', username: 'Mod_Alpha', role: UserRole.MODERATOR },
+      { email: 'mod2@sadstore.com', username: 'Mod_Beta', role: UserRole.MODERATOR },
+      { email: 'mod3@sadstore.com', username: 'Mod_Gamma', role: UserRole.MODERATOR },
+    ];
+
+    for (const staff of staffMembers) {
+      const exists = await this.userRepo.findOne({ where: { email: staff.email } });
+      if (!exists) {
+        await this.userRepo.save(this.userRepo.create({
+          email: staff.email,
+          username: staff.username,
+          passwordHash: staffPass,
+          role: staff.role,
+          balance: 1000.00
+        }));
+      }
+    }
   }
 }

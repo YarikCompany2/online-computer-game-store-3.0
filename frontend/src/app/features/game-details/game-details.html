@@ -235,8 +235,18 @@
                   
                   <div class="flex items-start justify-between">
                     <div class="flex items-center gap-4">
-                      <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-black text-lg border border-indigo-500/20">
-                        {{ rev.user.username[0].toUpperCase() }}
+                      <div class="w-12 h-12 rounded-2xl bg-slate-800 overflow-hidden flex items-center justify-center font-black text-lg border border-indigo-500/20 shadow-inner relative">
+  
+                        @if (rev.user.avatarUrl) {
+                          <img [src]="rev.user.avatarUrl" 
+                              crossorigin="anonymous" 
+                              class="w-full h-full object-cover">
+                        } @else {
+                          <div class="w-full h-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                            {{ rev.user.username[0].toUpperCase() }}
+                          </div>
+                        }
+
                       </div>
                       <div>
                         <div class="flex items-center gap-2">
