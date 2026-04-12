@@ -10,7 +10,8 @@ import { Discount } from "../../discounts/entities/discount.entity";
 export enum GameStatus {
     ACTIVE = 'active',
     INACTIVE = 'inactive',
-    COMING_SOON = 'coming_soon'
+    COMING_SOON = 'coming_soon',
+    PENDING_MODERATION = 'pending_moderation',
 }
 
 @Entity('games')

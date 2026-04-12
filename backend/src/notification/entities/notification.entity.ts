@@ -11,6 +11,7 @@ export enum NotificationStatus {
 
 export enum NotificationType {
   GAME_PUBLISH = 'game_publish',
+  MODERATION_REQUEST = 'moderation_request',
   COMPANY_INVITATION = 'company_invitation'
 }
 

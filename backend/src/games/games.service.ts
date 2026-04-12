@@ -9,7 +9,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 import { GameWithOwnership } from '../common/interfaces/game-response.interface';
 import { Library } from '../library/entities/library.entity';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 import { LibraryService } from '../library/library.service';
 import { Company } from '../companies/entities/company.entity';
 import { Notification, NotificationStatus, NotificationType } from '../notification/entities/notification.entity';
@@ -27,6 +27,8 @@ export class GamesService {
     private readonly companyRepository: Repository<Company>,
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly libraryService: LibraryService,
   ) {}
 
@@ -175,7 +177,7 @@ export class GamesService {
       ...gameData,
       developerId: targetDevId,
       publisherId: companyId,
-      status: isSelfPublishing ? GameStatus.ACTIVE : GameStatus.INACTIVE,
+      status: isSelfPublishing ? GameStatus.PENDING_MODERATION : GameStatus.INACTIVE,
       categories,
     });
 
@@ -188,30 +190,43 @@ export class GamesService {
       const devCompany = await this.companyRepository.findOne({ where: { id: targetDevId } });
       
       if (devCompany) {
-        
         const existingGameNotif = await this.notificationRepository.findOne({
-          where: {
-            gameId: savedGame.id,
-            recipientId: devCompany.ownerId,
-          }
+          where: { gameId: savedGame.id, recipientId: devCompany.ownerId }
         });
 
         if (!existingGameNotif) {
           const newNotif = this.notificationRepository.create({
             recipientId: devCompany.ownerId,
             gameId: savedGame.id,
-            message: `Company "${pubName}" wants to publish your game: "${savedGame.title}". Accept to make it public.`,
+            message: `Company "${pubName}" wants to publish your game: "${savedGame.title}". Do you agree?`,
             type: NotificationType.GAME_PUBLISH,
             status: NotificationStatus.PENDING, 
           });
-
           await this.notificationRepository.save(newNotif);
         }
-
       }
+    } else {
+      await this.sendToModerators(savedGame);
     }
 
     return savedGame;
+  }
+
+  private async sendToModerators(game: Game) {
+    const moderators = await this.userRepository.find({ 
+      where: { role: UserRole.MODERATOR } 
+    });
+
+    for (const mod of moderators) {
+      const modNotif = this.notificationRepository.create({
+        recipientId: mod.id,
+        gameId: game.id,
+        type: NotificationType.MODERATION_REQUEST,
+        message: `Quality Check: A new game "${game.title}" requires moderation approval.`,
+        status: NotificationStatus.PENDING
+      });
+      await this.notificationRepository.save(modNotif);
+    }
   }
 
   async update(id: string, updateGameDto: UpdateGameDto, companyId: string): Promise<Game> {
@@ -285,7 +300,13 @@ export class GamesService {
     if (!game) throw new NotFoundException('Game not found');
 
     await this.gameRepository.update(gameId, { status: GameStatus.ACTIVE });
-    return { message: `Game "${game.title}" has been approved and is now public.` };
+
+    await this.notificationRepository.update(
+      { gameId: gameId, type: NotificationType.MODERATION_REQUEST },
+      { status: NotificationStatus.ACCEPTED }
+    );
+
+    return { message: `Game "${game.title}" is now public!` };
   }
 
   async updateBuildUrl(gameId: string, path: string) {

@@ -38,7 +38,7 @@ export class App implements OnInit {
   reviewComment = signal('');
   isSubmittingReview = signal(false);
   isNotifMenuOpen = signal(false);
-  notifications = signal<INotification[]>([]);
+  notifications = signal<INotification[]>([]); 
   isLeaveModalOpen = signal(false);
   isLeaving = signal(false);
 
@@ -57,6 +57,17 @@ export class App implements OnInit {
       map(() => this.router.url.includes('/login') || this.router.url.includes('/register'))
     ),
     { initialValue: false }
+  );
+
+  isStorePage = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => {
+        const currentRoute = this.router.url.split('?')[0];
+        return currentRoute === '/';
+      })
+    ),
+    { initialValue: true }
   );
 
   isMenuOpen = signal(false);

@@ -13,6 +13,9 @@ import { slugify } from '../utils/slugify';
 import { join } from 'path';
 import * as fs from 'node:fs';
 import { GetGamesFilterDto } from './dto/get-games-filter.dto';
+import { RolesGuard } from '../auth/roles.guard';
+import { UserRole } from '../users/entities/user.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('games')
 export class GamesController {
@@ -117,6 +120,13 @@ export class GamesController {
     const game = await this.gamesService.getBuildPath(gameId);
     
     return res.download(game.buildUrl, `${slugify(game.title)}.zip`); 
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.MODERATOR, UserRole.ADMIN)
+  @Patch(':id/verify')
+  async verify(@Param('id') id: string) {
+    return this.gamesService.verifyGame(id);
   }
 
   @Get('launch-info/:id')

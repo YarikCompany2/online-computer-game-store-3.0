@@ -15,10 +15,11 @@ import { Library } from '../library/entities/library.entity';
 import { LibraryModule } from '../library/library.module';
 import { Notification } from '../notification/entities/notification.entity';
 import { Company } from '../companies/entities/company.entity';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review, Discount, Company, Library, Notification]),
+    TypeOrmModule.forFeature([Game, Category, Cart, Media, Requirement, Review, Discount, Company, Library, Notification, User]),
     CategoriesModule,
     CompaniesModule,
     LibraryModule,

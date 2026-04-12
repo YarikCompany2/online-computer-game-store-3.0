@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
@@ -14,18 +14,26 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  identifier = '';
-  password = '';
+  identifier = signal('');
+  password = signal('');
+  
   error = signal<string | null>(null);
   isLoading = signal(false);
 
+  isFormValid = computed(() => 
+    this.identifier().trim().length > 0 && 
+    this.password().length >= 8
+  );
+
   onSubmit() {
+    if (!this.isFormValid()) return;
+
     this.isLoading.set(true);
     this.error.set(null);
 
     this.authService.login({ 
-      identifier: this.identifier, 
-      password: this.password 
+      identifier: this.identifier(), 
+      password: this.password() 
     }).subscribe({
       next: () => {
         this.router.navigate(['/']);

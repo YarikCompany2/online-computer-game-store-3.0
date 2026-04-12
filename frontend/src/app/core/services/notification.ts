@@ -6,7 +6,8 @@ export interface INotification {
   id: string;
   message: string;
   status: 'pending' | 'accepted' | 'rejected';
-  gameId: string;
+  gameId: string | null;
+  type: 'game_publish' | 'moderation_request' | 'company_invitation';
 }
 
 @Injectable({ providedIn: 'root' })

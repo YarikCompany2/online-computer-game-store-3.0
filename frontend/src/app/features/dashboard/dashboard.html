@@ -90,14 +90,17 @@
                   class="hover:bg-white/[0.02] transition-all cursor-pointer group">
                 
                 <td class="p-8 flex items-center gap-6">
-                  <div class="w-24 aspect-video rounded-xl overflow-hidden bg-slate-800 border border-white/10 group-hover:border-emerald-500/30 transition-all">
-                    <img [src]="game.mainCover || 'assets/placeholder.png'" crossorigin="anonymous" class="w-full h-full object-cover">
+                  <div class="w-24 aspect-video rounded-xl overflow-hidden bg-slate-800 ...">
+                    <img [src]="game.mainCover || 'assets/placeholder.png'" class="w-full h-full object-cover">
                   </div>
                   <div>
                     <p class="font-black text-xl text-white uppercase italic leading-none group-hover:text-emerald-400 transition-colors">
                       {{ game.title }}
-                      @if (game.status === 'inactive') {
-                        <span class="ml-2 text-[8px] bg-rose-500/20 text-rose-500 px-2 py-0.5 rounded uppercase not-italic">Hidden</span>
+
+                      @if (game.status !== 'active') {
+                        <span class="ml-2 text-[8px] bg-rose-500/20 text-rose-500 px-2 py-0.5 rounded uppercase not-italic tracking-tighter">
+                          {{ game.status === 'inactive' ? 'Awaiting Developer' : 'In Review' }}
+                        </span>
                       }
                     </p>
                     <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mt-2">ID: {{ game.id.substring(0,8) }}</p>
