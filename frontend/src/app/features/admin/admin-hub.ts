@@ -80,33 +80,25 @@ export class AdminHubComponent implements OnInit {
     if (!user) return;
 
     this.isProcessing.set(true);
+    
     const request = mode === 'promote' 
       ? this.adminService.promoteToMod(user.id)
       : this.adminService.demoteFromMod(user.id);
 
     request.subscribe({
       next: () => {
-        this.toast.show(
-          `${user.username} is now a ${mode === 'promote' ? 'Moderator' : 'User'}`, 
-          'success'
-        );
-        
-        this.searchResults.update(currentList => 
-          currentList.map(u => {
-            if (u.id === user.id) {
-              return { ...u, role: mode === 'promote' ? 'moderator' : 'user' };
-            }
-            return u;
-          })
-        );
-
+        this.toast.show(`${user.username} role updated`, 'success');
         this.loadStats();
         
+        this.searchResults.update(list => list.map(u => 
+          u.id === user.id ? { ...u, role: mode === 'promote' ? 'moderator' : 'user' } : u
+        ));
+
         this.isProcessing.set(false);
         this.closeStaffModal();
       },
-      error: () => {
-        this.toast.show('Action failed', 'error');
+      error: (err) => {
+        this.toast.show(err.error?.message || 'Action failed', 'error');
         this.isProcessing.set(false);
       }
     });

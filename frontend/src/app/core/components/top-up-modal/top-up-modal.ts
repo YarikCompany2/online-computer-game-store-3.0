@@ -56,18 +56,34 @@ export class TopUpModalComponent {
 
   currentUser = this.auth.currentUser;
 
+  restrictNumeric(event: KeyboardEvent) {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+      'ArrowLeft', 'ArrowRight', 'Home', 'End'
+    ];
+
+    if (allowedKeys.includes(event.key)) return;
+
+    if (event.ctrlKey || event.metaKey) return;
+
+    if (!/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
   formatCardNumber(value: string) {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const parts = v.match(/.{1,4}/g);
-    this.cardNumber.set(parts ? parts.join(' ') : v);
+    const digitsOnly = value.replace(/[^0-9]/g, '');
+    const groups = digitsOnly.match(/.{1,4}/g);
+    this.cardNumber.set(groups ? groups.join(' ') : digitsOnly);
   }
 
   formatExpiry(value: string) {
-    let v = value.replace(/\D/g, '');
-    if (v.length >= 2) {
-      v = v.substring(0, 2) + '/' + v.substring(2, 4);
+    const digitsOnly = value.replace(/[^0-9]/g, '');
+    let result = digitsOnly;
+    if (digitsOnly.length >= 2) {
+      result = digitsOnly.substring(0, 2) + '/' + digitsOnly.substring(2, 4);
     }
-    this.cardExpiry.set(v);
+    this.cardExpiry.set(result);
   }
 
   isMonthValid = computed(() => {
@@ -94,6 +110,35 @@ export class TopUpModalComponent {
     
     return true;
   });
+
+  onCvvInput(event: any) {
+    const input = event.target;
+    let value = this.getDigits(input.value);
+    
+    if (value.length > 3) value = value.substring(0, 3);
+    
+    input.value = value;
+    this.cardCvv.set(value);
+  }
+
+  onAmountChange(value: any) {
+    const stringVal = String(value).replace(/[^0-9]/g, '');
+    this.amount.set(Number(stringVal));
+  }
+
+  onAmountInput(event: any) {
+    const input = event.target;
+    let value = this.getDigits(input.value);
+    
+    if (Number(value) > 10000) value = '10000';
+    
+    input.value = value;
+    this.amount.set(Number(value));
+  }
+
+  private getDigits(value: string): string {
+    return value.replace(/\D/g, '');
+  }
 
   confirm() {
     if (!this.isFormValid()) {
@@ -129,6 +174,33 @@ export class TopUpModalComponent {
         }
       });
     }, 1500);
+  }
+
+  onCardInput(event: any) {
+    const input = event.target;
+    let value = this.getDigits(input.value);
+    
+    if (value.length > 16) value = value.substring(0, 16);
+    
+    const formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+    
+    input.value = formatted;
+    this.cardNumber.set(formatted);
+  }
+
+  onExpiryInput(event: any) {
+    const input = event.target;
+    let value = this.getDigits(input.value);
+    
+    if (value.length > 4) value = value.substring(0, 4);
+    
+    let formatted = value;
+    if (value.length >= 2) {
+      formatted = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    
+    input.value = formatted;
+    this.cardExpiry.set(formatted);
   }
 
   onCancel() {

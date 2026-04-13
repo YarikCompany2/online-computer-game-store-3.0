@@ -46,6 +46,7 @@ export class CreateGameModalComponent implements OnInit {
   developerSearchQuery = signal('');
   isDropdownOpen = signal(false);
   searchResults = signal<ICompany[]>([]);
+  myStudioName = signal('');
 
   uploadedCover = signal<string | null>(null);
   uploadedScreenshots = signal<string[]>([]);
@@ -98,20 +99,28 @@ export class CreateGameModalComponent implements OnInit {
   ngOnInit() {
     this.catService.getCategories().subscribe(res => this.categories.set(res));
 
+    const user = this.auth.currentUser();
+    if (user && user.companyId) {
+      const name = user.companyName || `${user.username} Studio`;
+      this.myStudioName.set(name);
+    }
+
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => {
-        const url = query 
-          ? `http://localhost:3000/companies?limit=10&search=${query}`
-          : `http://localhost:3000/companies?limit=10`;
-        return this.http.get<IPaginatedResponse<ICompany>>(url);
+        if (!query || query.trim().length < 1) {
+          return Promise.resolve({ data: [] });
+        }
+        
+        return this.http.get<any>(`http://localhost:3000/companies?limit=10&search=${query}`);
       })
-    ).subscribe(res => {
-      this.searchResults.set(res.data);
+    ).subscribe({
+      next: (res: any) => {
+        this.searchResults.set(res.data || []);
+      },
+      error: (err) => console.error('Search error:', err)
     });
-
-    this.onSearchChange('');
   }
 
   onSearchChange(query: string) {
@@ -131,7 +140,7 @@ export class CreateGameModalComponent implements OnInit {
     );
   });
 
-  selectDeveloper(comp: ICompany | null) {
+  selectDeveloper(comp: any | null) {
     if (comp) {
       this.selectedDeveloperId.set(comp.id);
       this.developerSearchQuery.set(comp.name);
@@ -140,6 +149,7 @@ export class CreateGameModalComponent implements OnInit {
       this.developerSearchQuery.set('');
     }
     this.isDropdownOpen.set(false);
+    this.searchResults.set([]);
   }
 
   submitInfo(): void {

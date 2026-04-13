@@ -1,79 +1,61 @@
-<div class="min-h-[80vh] flex items-center justify-center p-6">
-  <div class="w-full max-w-md bg-slate-900/50 backdrop-blur-2xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
+<div class="min-h-[85vh] flex items-center justify-center p-6 page-fade-in">
+  <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/30 p-12 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative overflow-hidden">
     
-    <div class="text-center mb-10">
-      <h1 class="text-4xl font-black italic tracking-tighter text-white uppercase mb-2">Create Account</h1>
-      <p class="text-slate-400 text-sm">Join our community of gamers</p>
-    </div>
+    <div class="absolute top-0 left-0 w-full h-1 bg-[#66c0f4]"></div>
 
-    @if (error()) {
-      <div class="bg-rose-500/10 border border-rose-500/50 text-rose-500 p-4 rounded-2xl mb-6 text-sm text-center">
-        {{ error() }}
-      </div>
-    }
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-black tracking-tighter text-white uppercase">Join Community</h1>
+      <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.3em] mt-4 opacity-60">Create your global gaming identity</p>
+    </div>
 
     <form (ngSubmit)="onSubmit()" class="space-y-6">
       <div class="space-y-2">
-        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 ml-4">Username</label>
-        <input type="text" name="username" 
-              [ngModel]="username()" 
-              (ngModelChange)="username.set($event)" 
-              required
-              class="w-full bg-slate-800/50 border border-white/5 rounded-2xl py-4 px-6 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
-              placeholder="Pick a nickname...">
+        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Profile Name</label>
+        <input type="text" name="username" [ngModel]="username()" (ngModelChange)="username.set($event)"
+               placeholder="How others will see you"
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-bold placeholder:text-[#4e5667]">
       </div>
 
       <div class="space-y-2">
-        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 ml-4">Email Address</label>
-        <input type="email" name="email" 
-              [ngModel]="email()" 
-              (ngModelChange)="email.set($event)" 
-              required
-              class="w-full bg-slate-800/50 border border-white/5 rounded-2xl py-4 px-6 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
-              placeholder="email@example.com">
+        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Email Address</label>
+        <input type="email" name="email" [ngModel]="email()" (ngModelChange)="email.set($event)"
+               placeholder="For account verification"
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-bold placeholder:text-[#4e5667]">
       </div>
 
       <div class="space-y-2">
-        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 ml-4">Password</label>
-        <input type="password" name="password" 
-              [ngModel]="password()" 
-              (ngModelChange)="password.set($event)" 
-              required
-              class="w-full bg-slate-800/50 border border-white/5 rounded-2xl py-4 px-6 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
-              placeholder="••••••••">
+        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Account Password</label>
+        <input type="password" name="password" [ngModel]="password()" (ngModelChange)="password.set($event)"
+               placeholder="••••••••"
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-[0.3em] font-bold">
       </div>
 
       <div class="space-y-2">
-        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 ml-4">Confirm Password</label>
-        <input type="password" name="confirmPassword" 
-              [ngModel]="confirmPassword()" 
-              (ngModelChange)="confirmPassword.set($event)"
-              required
-              [class.border-rose-500]="confirmPassword() && !passwordsMatch()"
-              class="w-full bg-slate-800/50 border border-white/5 rounded-2xl py-4 px-6 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
-              placeholder="••••••••">
+        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Verify Security Key</label>
+        <input type="password" name="confirmPassword" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)"
+               [class.border-rose-500]="confirmPassword() && !passwordsMatch()"
+               placeholder="••••••••"
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-[0.3em] font-bold">
         
         @if (confirmPassword() && !passwordsMatch()) {
-          <p class="text-rose-500 text-[9px] font-bold uppercase tracking-widest ml-4 animate-in fade-in">
-            Passwords do not match
-          </p>
+          <p class="text-rose-500 text-[9px] font-bold uppercase tracking-widest ml-1 mt-2">Passwords do not match</p>
         }
       </div>
 
       <button type="submit" [disabled]="isLoading() || !isFormValid()"
-              class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex justify-center items-center">
+              class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-20 text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.4em] transition-all active:scale-[0.98] shadow-xl mt-4">
         @if (isLoading()) {
-          <div class="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div class="w-5 h-5 border-4 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin mx-auto"></div>
         } @else {
-          Sing Up
+          Create Account
         }
       </button>
     </form>
 
-    <div class="mt-8 text-center">
-      <p class="text-slate-500 text-sm">
-        Already have an account? 
-        <a routerLink="/login" class="text-indigo-400 font-bold hover:underline transition-colors">Log In</a>
+    <div class="mt-12 pt-8 border-t border-white/5 text-center">
+      <p class="text-[#4e5667] text-[10px] font-bold uppercase tracking-widest">
+        Already have a profile? 
+        <a routerLink="/login" class="text-[#66c0f4] hover:text-white transition-colors ml-2">Sign In</a>
       </p>
     </div>
   </div>

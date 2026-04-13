@@ -1,72 +1,66 @@
-<div class="p-12 max-w-5xl mx-auto space-y-12">
+<div class="p-8 max-w-5xl mx-auto space-y-12 animate-in fade-in duration-500">
   
-  <header class="flex items-end gap-6 mb-16">
-    <div class="w-20 h-20 bg-emerald-600/10 text-emerald-500 rounded-[28px] flex items-center justify-center shadow-2xl border border-emerald-500/20">
+  <header class="flex items-center gap-6 mb-16">
+    <div class="w-16 h-16 bg-[#316282] text-[#66c0f4] rounded-sm flex items-center justify-center shadow-xl border border-white/10">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
     </div>
     <div>
-      <h1 class="text-5xl font-black italic tracking-tighter uppercase text-white leading-none">Your Cart</h1>
-      <p class="text-slate-500 font-bold uppercase text-xs tracking-[0.3em] mt-3 ml-1">Review your order</p>
+      <h1 class="text-4xl font-black uppercase tracking-tighter text-white leading-none">Your Shopping Cart</h1>
+      <p class="text-[#8f98a0] font-bold uppercase text-[10px] tracking-[0.4em] mt-2 ml-0.5 opacity-60">Review items before checkout</p>
     </div>
   </header>
 
   @if (items().length === 0) {
-    <div class="text-center py-32 bg-slate-900/20 border border-white/5 rounded-[40px] flex flex-col items-center gap-6">
-      <div class="text-slate-700">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-      </div>
-      <p class="text-slate-500 text-xl font-medium">Your cart is currently empty.</p>
-      <button routerLink="/" class="text-indigo-400 font-black hover:underline uppercase tracking-widest text-sm">Return to Store</button>
+    <div class="text-center py-32 bg-[#1e232b]/50 border border-white/5 rounded-sm">
+      <p class="text-[#4e5667] text-xl font-bold uppercase tracking-widest">Your cart is empty</p>
+      <button routerLink="/" class="mt-4 text-[#66c0f4] font-black hover:underline uppercase text-xs tracking-widest">Return to Store</button>
     </div>
   } @else {
-    <div class="space-y-4">
+    <div class="space-y-3">
       @for (item of items(); track item.id) {
-        <div class="flex items-center gap-8 bg-slate-900/40 p-6 rounded-[32px] border border-white/5 hover:border-white/10 transition-all group">
-          <div class="w-40 aspect-video rounded-2xl overflow-hidden bg-slate-800 flex items-center justify-center shadow-xl flex-shrink-0">
+        <div class="flex items-center gap-6 bg-[#1e232b] p-4 rounded-sm border border-white/5 hover:border-white/10 transition-all group">
+          <div class="w-32 aspect-video rounded-sm overflow-hidden bg-black flex-shrink-0">
             @let cover = item.game.media.find(m => m.isMain)?.fileUrl;
-            @if (cover) {
-            <img [src]="cover" class="w-full h-full object-cover">
-            } @else {
-            <div class="text-slate-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="15.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="12.5" r=".5" fill="currentColor"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/></svg>
-            </div>
-            }
+            <img [src]="cover || 'assets/placeholder.png'" crossorigin="anonymous" class="w-full h-full object-cover">
           </div>
           
-          <div class="flex-1">
-            <h3 class="text-2xl font-black text-white uppercase italic tracking-tight">{{ item.game.title }}</h3>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">{{ item.game.developer?.name }}</p>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-bold text-[#c7d5e0] truncate uppercase tracking-tight">{{ item.game.title }}</h3>
+            <p class="text-[#565d66] text-[10px] font-bold uppercase tracking-widest">{{ item.game.developer?.name }}</p>
           </div>
 
-          <div class="text-right flex flex-col items-end gap-2">
+          <div class="text-right flex flex-col items-end gap-1">
             @if (item.game.discount) {
-              <span class="text-xs text-slate-500 line-through decoration-rose-500/50">${{ item.game.price }}</span>
-              <span class="text-2xl font-black text-emerald-400">
-                ${{ (item.game.price * (1 - item.game.discount.discountPercent / 100)) | number:'1.2-2' }}
-              </span>
+              <span class="text-[10px] text-[#8f98a0] line-through">${{ item.game.price }}</span>
+              <span class="text-lg font-black text-[#a4d007]">${{ (item.game.price * (1 - item.game.discount.discountPercent / 100)) | number:'1.2-2' }}</span>
             } @else {
-              <span class="text-2xl font-black text-emerald-400">${{ item.game.price }}</span>
+              <span class="text-lg font-black text-[#66c0f4]">${{ item.game.price }}</span>
             }
-            <button (click)="removeItem(item.gameId)" class="text-slate-600 hover:text-rose-500 transition-colors flex items-center gap-2 uppercase text-[10px] font-black tracking-widest">
+            <button (click)="removeItem(item.gameId)" class="text-[#4e5667] hover:text-rose-500 transition-colors uppercase text-[9px] font-bold tracking-widest mt-1">
               Remove
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
             </button>
           </div>
         </div>
       }
     </div>
 
-    <div class="bg-indigo-600 rounded-[40px] p-12 flex flex-col md:flex-row justify-between items-center gap-8 shadow-2xl shadow-indigo-600/30">
+    <div class="mt-12 bg-[#1b2838] border border-white/10 p-8 rounded-sm shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8">
       <div class="text-center md:text-left">
-        <p class="text-indigo-200 uppercase font-bold text-xs tracking-[0.4em] mb-2">Estimated Total</p>
-        <p class="text-6xl font-black text-white italic tracking-tighter">${{ totalPrice() }}</p>
+        <p class="text-[#8f98a0] uppercase font-bold text-[10px] tracking-[0.4em] mb-2">Estimated Total</p>
+        <p class="text-5xl font-black text-white uppercase tracking-tighter">${{ totalPrice() }}</p>
       </div>
 
       <button (click)="buyNow()" 
               [disabled]="isCheckingOut()"
-              class="bg-white text-black px-16 py-6 rounded-2xl font-black text-xl uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100">
-        {{ isCheckingOut() ? 'Processing...' : 'Checkout Now' }}
+              class="w-full md:w-auto bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] px-16 py-4 rounded-sm font-black text-sm uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(164,208,7,0.2)] transition-all active:scale-[0.97] disabled:opacity-50">
+        {{ isCheckingOut() ? 'Purchasing...' : 'Purchase for myself' }}
       </button>
+    </div>
+    
+    <div class="flex justify-center md:justify-end pr-4">
+        <p class="text-[#4e5667] text-[9px] uppercase font-bold tracking-widest">
+            All transactions are secure and encrypted.
+        </p>
     </div>
   }
 </div>

@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, HostListener, inject, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './core/components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
@@ -33,6 +33,7 @@ export class App implements OnInit {
   private reviewService = inject(ReviewService);
   private notifService = inject(NotificationService);
   private pollingInterval: any;
+  private eRef = inject(ElementRef)
 
   reviewRating = signal(5);
   reviewComment = signal('');
@@ -41,6 +42,8 @@ export class App implements OnInit {
   notifications = signal<INotification[]>([]); 
   isLeaveModalOpen = signal(false);
   isLeaving = signal(false);
+  stagedSortBy = signal<string>('newest');
+  stagedFreeOnly = signal<boolean>(false);
 
   constructor() {
     effect(() => {
@@ -74,6 +77,17 @@ export class App implements OnInit {
 
   toggleMenu() {
     this.isMenuOpen.update(v => !v);
+  }
+
+  toggleFilterMenu() {
+    if (!this.isFilterMenuOpen()) {
+      this.stagedSortBy.set(this.searchState.sortBy());
+      this.stagedFreeOnly.set(this.searchState.freeOnly());
+      
+      this.minPriceInput = this.searchState.minPrice();
+      this.maxPriceInput = this.searchState.maxPrice();
+    }
+    this.isFilterMenuOpen.update(v => !v);
   }
 
   closeMenu() {
@@ -224,29 +238,49 @@ export class App implements OnInit {
   }
 
   applyFilters() {
+    this.searchState.setSort(this.stagedSortBy());
+    this.searchState.setFreeOnly(this.stagedFreeOnly());
+    
     this.searchState.setPriceRange(this.minPriceInput, this.maxPriceInput);
+    
     this.isFilterMenuOpen.set(false);
   }
 
   resetFilters() {
     this.minPriceInput = null;
     this.maxPriceInput = null;
+    this.stagedSortBy.set('newest');
+    this.stagedFreeOnly.set(false);
     this.searchState.clearAll();
     this.isFilterMenuOpen.set(false);
   }
 
   submitReviewFromGlobal() {
     const gameId = this.reviewModal.gameId();
-    if (!gameId) return;
+    if (!gameId) {
+        this.toast.show('Error: Game ID not found', 'error');
+        return;
+    }
+
+    this.isSubmittingReview.set(true);
 
     const request = this.reviewModal.isEditing() 
       ? this.reviewService.updateReview(this.reviewModal.reviewId()!, this.reviewRating(), this.reviewComment())
       : this.reviewService.createReview(gameId, this.reviewRating(), this.reviewComment());
     
-    request.subscribe(() => {
-      this.toast.show('Done!', 'success');
-      this.reviewModal.close();
-      location.reload();
+    request.subscribe({
+      next: () => {
+        this.toast.show(this.reviewModal.isEditing() ? 'Review updated!' : 'Review published!', 'success');
+        this.isSubmittingReview.set(false);
+        this.reviewModal.close();
+        
+        setTimeout(() => location.reload(), 500);
+      },
+      error: (err) => {
+        this.isSubmittingReview.set(false);
+        const message = err.error?.message || 'Failed to submit review';
+        this.toast.show(Array.isArray(message) ? message[0] : message, 'error');
+      }
     });
   }
 
@@ -262,6 +296,22 @@ export class App implements OnInit {
       });
     }
   }
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: any) {
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.isFilterMenuOpen.set(false);
+      this.isMenuOpen.set(false);
+      this.isNotifMenuOpen.set(false);
+    }
+  }
+
+  isAnyFilterActive = computed(() => {
+    return this.searchState.sortBy() !== 'newest' || 
+           this.searchState.freeOnly() || 
+           this.searchState.minPrice() !== null || 
+           this.searchState.maxPrice() !== null;
+  });
 
   restrictNumeric(event: KeyboardEvent) {
     const allowedKeys = [

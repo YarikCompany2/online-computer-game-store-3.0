@@ -1,146 +1,167 @@
-<div class="p-12 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-500">
+<div class="p-12 max-w-7xl mx-auto space-y-12 page-fade-in">
   
   <header>
     <div class="flex items-center gap-3 mb-4">
-        <span class="w-12 h-1 bg-rose-500 rounded-full"></span>
-        <span class="text-rose-500 font-black uppercase text-[10px] tracking-[0.4em]">Command Center</span>
+        <div class="w-10 h-1 bg-[#66c0f4] shadow-[0_0_15px_rgba(102,192,244,0.3)]"></div>
+        <span class="text-[#66c0f4] font-black uppercase text-[10px] tracking-[0.4em]">Command Center</span>
     </div>
-    <h1 class="text-6xl font-black italic uppercase text-white leading-none tracking-tighter">Admin Hub</h1>
+    <h1 class="text-6xl font-black uppercase text-white leading-none tracking-tighter">Admin Hub</h1>
   </header>
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-    <div class="bg-slate-900/40 border border-white/5 p-8 rounded-[40px] backdrop-blur-xl">
-      <p class="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-4">Total Users</p>
-      <p class="text-5xl font-black text-white italic">{{ stats()?.totalUsers }}</p>
+    <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl relative group">
+      <p class="text-[#4e5667] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Total Users</p>
+      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalUsers }}</p>
     </div>
-    <div class="bg-slate-900/40 border border-white/5 p-8 rounded-[40px] backdrop-blur-xl">
-      <p class="text-indigo-400 text-[9px] font-black uppercase tracking-widest mb-4">Moderators</p>
-      <p class="text-5xl font-black text-white italic">{{ stats()?.totalModerators }}</p>
+    
+    <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl">
+      <p class="text-[#66c0f4] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Moderators</p>
+      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalModerators }}</p>
     </div>
-    <div class="bg-slate-900/40 border border-white/5 p-8 rounded-[40px] backdrop-blur-xl">
-      <p class="text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-4">Registered Studios</p>
-      <p class="text-5xl font-black text-white italic">{{ stats()?.totalCompanies }}</p>
+
+    <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl">
+      <p class="text-[#a4d007] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Registered Studios</p>
+      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalCompanies }}</p>
     </div>
-    <div class="bg-slate-900/40 border border-white/5 p-8 rounded-[40px] backdrop-blur-xl">
-      <p class="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-4">Studio Members</p>
-      <p class="text-5xl font-black text-white italic">{{ stats()?.totalCompanyMembers }}</p>
+
+    <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl">
+      <p class="text-[#4e5667] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Studio Members</p>
+      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalCompanyMembers }}</p>
     </div>
   </div>
 
-  <div class="bg-slate-900/20 border border-white/5 p-10 rounded-[48px] backdrop-blur-md relative overflow-hidden">
-    <div class="flex items-center gap-4 mb-8">
-        <div class="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center border border-rose-500/20">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 22-1.5-1.5"/><circle cx="18.5" cy="17.5" r="2.5"/></svg>
+  <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl relative overflow-hidden">
+    <div class="flex items-center gap-4 mb-10">
+        <div class="w-12 h-12 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M2 21v-2a4 4 0 0 1 4-4h5"></path>
+              <circle cx="18.5" cy="17.5" r="3.5"></circle>
+              <line x1="22" y1="21" x2="21" y2="20"></line>
+            </svg>
         </div>
         <div>
-            <h3 class="text-2xl font-black text-white uppercase italic leading-none">Find & Manage Users</h3>
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-2">Promote members to moderation staff</p>
+            <h3 class="text-2xl font-black text-white uppercase leading-none tracking-widest">Find & Manage Users</h3>
+            <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-[0.3em] mt-2">Authority & Role Distribution</p>
         </div>
     </div>
 
     <div class="relative">
       <input type="text" [ngModel]="userSearchQuery()" (ngModelChange)="onSearchInput($event)"
-             placeholder="Search by username or email (min 2 chars)..."
-             class="w-full bg-slate-950/50 border border-white/10 rounded-3xl py-5 px-8 text-white outline-none focus:border-rose-500/50 transition-all font-bold text-lg">
+             placeholder="SEARCH BY USERNAME OR EMAIL..."
+             class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-5 px-8 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-black text-xs tracking-[0.2em] placeholder:text-[#4e5667]">
       
       @if (isSearching()) {
         <div class="absolute right-6 top-1/2 -translate-y-1/2">
-            <div class="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="w-5 h-5 border-2 border-[#66c0f4] border-t-transparent rounded-full animate-spin"></div>
         </div>
       }
     </div>
 
     @if (searchResults().length > 0) {
-      <div class="mt-6 space-y-2 animate-in slide-in-from-top-4 duration-300">
+      <div class="mt-8 space-y-2 border-t border-white/5 pt-8">
         @for (u of searchResults(); track u.id) {
-          <div class="flex items-center justify-between p-6 bg-white/[0.03] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400">
+          <div class="flex items-center justify-between p-6 bg-[#171a21] border border-white/5 rounded-sm hover:border-[#316282]/50 transition-all group">
+  
+            <div class="flex items-center gap-6">
+                <div class="w-10 h-10 bg-[#316282]/40 flex items-center justify-center font-black text-[#66c0f4] text-sm rounded-sm border border-[#66c0f4]/20">
                     {{ u.username[0].toUpperCase() }}
                 </div>
-                <div>
-                    <p class="font-bold text-white uppercase italic">{{ u.username }}</p>
-                    <p class="text-[10px] text-slate-500 font-mono">{{ u.email }}</p>
+                
+                <div class="flex items-center gap-5">
+                    <div>
+                        <p class="font-black text-white uppercase tracking-wider leading-none mb-1.5">{{ u.username }}</p>
+                        <p class="text-[9px] text-[#4e5667] font-mono leading-none tracking-wider">{{ u.email }}</p>
+                    </div>
+
+                    @if (u.role === 'moderator') {
+                      <span class="bg-[#316282] text-[#66c0f4] px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-[0.2em] border border-[#66c0f4]/30">
+                        Moderator
+                      </span>
+                    } @else if (u.role === 'admin') {
+                      <span class="bg-[#c7d5e0] text-[#171a21] px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-[0.2em]">
+                        Administrator
+                      </span>
+                    } @else {
+                      <span class="bg-[#1e232b] text-[#4e5667] border border-white/5 px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-[0.2em]">
+                        User
+                      </span>
+                    }
                 </div>
-                <span class="ml-4 px-3 py-1 rounded-full text-[8px] font-black uppercase border border-white/10"
-                      [class.text-indigo-400]="u.role === 'moderator'"
-                      [class.text-rose-400]="u.role === 'admin'"
-                      [class.text-slate-600]="u.role === 'user'">
-                  {{ u.role }}
-                </span>
             </div>
 
-            @if (u.role === 'user') {
-              <button (click)="openStaffModal(u, 'promote')"
-                      class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black rounded-xl uppercase tracking-widest transition-all active:scale-95">
-                Make Moderator
-              </button>
-            }
-
-            @if (u.role === 'moderator') {
-              <button (click)="openStaffModal(u, 'demote')"
-                      class="px-6 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
-                Remove Moderator
-              </button>
-            }
+            <div class="flex gap-2">
+                @if (u.role === 'user') {
+                  <button (click)="openStaffModal(u, 'promote')"
+                          class="bg-[#66c0f4] text-[#171a21] px-6 py-2.5 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-[#55a9d8] transition-colors active:scale-95">
+                    Assign Mod
+                  </button>
+                }
+                
+                @if (u.role === 'moderator') {
+                  <button (click)="openStaffModal(u, 'demote')"
+                          class="bg-[#e11d48] text-white px-6 py-2.5 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-[#be123c] transition-colors active:scale-95">
+                    Revoke Mod
+                  </button>
+                }
+            </div>
           </div>
         }
       </div>
     } @else if (userSearchQuery().length >= 2 && !isSearching()) {
-        <p class="mt-8 text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">No matches found for your criteria</p>
+        <p class="mt-8 text-center text-[10px] text-[#4e5667] font-bold uppercase tracking-[0.4em]">No database entries found</p>
     }
   </div>
 </div>
 @if (isStaffModalOpen()) {
-  <div class="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300" (click)="closeStaffModal()">
-    <div class="w-full max-w-md bg-[#0f172a] border border-white/10 p-10 rounded-[40px] shadow-2xl relative overflow-hidden" (click)="$event.stopPropagation()">
+  <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    <div [class.border-[#316282]/40]="modalMode() === 'promote'"
+         [class.border-rose-500/30]="modalMode() === 'demote'"
+         class="w-full max-w-md bg-[#1e232b] border p-10 rounded-sm shadow-2xl relative">
       
-      <div class="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px]"
-           [class.bg-indigo-600/20]="modalMode() === 'promote'"
-           [class.bg-rose-600/20]="modalMode() === 'demote'"></div>
-
-      <div class="text-center mb-8 relative z-10">
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border"
-             [class.bg-indigo-500/10]="modalMode() === 'promote'"
-             [class.text-indigo-400]="modalMode() === 'promote'"
-             [class.border-indigo-500/20]="modalMode() === 'promote'"
-             [class.bg-rose-500/10]="modalMode() === 'demote'"
-             [class.text-rose-500]="modalMode() === 'demote'"
-             [class.border-rose-500/20]="modalMode() === 'demote'">
-          
-          @if (modalMode() === 'promote') {
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          } @else {
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-          }
-        </div>
-
-        <h2 class="text-3xl font-black text-white uppercase italic tracking-tighter">
-          {{ modalMode() === 'promote' ? 'Assign Authority?' : 'Revoke Authority?' }}
+      <header class="text-center mb-8">
+        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">
+            {{ modalMode() === 'promote' ? 'Promote to Staff?' : 'Revoke Authority?' }}
         </h2>
-        
-        <p class="text-slate-400 text-sm mt-4 leading-relaxed">
-          Are you sure you want to change <span class="text-white font-bold">{{ targetUser()?.username }}'s</span> role to 
-          <span class="text-indigo-400 font-bold uppercase">{{ modalMode() === 'promote' ? 'Moderator' : 'User' }}</span>?
-        </p>
-      </div>
+        <div [class.bg-[#66c0f4]]="modalMode() === 'promote'"
+             [class.bg-rose-500]="modalMode() === 'demote'"
+             class="h-1 w-12 mx-auto mt-2 transition-colors"></div>
+      </header>
 
-      <div class="flex flex-col gap-3 relative z-10">
+      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10">
+        @if (modalMode() === 'promote') {
+            Are you sure you want to assign moderator rights to 
+            <span class="text-white font-black">{{ targetUser()?.username }}</span>? 
+            This user will gain access to the Moderation Desk.
+        } @else {
+            Are you sure you want to revoke moderator rights from 
+            <span class="text-white font-black">{{ targetUser()?.username }}</span>? 
+            This user will <span class="text-rose-500 font-bold">lose all access</span> to staff-only areas.
+        }
+      </p>
+
+      <div class="flex flex-col gap-2">
         <button (click)="confirmStaffChange()" 
                 [disabled]="isProcessing()"
-                [class.bg-indigo-600]="modalMode() === 'promote'"
-                [class.bg-rose-600]="modalMode() === 'demote'"
-                class="w-full hover:opacity-90 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-95 flex justify-center items-center gap-3">
+                [class.bg-[#66c0f4]]="modalMode() === 'promote'"
+                [class.text-[#171a21]]="modalMode() === 'promote'" 
+                
+                [class.bg-[#e11d48]]="modalMode() === 'demote'"
+                [class.text-white]="modalMode() === 'demote'" 
+                
+                class="w-full py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:scale-95 shadow-xl">
+          
           @if (isProcessing()) {
-            <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            Updating...
+            <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            Syncing...
           } @else {
-            {{ modalMode() === 'promote' ? 'CONFIRM PROMOTION' : 'CONFIRM DEMOTION' }}
+            {{ modalMode() === 'promote' ? 'Establish Authority' : 'Confirm Revocation' }}
           }
         </button>
-        
+
         <button (click)="closeStaffModal()" 
-                class="w-full py-4 text-slate-500 font-bold hover:text-white transition-colors uppercase tracking-widest text-[10px]">
+                [disabled]="isProcessing()"
+                class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">
           Cancel Action
         </button>
       </div>
