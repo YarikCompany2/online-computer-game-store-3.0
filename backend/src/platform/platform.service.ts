@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
+import { Platform } from './entities/platform.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PlatformService {
-  create(createPlatformDto: CreatePlatformDto) {
-    return 'This action adds a new platform';
-  }
+  constructor(
+    @InjectRepository(Platform)
+    private readonly repo: Repository<Platform>
+  ) {}
 
-  findAll() {
-    return `This action returns all platform`;
+  async findAll() {
+    return await this.repo.find({ order: { name: 'ASC' } });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} platform`;
-  }
-
-  update(id: number, updatePlatformDto: UpdatePlatformDto) {
-    return `This action updates a #${id} platform`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} platform`;
+    return this.repo.findOne({ where: { id } });
   }
 }

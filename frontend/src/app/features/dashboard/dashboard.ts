@@ -39,11 +39,11 @@ export class DashboardComponent implements OnInit {
   }
 
   sendInvite(identifier: string) {
-    if (!identifier.trim()) return;
-
     this.dashboardService.inviteMember(identifier).subscribe({
-      next: () => this.toast.show(`Invitation sent to ${identifier}!`, 'success'),
-      error: (err) => this.toast.show(err.error?.message || 'Failed to send invite', 'error')
+      next: () => this.toast.show(`Invite sent to ${identifier}`, 'success'),
+      error: (err) => {
+        this.toast.show(err.error?.message || 'Action restricted', 'error');
+      }
     });
   }
 

@@ -1,4 +1,41 @@
 @if (game(); as g) {
+  @if (auth.currentUser()?.role === 'admin' || auth.currentUser()?.role === 'moderator') {
+    @if (g.status === 'pending_moderation') {
+      <div class="sticky top-0 z-[100] bg-[#1e232b] border-b border-[#66c0f4]/30 shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-in slide-in-from-top duration-500">
+        <div class="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+          
+          <div class="flex items-center gap-4">
+            <div class="w-2 h-2 bg-[#66c0f4] rounded-full animate-pulse"></div>
+            <div>
+              <p class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Moderation Mode: Preview</p>
+              <p class="text-[8px] text-[#4e5667] font-bold uppercase tracking-widest">This project is not yet visible to the public</p>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button routerLink="/moderation" class="px-4 py-2 text-[#8f98a0] hover:text-white text-[9px] font-black uppercase tracking-widest transition-colors">
+              Back to Desk
+            </button>
+            
+            <span class="w-px h-6 bg-white/5 mx-2"></span>
+            
+            <p class="text-[9px] font-black text-[#4e5667] uppercase tracking-widest self-center mr-2">Quick Verdict:</p>
+            
+            <button (click)="openRejectModal()" 
+                    class="px-6 py-2 bg-[#e11d48] text-white rounded-sm font-black text-[9px] uppercase tracking-widest hover:bg-[#be123c] transition-all shadow-lg">
+              Reject
+            </button>
+            
+            <button (click)="openApproveModal()" 
+                    class="px-6 py-2 bg-[#66c0f4] text-[#171a21] rounded-sm font-black text-[9px] uppercase tracking-widest hover:bg-[#55a9d8] transition-all shadow-lg">
+              Approve & Publish
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
   <div class="min-h-screen bg-[#171a21] text-[#c7d5e0] font-sans pb-20 page-fade-in relative overflow-x-hidden">
     
     <div class="absolute top-0 left-0 w-full h-[70vh] -z-10 overflow-hidden">
@@ -48,55 +85,93 @@
                 <span class="w-10 h-0.5 bg-[#66c0f4]"></span>
                 About this project
             </h3>
-            <p class="text-lg text-[#8f98a0] leading-relaxed whitespace-pre-line">{{ g.description }}</p>
+            <p class="text-lg text-[#8f98a0] leading-relaxed whitespace-pre-line font-medium">{{ g.description }}</p>
           </div>
 
           <div class="bg-[#1e232b] p-10 border border-white/5 rounded-sm">
             <h3 class="text-white font-black uppercase text-[11px] tracking-[0.3em] mb-10">Technical Specifications</h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div class="space-y-6">
-                <div class="flex items-center gap-2 border-b border-white/5 pb-3">
-                   <p class="text-[#66c0f4] text-[10px] font-black uppercase tracking-widest">Minimum</p>
-                   @if (minRequirements(); as req) {
-                     <div class="flex gap-2 ml-auto opacity-40">
-                        @for (p of req.platforms; track p.id) {
-                            <span class="text-[9px] uppercase font-bold text-white">{{ p.name }}</span>
-                        }
-                     </div>
-                   }
-                </div>
+            @if (game()?.requirements?.length) {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                
                 @if (minRequirements(); as req) {
-                  <div class="space-y-4">
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">OS</span> <span class="text-sm font-bold">{{ req.os }}</span></div>
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Processor</span> <span class="text-sm font-bold">{{ req.processor }}</span></div>
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Memory</span> <span class="text-sm font-bold">{{ req.ram }}</span></div>
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Graphics</span> <span class="text-sm font-bold">{{ req.gpu }}</span></div>
-                    <div class="flex flex-col pt-2"><span class="text-[#4e5667] text-[9px] uppercase font-black">Storage</span> <span class="text-base font-black text-[#66c0f4]">{{ req.storage }}</span></div>
-                  </div>
-                }
-              </div>
+                  <div class="space-y-6">
+                    <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+                      <p class="text-[#66c0f4] text-[10px] font-black uppercase tracking-widest">Minimum</p>
+                      <div class="flex gap-2 ml-auto">
+                          @for (p of req.platforms; track p.id) {
+                              <span class="text-[9px] uppercase font-black text-white bg-[#316282] px-2 py-0.5 rounded-sm shadow-sm">{{ p.name }}</span>
+                          }
+                      </div>
+                    </div>
 
-              <div class="space-y-6">
-                <div class="flex items-center gap-2 border-b border-white/5 pb-3">
-                    <p class="text-[#a4d007] text-[10px] font-black uppercase tracking-widest">Recommended</p>
-                </div>
+                    <div class="space-y-4">
+                      <div class="flex flex-col">
+                        <span class="text-[#4e5667] text-[9px] font-black uppercase tracking-wider">OS Target</span> 
+                        <span class="text-sm font-bold text-[#c7d5e0]">{{ getPlatformNames(req.platforms) }}</span>
+                      </div>
+                      
+                      @if (req.processor?.trim()) {
+                        <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Processor</span> <span class="text-sm font-bold">{{ req.processor }}</span></div>
+                      }
+                      @if (req.ram?.trim()) {
+                        <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Memory</span> <span class="text-sm font-bold">{{ req.ram }}</span></div>
+                      }
+                      @if (req.gpu?.trim()) {
+                        <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Graphics</span> <span class="text-sm font-bold">{{ req.gpu }}</span></div>
+                      }
+                      @if (req.storage?.trim()) {
+                        <div class="flex flex-col pt-2"><span class="text-[#4e5667] text-[9px] uppercase font-black">Storage</span> <span class="text-base font-black text-[#66c0f4]">{{ req.storage }}</span></div>
+                      }
+                    </div>
+                  </div>
+                }
+
                 @if (recRequirements(); as req) {
-                  <div class="space-y-4">
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">OS</span> <span class="text-sm font-bold">{{ req.os }}</span></div>
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Processor</span> <span class="text-sm font-bold">{{ req.processor }}</span></div>
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Memory</span> <span class="text-sm font-bold">{{ req.ram }}</span></div>
-                    <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Graphics</span> <span class="text-sm font-bold">{{ req.gpu }}</span></div>
-                    <div class="flex flex-col pt-2"><span class="text-[#4e5667] text-[9px] uppercase font-black">Storage</span> <span class="text-base font-black text-[#a4d007]">{{ req.storage }}</span></div>
+                  <div class="space-y-6">
+                    <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+                      <p class="text-[#a4d007] text-[10px] font-black uppercase tracking-widest">Recommended</p>
+                      <div class="flex gap-2 ml-auto">
+                          @for (p of req.platforms; track p.id) {
+                              <span class="text-[9px] uppercase font-black text-white bg-[#316282] px-2 py-0.5 rounded-sm shadow-sm">{{ p.name }}</span>
+                          }
+                      </div>
+                    </div>
+
+                    <div class="space-y-4">
+                      <div class="flex flex-col">
+                        <span class="text-[#4e5667] text-[9px] font-black uppercase tracking-wider">OS Target</span> 
+                        <span class="text-sm font-bold text-[#c7d5e0]">{{ getPlatformNames(req.platforms) }}</span>
+                      </div>
+                      
+                      @if (req.processor?.trim()) {
+                        <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Processor</span> <span class="text-sm font-bold">{{ req.processor }}</span></div>
+                      }
+                      @if (req.ram?.trim()) {
+                        <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Memory</span> <span class="text-sm font-bold">{{ req.ram }}</span></div>
+                      }
+                      @if (req.gpu?.trim()) {
+                        <div class="flex flex-col"><span class="text-[#4e5667] text-[9px] uppercase font-black">Graphics</span> <span class="text-sm font-bold">{{ req.gpu }}</span></div>
+                      }
+                      @if (req.storage?.trim()) {
+                        <div class="flex flex-col pt-2"><span class="text-[#4e5667] text-[9px] uppercase font-black">Storage</span> <span class="text-base font-black text-[#a4d007]">{{ req.storage }}</span></div>
+                      }
+                    </div>
                   </div>
                 }
               </div>
-            </div>
+            } @else {
+              <div class="py-16 flex flex-col items-center justify-center border border-dashed border-[#316282]/20 bg-[#171a21]/30 rounded-sm">
+                <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.5em] text-center leading-relaxed">
+                  The developer has not provided<br>system requirements for this project.
+                </p>
+              </div>
+            }
           </div>
 
           <div class="space-y-8 pt-10">
             <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-black text-white uppercase tracking-tighter italic">Player Reviews</h3>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Player Reviews</h3>
                 <span class="text-[10px] font-bold text-[#4e5667] uppercase tracking-widest">{{ reviews().length }} comments</span>
             </div>
 
@@ -109,20 +184,19 @@
             <div class="space-y-4">
               @for (rev of reviews(); track rev.id) {
                 <div class="bg-[#1e232b] border border-white/5 p-6 rounded-sm group transition-all hover:border-white/10">
-                    
                     <div class="flex justify-between items-start mb-6">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-[#316282]/30 rounded-sm flex-shrink-0 overflow-hidden border border-white/5">
                                 @if (rev.user.avatarUrl) {
                                     <img [src]="rev.user.avatarUrl" crossorigin="anonymous" class="w-full h-full object-cover">
                                 } @else {
-                                    <div class="w-full h-full flex items-center justify-center text-[#66c0f4] font-black text-xl italic">
+                                    <div class="w-full h-full flex items-center justify-center text-[#66c0f4] font-black text-xl">
                                         {{ rev.user.username[0].toUpperCase() }}
                                     </div>
                                 }
                             </div>
                             <div>
-                                <p class="text-sm font-black text-white uppercase italic tracking-wider leading-none mb-1.5">{{ rev.user.username }}</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wider leading-none mb-1.5">{{ rev.user.username }}</p>
                                 <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-[0.2em]">{{ rev.createdAt | date:'mediumDate' }}</p>
                             </div>
                         </div>
@@ -138,20 +212,13 @@
                             </div>
 
                             @if (rev.user.username === auth.currentUser()?.username) {
-                                <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
-                                    <button (click)="startEdit()" 
-                                            class="text-[9px] font-black text-[#66c0f4] uppercase tracking-[0.2em] hover:text-white transition-colors">
-                                        Edit
-                                    </button>
-                                    <button (click)="openDelete(rev.id)" 
-                                            class="text-[9px] font-black text-rose-500/70 uppercase tracking-[0.2em] hover:text-rose-500 transition-colors">
-                                        Delete
-                                    </button>
+                                <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                                    <button (click)="startEdit()" class="text-[9px] font-black text-[#66c0f4] uppercase tracking-[0.2em] hover:text-white transition-colors">Edit</button>
+                                    <button (click)="openDelete(rev.id)" class="text-[9px] font-black text-rose-500/70 uppercase tracking-[0.2em] hover:text-rose-500 transition-colors">Delete</button>
                                 </div>
                             }
                         </div>
                     </div>
-
                     <div class="pl-1 text-sm text-[#8f98a0] leading-relaxed font-medium border-l-2 border-[#316282]/20 ml-1 py-1">
                         {{ rev.comment }}
                     </div>
@@ -175,7 +242,17 @@
                     <p class="text-[#66c0f4] font-black text-[10px] uppercase tracking-[0.2em] mb-4">Content Licensed</p>
                     <button routerLink="/library" class="w-full py-4 bg-[#316282] hover:bg-[#3d7ba3] text-white font-black text-xs uppercase rounded-sm transition-all shadow-lg">In Library</button>
                 </div>
-              } @else {
+              } 
+              @else if ((auth.currentUser()?.role === 'admin' || auth.currentUser()?.role === 'moderator') && g.status === 'pending_moderation') {
+              }
+              @else if (isComingSoon()) {
+                <div class="p-6 bg-[#171a21] border border-[#316282]/30 text-center animate-in zoom-in duration-300">
+                    <p class="text-rose-500 font-black text-[10px] uppercase tracking-[0.4em] mb-2">Coming Soon</p>
+                    <p class="text-white font-black text-xl uppercase tracking-tighter">{{ g.createdAt | date:'MMMM d, y' }}</p>
+                    <div class="h-1 w-8 bg-rose-500 mx-auto mt-4 shadow-[0_0_10px_rgba(225,29,72,0.4)]"></div>
+                </div>
+              }
+              @else {
                 <div class="flex justify-between items-center p-4 bg-black/40 rounded-sm">
                     @if (g.discount) {
                         <div class="bg-[#a4d007] text-[#171a21] px-2 py-1 font-black text-xl">-{{ g.discount.discountPercent }}%</div>
@@ -189,8 +266,10 @@
                     }
                 </div>
 
-                <button class="bg-[#a4d007] text-[#171a21] px-10 py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-[#bef30a] transition-colors duration-200">
-                  Add to Cart
+                <button (click)="$event.stopPropagation(); addToCart()" 
+                        [disabled]="isAddingToCart()"
+                        class="w-full py-5 bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all active:scale-[0.97] disabled:opacity-50">
+                  {{ isAddingToCart() ? 'Processing...' : 'Add to Cart' }}
                 </button>
               }
             </div>
@@ -219,5 +298,48 @@
 } @else {
   <div class="min-h-screen bg-[#171a21] flex justify-center items-center">
     <div class="w-16 h-16 border-4 border-[#66c0f4] border-t-transparent rounded-full animate-spin"></div>
+  </div>
+}
+@if (isApproveModalOpen()) {
+  <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/40 p-10 rounded-sm shadow-2xl relative">
+      <header class="text-center mb-8">
+        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Publish Project?</h2>
+        <div class="h-1 w-12 bg-[#66c0f4] mx-auto mt-2"></div>
+      </header>
+      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10">
+        Confirming <span class="text-white font-black">{{ game()?.title }}</span> will make it instantly available for purchase in the global store.
+      </p>
+      <div class="flex flex-col gap-2">
+        <button (click)="confirmApprove()" [disabled]="isProcessingAction()"
+                class="w-full bg-[#66c0f4] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3">
+          @if (isProcessingAction()) { <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> SYNCING... }
+          @else { AUTHORIZE RELEASE }
+        </button>
+        <button (click)="isApproveModalOpen.set(false)" class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (isRejectModalOpen()) {
+  <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="w-full max-w-md bg-[#1e232b] border border-rose-500/30 p-10 rounded-sm shadow-2xl relative">
+      <header class="text-center mb-8">
+        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Wipe Submission?</h2>
+        <div class="h-1 w-12 bg-rose-600 mx-auto mt-2"></div>
+      </header>
+      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10">
+        Rejecting <span class="text-white font-black">{{ game()?.title }}</span> will permanently delete all associated data and build files.
+      </p>
+      <div class="flex flex-col gap-2">
+        <button (click)="confirmReject()" [disabled]="isProcessingAction()"
+                class="w-full bg-[#e11d48] text-white py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3">
+          @if (isProcessingAction()) { <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> DELETING... }
+          @else { CONFIRM REJECTION }
+        </button>
+        <button (click)="isRejectModalOpen.set(false)" class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Cancel</button>
+      </div>
+    </div>
   </div>
 }

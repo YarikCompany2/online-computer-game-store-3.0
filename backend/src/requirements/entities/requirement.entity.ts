@@ -23,9 +23,6 @@ export class Requirement {
   type: RequirementType;
 
   @Column({ length: 255 })
-  os: string;
-
-  @Column({ length: 255 })
   processor: string;
 
   @Column({ length: 255 })

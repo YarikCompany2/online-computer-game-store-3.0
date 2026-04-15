@@ -1,0 +1,244 @@
+<div class="p-12 max-w-7xl mx-auto space-y-12 page-fade-in text-[#c7d5e0]">
+  @if (data(); as gameData) {
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div>
+        <div class="flex flex-wrap gap-6 mb-6">
+            <a routerLink="/dashboard" class="text-[#4e5667] hover:text-white uppercase text-[9px] font-black tracking-[0.3em] flex items-center gap-2 transition-all group">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="group-hover:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+                Back to Hub
+            </a>
+            <a [routerLink]="['/game', gameId]" class="text-[#66c0f4] hover:text-white uppercase text-[9px] font-black tracking-[0.3em] flex items-center gap-2 transition-all border-l border-white/10 pl-6 group">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                View Store Page
+            </a>
+        </div>
+        <h1 class="text-6xl font-black text-white uppercase tracking-tighter leading-none">{{ gameData.title }}</h1>
+        <div class="flex items-center gap-3 mt-4 ml-1">
+            <div class="w-8 h-0.5 bg-[#66c0f4]"></div>
+            <p class="text-[#66c0f4] font-black uppercase text-[10px] tracking-[0.4em]">Performance Intelligence</p>
+        </div>
+      </div>
+
+      <div class="bg-[#1e232b] border border-[#316282]/30 p-6 rounded-sm text-right shadow-xl min-w-[200px]">
+        <p class="text-[#4e5667] text-[9px] font-black uppercase tracking-[0.3em] mb-1">Current Store Price</p>
+        
+        <p class="text-3xl font-black tracking-tighter leading-none">
+          @if (data()?.discount && data()?.discount?.isActive) {
+            <span class="block text-[11px] text-[#4e5667] line-through mb-1 font-mono tracking-normal opacity-60">
+              ${{ data().price | number:'1.2-2' }}
+            </span>
+            <span class="text-[#a4d007] uppercase">
+              ${{ (data().price * (1 - data().discount.discountPercent / 100)) | number:'1.2-2' }}
+            </span>
+          } @else {
+            <span class="text-white uppercase">${{ data()?.price | number:'1.2-2' }}</span>
+          }
+        </p>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/5 blur-3xl group-hover:bg-white/10 transition-colors"></div>
+            <p class="text-[#4e5667] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Total Units Sold</p>
+            <p class="text-7xl font-black text-white tracking-tighter leading-none">{{ totalUnits() }}</p>
+        </div>
+        <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#a4d007]/5 blur-3xl group-hover:bg-[#a4d007]/10 transition-colors"></div>
+            <p class="text-[#a4d007] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Gross Revenue</p>
+            <p class="text-7xl font-black text-[#a4d007] tracking-tighter leading-none">${{ totalRevenue() | number:'1.2-2' }}</p>
+        </div>
+    </div>
+
+    <section class="bg-[#1e232b] border border-[#316282]/30 rounded-sm shadow-2xl overflow-hidden">
+      
+      @if (data()?.discount && data()?.discount?.isActive) {
+        <div class="p-8 bg-[#171a21]/50 border-b border-[#316282]/30 animate-in slide-in-from-top-4 duration-500">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                
+                <div class="flex flex-wrap items-center gap-8">
+                    <div class="flex items-center gap-5">
+                        <div class="w-1 h-12 bg-[#a4d007] shadow-[0_0_15px_rgba(164,208,7,0.3)]"></div>
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-[#a4d007]">Active Campaign</p>
+                            <h4 class="text-2xl font-black text-white uppercase leading-none">
+                                {{ data().discount.name }} <span class="text-[#66c0f4] ml-2">-{{ data().discount.discountPercent }}%</span>
+                            </h4>
+                        </div>
+                    </div>
+
+                    <div class="hidden xl:block w-px h-10 bg-white/5 mx-2"></div>
+
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#4e5667]">Commencement</p>
+                        <p class="text-sm font-black text-[#c7d5e0] uppercase tracking-widest leading-none">
+                            {{ data().discount.startDate | date:'mediumDate' }}
+                        </p>
+                    </div>
+
+                    <div class="w-4 h-px bg-[#316282]/40 self-end mb-1"></div>
+
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#4e5667]">Expiration</p>
+                        <p class="text-sm font-black text-rose-500/80 uppercase tracking-widest leading-none">
+                            {{ data().discount.endDate | date:'mediumDate' }}
+                        </p>
+                    </div>
+                </div>
+
+                <button (click)="removeDiscount()" 
+                        [disabled]="isApplying()"
+                        class="px-8 py-3 bg-rose-600/10 border border-rose-500/30 text-rose-500 hover:bg-rose-600 hover:text-white rounded-sm font-black text-[10px] uppercase tracking-[0.2em] transition-all active:scale-95 shadow-lg">
+                    Terminate Promotion
+                </button>
+            </div>
+        </div>
+      }
+
+      <div class="p-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+          <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              </div>
+              <div>
+                  <h3 class="text-xl font-black text-white uppercase tracking-tighter">Marketing Strategy</h3>
+                  <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-widest">Select your pricing policy</p>
+              </div>
+          </div>
+
+          <div class="flex bg-[#171a21] p-1 rounded-sm border border-[#316282]/20">
+              <button (click)="saleMode.set('global')" 
+                      [class.bg-[#316282]]="saleMode() === 'global'"
+                      class="px-5 py-2 text-[9px] font-black uppercase tracking-widest transition-all">Store Events</button>
+              <button (click)="saleMode.set('personal')" 
+                      [class.bg-[#a4d007]]="saleMode() === 'personal'"
+                      [class.text-[#171a21]]="saleMode() === 'personal'"
+                      class="px-5 py-2 text-[9px] font-black uppercase tracking-widest transition-all">Flash Sale</button>
+          </div>
+      </div>
+
+      <div class="p-10">
+          @if (data()?.discount && data()?.discount?.isActive) {
+              <div class="py-12 flex flex-col items-center justify-center border border-dashed border-[#316282]/30 bg-black/20 rounded-sm animate-in fade-in duration-500">
+                  <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.4em] text-center leading-relaxed">
+                      Marketing tools are locked while campaign is active
+                  </p>
+                  <p class="text-[8px] text-[#316282] uppercase tracking-widest mt-4">
+                      Terminate the current promotion above to enable pricing adjustments
+                  </p>
+              </div>
+          } @else {
+            @if (saleMode() === 'global') {
+              <div class="space-y-6 animate-in fade-in duration-300">
+                  <div class="space-y-3">
+                      <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1 tracking-widest">Current Global Sales</label>
+                      <select [(ngModel)]="selectedDiscountId"
+                              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-xs font-black text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none">
+                          <option [value]="null">Opt-out / No Event</option>
+                            @for (d of availableDiscounts(); track d.id) {
+                                <option [value]="d.id">
+                                    {{ d.name }} (-{{ d.discountPercent }}%)
+                                </option>
+                            }
+                      </select>
+                  </div>
+                  <button (click)="applyGlobalDiscount()" class="bg-[#66c0f4] text-[#171a21] px-10 py-4 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-[#55a9d8] transition-all">
+                      Sync with Store Event
+                  </button>
+              </div>
+            } 
+
+            @if (saleMode() === 'personal') {
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in slide-in-from-bottom-4 duration-300">
+                    <div class="space-y-2">
+                        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1 tracking-widest">Custom Title</label>
+                        <input type="text" [(ngModel)]="customSale.name" placeholder="E.G. DEVELOPER WEEK" class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm p-4 text-xs font-black text-white outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1 tracking-widest">Reduction %</label>
+                        <input type="number" [(ngModel)]="customSale.percent" min="1" max="90" (keydown)="preventNegativeAndDot($event)" class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm p-4 text-xs font-black text-[#a4d007] outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1 tracking-widest">Ends On</label>
+                        <input type="date" [(ngModel)]="customSale.endDate" [min]="minDate()" class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm p-4 text-xs font-black text-[#66c0f4] outline-none uppercase">
+                    </div>
+                    <div class="flex items-end">
+                        <button (click)="launchPersonalSale()" class="w-full bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-widest active:scale-95 transition-all">
+                            Launch Campaign
+                        </button>
+                    </div>
+                </div>
+            }
+          }
+
+          
+      </div>
+    </section>
+
+    <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl">
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-12 gap-6">
+        <h3 class="text-[#4e5667] font-black uppercase text-[10px] tracking-[0.4em]">Market Performance History</h3>
+        <div class="flex bg-[#171a21] p-1 rounded-sm border border-[#316282]/20">
+            <button (click)="toggleMetric('units')" 
+                    [class.bg-[#316282]]="activeMetric() === 'units'" 
+                    [class.text-white]="activeMetric() === 'units'"
+                    class="px-5 py-2 rounded-sm text-[9px] font-black uppercase tracking-widest transition-all text-[#4e5667]">Units</button>
+            <button (click)="toggleMetric('revenue')" 
+                    [class.bg-[#316282]]="activeMetric() === 'revenue'" 
+                    [class.text-white]="activeMetric() === 'revenue'"
+                    class="px-5 py-2 rounded-sm text-[9px] font-black uppercase tracking-widest transition-all text-[#4e5667]">Revenue</button>
+        </div>
+      </div>
+      <div class="h-[400px] relative">
+        <canvas #salesChart></canvas>
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col items-center justify-center py-40 gap-6">
+       <div class="w-12 h-12 border-4 border-[#316282]/30 border-t-[#66c0f4] rounded-full animate-spin"></div>
+       <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.4em]">Decrypting Data...</p>
+    </div>
+  }
+</div>
+@if (isTerminateModalOpen()) {
+  <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    
+    <div class="w-full max-w-md bg-[#1e232b] border border-rose-500/30 p-10 rounded-sm shadow-2xl relative overflow-hidden">
+      
+      <div class="absolute -top-12 -right-12 w-32 h-32 bg-rose-600/5 blur-3xl rounded-full"></div>
+
+      <header class="text-center mb-8 relative z-10">
+        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">
+            Terminate Campaign?
+        </h2>
+        <div class="h-1 w-12 bg-rose-600 mx-auto mt-2 shadow-[0_0_10px_rgba(225,29,72,0.3)]"></div>
+      </header>
+
+      <div class="text-center space-y-4 mb-10 relative z-10">
+        <p class="text-[#8f98a0] text-sm leading-relaxed">
+            You are about to end the <span class="text-white font-black">"{{ data()?.discount?.name }}"</span> event for this project.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2 relative z-10">
+        <button (click)="confirmTermination()" 
+                [disabled]="isApplying()"
+                class="w-full bg-[#e11d48] hover:bg-[#be123c] text-white py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:scale-95 shadow-xl shadow-rose-900/10">
+          @if (isApplying()) {
+            <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            Processing...
+          } @else {
+            Confirm Termination
+          }
+        </button>
+
+        <button (click)="isTerminateModalOpen.set(false)" 
+                [disabled]="isApplying()"
+                class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">
+          Cancel Action
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

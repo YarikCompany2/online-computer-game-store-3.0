@@ -13,6 +13,7 @@ import { User, UserRole } from '../users/entities/user.entity';
 import { LibraryService } from '../library/library.service';
 import { Company } from '../companies/entities/company.entity';
 import { Notification, NotificationStatus, NotificationType } from '../notification/entities/notification.entity';
+import { Discount } from '../discounts/entities/discount.entity';
 
 @Injectable()
 export class GamesService {
@@ -52,13 +53,7 @@ export class GamesService {
 
     const now = new Date();
 
-    const isDiscountValid = 
-      game.discount && 
-      game.discount.isActive && 
-      now >= new Date(game.discount.startDate) && 
-      now <= new Date(game.discount.endDate);
-
-    if (game.discount && !isDiscountValid) {
+    if (game.discount && !this.isDiscountValid(game.discount)) {
       game.discount = null;
     }
 
@@ -91,7 +86,9 @@ export class GamesService {
         .leftJoinAndSelect('game.developer', 'developer')
         .leftJoinAndSelect('game.media', 'media')
         .leftJoinAndSelect('game.discount', 'discount')
-        .where('game.status = :status', { status: GameStatus.ACTIVE });
+        .where('game.status IN (:...statuses)', { 
+          statuses: [GameStatus.ACTIVE, GameStatus.COMING_SOON] 
+        });
 
       if (search) {
         queryBuilder.andWhere('LOWER(game.title) LIKE LOWER(:search)', { search: `%${search}%` });
@@ -134,15 +131,8 @@ export class GamesService {
 
       const now = new Date();
       data.forEach(game => {
-        if (game.discount) {
-          const isDiscountValid = 
-            game.discount.isActive && 
-            now >= new Date(game.discount.startDate) && 
-            now <= new Date(game.discount.endDate);
-
-          if (!isDiscountValid) {
-            game.discount = null;
-          }
+        if (game.discount && !this.isDiscountValid(game.discount)) {
+          game.discount = null;
         }
       });
 
@@ -158,16 +148,16 @@ export class GamesService {
     }
 
   async create(createGameDto: CreateGameDto, companyId: string, creator: any): Promise<Game> {
-    const existingGame = await this.gameRepository
-        .createQueryBuilder('game')
-        .where('LOWER(game.title) = LOWER(:title)', { title: createGameDto.title })
-        .getOne();
+    const existingGame = await this.gameRepository.findOne({
+      where: { title: ILike(createGameDto.title) },
+      withDeleted: true,
+    });
 
     if (existingGame) {
       throw new BadRequestException(`The title "${createGameDto.title}" is already taken by another game.`);
     }
 
-    const { categoryIds, developerId, ...gameData } = createGameDto;
+    const { categoryIds, developerId, releaseDate, requirements, ...gameData } = createGameDto;
     const targetDevId = developerId || companyId;
     const isSelfPublishing = targetDevId === companyId;
 
@@ -177,11 +167,29 @@ export class GamesService {
       ...gameData,
       developerId: targetDevId,
       publisherId: companyId,
+      createdAt: releaseDate ? new Date(releaseDate) : new Date(),
       status: isSelfPublishing ? GameStatus.PENDING_MODERATION : GameStatus.INACTIVE,
       categories,
     });
 
     const savedGame = await this.gameRepository.save(game);
+
+    if (requirements && requirements.length > 0) {
+      for (const reqDto of requirements) {
+        const { platformIds, ...specs } = reqDto;
+        
+        const requirementRepo = this.gameRepository.manager.getRepository('Requirement');
+        const platformRepo = this.gameRepository.manager.getRepository('Platform');
+
+        const newRequirement = requirementRepo.create({
+          ...specs,
+          gameId: savedGame.id,
+          platforms: await platformRepo.findBy({ id: In(platformIds) })
+        });
+        
+        await requirementRepo.save(newRequirement);
+      }
+    }
 
     if (!isSelfPublishing) {
       const publisherCompany = await this.companyRepository.findOne({ where: { id: companyId } });
@@ -241,6 +249,17 @@ export class GamesService {
       throw new ForbiddenException('Only the publisher can manage this game entry');
     }
 
+    if (updateGameDto.status) {
+      if (game.status === GameStatus.PENDING_MODERATION && updateGameDto.status === GameStatus.ACTIVE) {
+        throw new BadRequestException('This game is awaiting moderation and cannot be activated yet.');
+      }
+      
+      if (game.status === GameStatus.PENDING_MODERATION && updateGameDto.status === GameStatus.INACTIVE) {
+        throw new BadRequestException('Cannot change status while in moderation pipeline.');
+      }
+    }
+
+
     if (updateGameDto.title && updateGameDto.title !== game.title) {
       const duplicate = await this.gameRepository.findOne({
         where: { 
@@ -254,7 +273,7 @@ export class GamesService {
       }
     }
 
-    const { categoryIds, ...updateData } = updateGameDto;
+    const { categoryIds, requirements, ...updateData } = updateGameDto;
 
     if (categoryIds) {
       const categories = await this.categoryRepository.findBy({
@@ -264,6 +283,23 @@ export class GamesService {
         throw new BadRequestException('Some categories were not found');
       }
       game.categories = categories;
+    }
+
+    if (requirements) {
+      await this.gameRepository.manager.delete('Requirement', { gameId: id });
+
+      for (const reqDto of requirements) {
+        const { platformIds, ...specs } = reqDto;
+        const requirementRepo = this.gameRepository.manager.getRepository('Requirement');
+        const platformRepo = this.gameRepository.manager.getRepository('Platform');
+
+        const newRequirement = requirementRepo.create({
+          ...specs,
+          gameId: id,
+          platforms: await platformRepo.findBy({ id: In(platformIds) })
+        });
+        await requirementRepo.save(newRequirement);
+      }
     }
 
     Object.assign(game, updateData);
@@ -295,18 +331,32 @@ export class GamesService {
     };
   }
 
+  async checkTitleAvailability(title: string): Promise<{ available: boolean }> {
+    const game = await this.gameRepository.findOne({
+      where: { title: ILike(title) },
+      withDeleted: true,
+    });
+    return { available: !game };
+  }
+
   async verifyGame(gameId: string) {
     const game = await this.gameRepository.findOne({ where: { id: gameId } });
     if (!game) throw new NotFoundException('Game not found');
 
-    await this.gameRepository.update(gameId, { status: GameStatus.ACTIVE });
+    const now = new Date();
+    const releaseDate = new Date(game.createdAt);
+
+    const finalStatus = releaseDate > now ? GameStatus.COMING_SOON : GameStatus.ACTIVE;
+
+    await this.gameRepository.update(gameId, { status: finalStatus });
 
     await this.notificationRepository.update(
       { gameId: gameId, type: NotificationType.MODERATION_REQUEST },
       { status: NotificationStatus.ACCEPTED }
     );
 
-    return { message: `Game "${game.title}" is now public!` };
+    const statusName = finalStatus === GameStatus.COMING_SOON ? 'Listed as Coming Soon' : 'Published Live';
+    return { message: `Verification complete. Project is now ${statusName}.` };
   }
 
   async updateBuildUrl(gameId: string, path: string) {
@@ -338,6 +388,16 @@ export class GamesService {
     };
   }
 
+  private isDiscountValid(discount: Discount | null): boolean {
+    if (!discount || !discount.isActive) return false;
+
+    const now = new Date();
+    const start = new Date(discount.startDate);
+    const end = new Date(discount.endDate);
+
+    return now >= start && now <= end;
+  }
+
   async remove(id: string, companyId: string) {
     const game = await this.gameRepository.findOne({ where: { id } });
 
@@ -345,6 +405,12 @@ export class GamesService {
 
     if (game.publisherId !== companyId) {
       throw new ForbiddenException('Only the publisher can remove this game');
+    }
+
+    if (game.status === GameStatus.PENDING_MODERATION) {
+      throw new BadRequestException(
+        'Cannot delete a project while it is in the moderation queue. Please wait for a verdict.'
+      );
     }
 
     return await this.gameRepository.softDelete(id);

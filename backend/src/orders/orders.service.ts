@@ -6,6 +6,7 @@ import { Order, OrderStatus } from "./entities/order.entity";
 import { OrderItem } from "./entities/order-item.entity";
 import { Library } from "../library/entities/library.entity";
 import { Cart } from "../cart/entities/cart.entity";
+import { Discount } from "../discounts/entities/discount.entity";
 
 interface CartItemWithCalculatedPrice extends Cart {
   finalPrice: number;
@@ -35,10 +36,14 @@ export class OrdersService {
         let finalPrice = Number(item.game.price);
         const discount = item.game.discount;
 
-        if (discount && discount.isActive && 
-            now >= new Date(discount.startDate) && now <= new Date(discount.endDate)) {
-          const reduction = (finalPrice * discount.discountPercent) / 100;
-          finalPrice = finalPrice - reduction;
+        if (discount && discount.isActive) {
+          const start = new Date(discount.startDate);
+          const end = new Date(discount.endDate);
+          
+          if (now >= start && now <= end) {
+            const reduction = (finalPrice * discount.discountPercent) / 100;
+            finalPrice = finalPrice - reduction;
+          }
         }
 
         return {

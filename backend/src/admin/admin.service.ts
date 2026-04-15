@@ -13,6 +13,8 @@ import { join } from 'path';
 import { Media } from '../media/entities/media.entity';
 import { Requirement } from '../requirements/entities/requirement.entity';
 import * as fs from 'fs';
+import { Discount } from '../discounts/entities/discount.entity';
+import { CreateDiscountDto } from '../discounts/dto/create-discount.dto';
 
 @Injectable()
 export class AdminService {
@@ -21,6 +23,7 @@ export class AdminService {
     @InjectRepository(Company) private readonly companyRepo: Repository<Company>,
     @InjectRepository(Game) private readonly gameRepo: Repository<Game>,
     @InjectRepository(Notification) private readonly notificationRepo: Repository<Notification>,
+    @InjectRepository(Discount) private readonly discountRepo: Repository<Discount>,
   ) {}
 
   async getGlobalStats() {
@@ -111,5 +114,33 @@ export class AdminService {
     await this.gameRepo.delete(game.id);
 
     return { message: 'Rejected and data wiped successfully' };
+  }
+
+  async getAllGlobalDiscounts() {
+    return await this.discountRepo.find({ 
+      where: { isGlobal: true },
+      order: { startDate: 'DESC' }
+    });
+  }
+
+  async createGlobalDiscount(dto: CreateDiscountDto) {
+    const discount = this.discountRepo.create({
+      ...dto,
+      isGlobal: true,
+      isActive: true
+    });
+    return await this.discountRepo.save(discount);
+  }
+
+  async toggleDiscount(id: string) {
+    const discount = await this.discountRepo.findOne({ where: { id } });
+    if (!discount) throw new NotFoundException();
+    
+    await this.discountRepo.update(id, { isActive: !discount.isActive });
+    return { message: 'Status updated' };
+  }
+
+  async deleteDiscount(id: string) {
+    return await this.discountRepo.delete(id);
   }
 }

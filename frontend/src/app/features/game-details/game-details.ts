@@ -9,6 +9,7 @@ import { ToastService } from '../../core/services/toast';
 import { IReview, ReviewService } from '../../core/services/review';
 import { FormsModule } from '@angular/forms';
 import { ReviewModalService } from '../../core/services/review-modal';
+import { AdminService } from '../../core/services/admin';
 
 @Component({
   selector: 'app-game-details',
@@ -25,6 +26,7 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private toast = inject(ToastService)
   private reviewService = inject(ReviewService);
+  private adminService = inject(AdminService);
   public reviewModal = inject(ReviewModalService);
   
   game = signal<IGame | null>(null);
@@ -38,6 +40,12 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
 
   private autoSlideInterval: any;
   private isAutoSlidingActive = signal(true);
+
+  isApproveModalOpen = signal(false);
+  isRejectModalOpen = signal(false);
+  isProcessingAction = signal(false);
+
+  today = new Date();
 
   screenshotsOnly = computed(() => 
     this.game()?.media.filter(m => !m.isMain) || []
@@ -134,6 +142,14 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
 
   isEditing = signal(false);
 
+  isComingSoon = computed(() => {
+    const g = this.game();
+    if (!g || !g.createdAt) return false;
+    
+    const releaseDate = new Date(g.createdAt);
+    return releaseDate.getTime() > this.today.getTime();
+  });
+
   deleteMyReview(id: string) {
     if (confirm('Delete this review?')) {
       this.reviewService.deleteReview(id).subscribe(() => {
@@ -155,6 +171,18 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  verifyGameDirectly(id: string) {
+    if (confirm('Authorize this project for global release?')) {
+      this.adminService.verifyGame(id).subscribe({
+        next: () => {
+          this.toast.show('Project published successfully!', 'success');
+          this.router.navigate(['/moderation']);
+        },
+        error: () => this.toast.show('Action failed', 'error')
+      });
+    }
+  }
+
   submitReview() {
     const gameId = this.game()?.id;
     if (!gameId) return;
@@ -167,6 +195,76 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
       },
       error: (err) => this.toast.show(err.error?.message || 'Error posting review', 'error')
     });
+  }
+
+  confirmApprove() {
+    const g = this.game();
+    if (!g) return;
+
+    this.isProcessingAction.set(true);
+    this.adminService.verifyGame(g.id).subscribe({
+      next: () => {
+        this.toast.show(`${g.title} published!`, 'success');
+        this.isProcessingAction.set(false);
+        this.isApproveModalOpen.set(false);
+        this.router.navigate(['/moderation']); 
+      },
+      error: () => {
+        this.toast.show('Action failed', 'error');
+        this.isProcessingAction.set(false);
+      }
+    });
+  }
+
+  confirmReject() {
+    const g = this.game();
+    if (!g) return;
+
+    this.isProcessingAction.set(true);
+    this.adminService.rejectAndWipe(g.id).subscribe({
+      next: () => {
+        this.toast.show('Project rejected and deleted', 'success');
+        this.isProcessingAction.set(false);
+        this.isRejectModalOpen.set(false);
+        this.router.navigate(['/moderation']);
+      },
+      error: () => {
+        this.toast.show('Rejection failed', 'error');
+        this.isProcessingAction.set(false);
+      }
+    });
+  }
+
+  openApproveModal() {
+    this.isApproveModalOpen.set(true);
+  }
+
+  openRejectModal() {
+    this.isRejectModalOpen.set(true);
+  }
+
+  allPlatforms = computed(() => {
+    const g = this.game();
+    if (!g || !g.requirements) return [];
+
+    const platforms = g.requirements.flatMap(r => r.platforms || []);
+  
+    return Array.from(new Map(platforms.map(p => [p.id, p])).values());
+  });
+
+  getPlatformNames(platforms: any[] | undefined): string {
+    if (!platforms || platforms.length === 0) return 'Not specified';
+    return platforms.map(p => p.name).join(' / ');
+  }
+
+  hasHardwareSpecs(req: any | undefined): boolean {
+    if (!req) return false;
+    return !!(req.processor?.trim() || req.ram?.trim() || req.gpu?.trim() || req.storage?.trim());
+  }
+
+  hasSpecsData(req: any): boolean {
+    if (!req) return false;
+    return !!(req.processor?.trim() || req.ram?.trim() || req.gpu?.trim() || req.storage?.trim());
   }
 
   openWriteModal() {

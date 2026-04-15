@@ -76,7 +76,21 @@ export class App implements OnInit {
   isMenuOpen = signal(false);
 
   toggleMenu() {
-    this.isMenuOpen.update(v => !v);
+    const currentState = this.isMenuOpen();
+    this.closeAllMenus();
+    this.isMenuOpen.set(!currentState);
+  }
+
+  toggleNotifs() {
+    const currentState = this.isNotifMenuOpen();
+    this.closeAllMenus();
+    this.isNotifMenuOpen.set(!currentState);
+  }
+
+  toggleFilters() {
+    const currentState = this.isFilterMenuOpen();
+    this.closeAllMenus();
+    this.isFilterMenuOpen.set(!currentState);
   }
 
   toggleFilterMenu() {
@@ -297,13 +311,15 @@ export class App implements OnInit {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  clickout(event: any) {
-    if (!this.eRef.nativeElement.contains(event.target)) {
-      this.isFilterMenuOpen.set(false);
-      this.isMenuOpen.set(false);
-      this.isNotifMenuOpen.set(false);
-    }
+  @HostListener('document:click')
+  handleDocumentClick() {
+    this.closeAllMenus();
+  }
+
+  closeAllMenus() {
+    this.isMenuOpen.set(false);
+    this.isNotifMenuOpen.set(false);
+    this.isFilterMenuOpen.set(false);
   }
 
   isAnyFilterActive = computed(() => {

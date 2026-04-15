@@ -3,26 +3,21 @@
     <div class="w-full max-w-4xl bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative p-12">
       
       <div class="flex items-center justify-center gap-4 mb-16">
-        <div class="flex items-center gap-3">
-            <div [class.bg-[#66c0f4]]="currentStep() === 'info'" 
-                 [class.bg-[#171a21]]="currentStep() !== 'info'"
-                 class="w-8 h-8 rounded-sm border border-[#316282]/50 flex items-center justify-center text-[10px] font-black transition-all">1</div>
-            <span class="text-[10px] font-black uppercase tracking-[0.2em]" [class.text-[#66c0f4]]="currentStep() === 'info'" [class.text-[#4e5667]]="currentStep() !== 'info'">General</span>
-        </div>
-        <div class="w-12 h-px bg-[#316282]/30"></div>
-        <div class="flex items-center gap-3">
-            <div [class.bg-[#66c0f4]]="currentStep() === 'media'" 
-                 [class.bg-[#171a21]]="currentStep() !== 'media'"
-                 class="w-8 h-8 rounded-sm border border-[#316282]/50 flex items-center justify-center text-[10px] font-black transition-all">2</div>
-            <span class="text-[10px] font-black uppercase tracking-[0.2em]" [class.text-[#66c0f4]]="currentStep() === 'media'" [class.text-[#4e5667]]="currentStep() !== 'media'">Visuals</span>
-        </div>
-        <div class="w-12 h-px bg-[#316282]/30"></div>
-        <div class="flex items-center gap-3">
-            <div [class.bg-[#66c0f4]]="currentStep() === 'build'" 
-                 [class.bg-[#171a21]]="currentStep() !== 'build'"
-                 class="w-8 h-8 rounded-sm border border-[#316282]/50 flex items-center justify-center text-[10px] font-black transition-all">3</div>
-            <span class="text-[10px] font-black uppercase tracking-[0.2em]" [class.text-[#66c0f4]]="currentStep() === 'build'" [class.text-[#4e5667]]="currentStep() !== 'build'">Deploy</span>
-        </div>
+        @for (step of ['info', 'media', 'specs', 'build']; track step; let i = $index) {
+          <div class="flex items-center gap-3">
+              <div [class.bg-[#66c0f4]]="currentStep() === step" 
+                   [class.bg-[#171a21]]="currentStep() !== step"
+                   class="w-8 h-8 rounded-sm border border-[#316282]/50 flex items-center justify-center text-[10px] font-black transition-all">
+                {{ i + 1 }}
+              </div>
+              <span class="text-[10px] font-black uppercase tracking-[0.2em]" 
+                    [class.text-[#66c0f4]]="currentStep() === step" 
+                    [class.text-[#4e5667]]="currentStep() !== step">
+                {{ step === 'info' ? 'General' : step === 'media' ? 'Visuals' : step === 'specs' ? 'Specs' : 'Deploy' }}
+              </span>
+          </div>
+          @if (i < 3) { <div class="w-8 h-px bg-[#316282]/30"></div> }
+        }
       </div>
 
       @if (currentStep() === 'info') {
@@ -56,6 +51,16 @@
                     <input type="number" [ngModel]="price()" (ngModelChange)="price.set($event)" min="0"
                           class="flex-1 bg-transparent border-none py-4 text-white text-xl font-black outline-none [appearance:textfield]">
                 </div>
+              </div>
+
+              <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Launch Date</label>
+                  <input type="date" 
+                      [ngModel]="releaseDate()" 
+                      (ngModelChange)="releaseDate.set($event)"
+                      [min]="minDate()"
+                      class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all font-bold uppercase text-xs">
+                <p class="text-[7px] text-[#316282] uppercase tracking-widest ml-1 mt-1">Scheduled UTC release</p>
               </div>
 
               <div class="space-y-2">
@@ -135,9 +140,16 @@
             </div>
           </div>
 
-          <button (click)="currentStep.set('media')" [disabled]="!isStep1Valid()"
-                  class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-10 text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.3em] shadow-xl transition-all active:scale-95 mt-8">
-            Continue to Assets
+          <button (click)="submitInfo()" 
+                  [disabled]="!isStep1Valid() || isLoading()"
+                  class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-10 text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.3em] shadow-xl transition-all active:scale-95 mt-8 flex items-center justify-center gap-3">
+            
+            @if (isLoading() && currentStep() === 'info') {
+              <div class="w-4 h-4 border-2 border-[#171a21]/30 border-t-[#171a21] rounded-full animate-spin"></div>
+              Checking Registry...
+            } @else {
+              Continue to Assets
+            }
           </button>
         </div>
       }
@@ -145,45 +157,59 @@
       @if (currentStep() === 'media') {
         <div class="space-y-10 animate-in slide-in-from-right-4 duration-300">
           <header>
-            <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Visual Assets</h2>
-            <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em] mt-2">Store page branding</p>
+            <h2 class="text-4xl font-black text-white uppercase tracking-tighter leading-none">Visual Assets</h2>
+            <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em] mt-3">Store page branding & cinematic gallery</p>
           </header>
 
-          <div class="grid grid-cols-12 gap-10">
-            <div class="col-span-5 space-y-4">
-                <p class="text-[9px] font-black text-[#66c0f4] uppercase tracking-widest">Main Application Cover</p>
-                <div class="aspect-[3/4] rounded-sm overflow-hidden border border-[#316282]/30 bg-[#171a21] relative group transition-all hover:border-[#66c0f4]/50">
+          <div class="space-y-10">
+            <div class="space-y-4">
+                <div class="flex justify-between items-end px-1">
+                    <p class="text-[9px] font-black text-[#66c0f4] uppercase tracking-widest">Main Store Header (16:9 Aspect Ratio)</p>
+                    <span class="text-[8px] text-[#4e5667] font-bold uppercase">Required: 1280x720 min</span>
+                </div>
+                
+                <div class="aspect-video w-full rounded-sm overflow-hidden border border-[#316282]/40 bg-[#171a21] relative group transition-all hover:border-[#66c0f4]/50 shadow-2xl">
                     @if (coverPreview()) {
-                        <img [src]="coverPreview()" class="w-full h-full object-cover">
-                        <label class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-all">
+                        <img [src]="coverPreview()" class="w-full h-full object-cover animate-in fade-in duration-500">
+                        <label class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-all">
                             <input type="file" class="hidden" accept="image/*" (change)="onFileSelected($event, true)">
-                            <span class="bg-white text-black px-6 py-2 text-[10px] font-black uppercase">Replace</span>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Replace Header Image</span>
                         </label>
                     } @else {
                         <label class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-white/[0.02] transition-all">
                             <input type="file" class="hidden" accept="image/*" (change)="onFileSelected($event, true)">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#316282" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                            <span class="text-[9px] text-[#4e5667] font-black uppercase mt-4 tracking-widest">Upload Cover</span>
+                            <div class="w-16 h-16 border-2 border-dashed border-[#316282]/40 rounded-sm flex items-center justify-center mb-4">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#316282" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                            </div>
+                            <span class="text-[10px] text-[#4e5667] font-black uppercase tracking-[0.3em]">Drop main hero image here</span>
                         </label>
                     }
-                </div>
+              </div>
             </div>
 
-            <div class="col-span-7 space-y-4">
-                <p class="text-[9px] font-black text-[#66c0f4] uppercase tracking-widest">Screenshots Gallery ({{screenshotFiles().length}}/6)</p>
-                <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-4 pt-6 border-t border-white/5">
+                <div class="flex justify-between items-end px-1">
+                    <p class="text-[9px] font-black text-[#66c0f4] uppercase tracking-widest">In-Game Screenshots ({{screenshotFiles().length}}/6)</p>
+                    <p class="text-[8px] text-[#4e5667] font-bold uppercase">Format: JPG/PNG • Max 10MB</p>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-4">
                     @for (preview of screenshotsPreview(); track $index) {
-                        <div class="aspect-video rounded-sm overflow-hidden bg-[#171a21] relative group border border-[#316282]/30">
+                        <div class="aspect-video rounded-sm overflow-hidden bg-[#171a21] relative group border border-[#316282]/30 hover:border-[#66c0f4]/50 transition-all">
                             <img [src]="preview" class="w-full h-full object-cover">
-                            <button (click)="removeScreenshot($index)" class="absolute top-2 right-2 bg-rose-600 p-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                            <button (click)="removeScreenshot($index)" 
+                                    class="absolute top-2 right-2 bg-rose-600 p-1.5 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>
                             </button>
                         </div>
                     }
                     @if (screenshotFiles().length < 6) {
-                        <label class="aspect-video rounded-sm border border-dashed border-[#316282]/50 bg-[#171a21] flex flex-col items-center justify-center cursor-pointer hover:bg-white/[0.02] transition-all group">
+                        <label class="aspect-video rounded-sm border border-dashed border-[#316282]/50 bg-[#171a21] flex flex-col items-center justify-center cursor-pointer hover:bg-white/[0.03] transition-all group">
                             <input type="file" class="hidden" accept="image/*" (change)="onFileSelected($event, false)" multiple>
-                            <span class="text-xl group-hover:scale-110 transition-transform">➕</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#316282" stroke-width="3" class="group-hover:text-[#66c0f4] transition-colors"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </label>
                     }
                 </div>
@@ -191,10 +217,103 @@
           </div>
 
           <div class="flex gap-4 pt-6 border-t border-white/5">
-            <button (click)="currentStep.set('info')" class="flex-1 py-4 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">Go Back</button>
-            <button (click)="currentStep.set('build')" [disabled]="!isStep2Valid()"
+            <button (click)="currentStep.set('media')" 
+                    class="flex-1 py-4 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">
+              Go Back
+            </button>
+            <button (click)="currentStep.set('specs')" [disabled]="!isStep2Valid()"
                     class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all">
-              Proceed to Deployment
+              Proceed to Specifications
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (currentStep() === 'specs') {
+        <div class="space-y-10 animate-in slide-in-from-right-4 duration-300">
+          <header>
+            <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Technical Specs</h2>
+            <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em] mt-3">Target hardware configuration</p>
+          </header>
+
+          <div class="space-y-4 pb-6 border-b border-white/5">
+            <p class="text-[10px] font-black text-[#66c0f4] uppercase tracking-[0.3em] ml-1">Supported Platforms *</p>
+            <div class="flex gap-4">
+              @for (p of platforms(); track p.id) {
+                <button (click)="togglePlatform(p.id)" type="button"
+                        [class.bg-[#316282]]="selectedPlatformIds().includes(p.id)"
+                        [class.border-[#66c0f4]]="selectedPlatformIds().includes(p.id)"
+                        [class.text-white]="selectedPlatformIds().includes(p.id)"
+                        class="flex-1 py-4 rounded-sm border border-[#316282]/30 bg-[#171a21] text-[#4e5667] text-[11px] font-black uppercase tracking-widest transition-all hover:border-[#66c0f4]/50">
+                  {{ p.name }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-12 relative">
+            
+            <button (click)="copyMinToRec()" type="button"
+                    class="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 bg-[#316282] hover:bg-[#66c0f4] text-white w-10 h-10 rounded-full shadow-2xl transition-all active:scale-90 flex items-center justify-center border-4 border-[#1e232b] group">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                <span class="absolute bottom-full mb-3 px-2 py-1 bg-[#0b0e14] text-[8px] font-black uppercase tracking-widest whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/10 pointer-events-none">Copy to Recommended</span>
+            </button>
+
+            <div class="space-y-4">
+              <p class="text-[10px] font-black text-[#66c0f4] uppercase tracking-widest px-1 text-center">Minimum Requirements</p>
+              <div class="space-y-3 bg-[#171a21] p-6 rounded-sm border border-[#316282]/20 shadow-inner">
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Processor</label>
+                    <input type="text" placeholder="INTEL I5-4460" [(ngModel)]="minSpecs().processor" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Memory</label>
+                    <input type="text" placeholder="8 GB RAM" [(ngModel)]="minSpecs().ram" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Graphics</label>
+                    <input type="text" placeholder="GTX 760" [(ngModel)]="minSpecs().gpu" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Storage</label>
+                    <input type="text" placeholder="50 GB" [(ngModel)]="minSpecs().storage" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <p class="text-[10px] font-black text-[#a4d007] uppercase tracking-widest px-1 text-center">Recommended Specs</p>
+              <div class="space-y-3 bg-[#171a21] p-6 rounded-sm border border-[#316282]/20 shadow-inner">
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Processor</label>
+                    <input type="text" placeholder="INTEL I7-9700K" [(ngModel)]="recSpecs().processor" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Memory</label>
+                    <input type="text" placeholder="16 GB RAM" [(ngModel)]="recSpecs().ram" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Graphics</label>
+                    <input type="text" placeholder="RTX 2060" [(ngModel)]="recSpecs().gpu" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Storage</label>
+                    <input type="text" placeholder="50 GB SSD" [(ngModel)]="recSpecs().storage" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 pt-10 border-t border-white/5">
+            <button (click)="currentStep.set('media')" class="flex-1 py-5 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">Go Back</button>
+            <button (click)="currentStep.set('build')" 
+                    class="flex-1 py-5 bg-[#171a21] border border-[#316282]/30 text-[#8f98a0] hover:text-white rounded-sm font-black text-[10px] uppercase tracking-[0.3em] transition-all">
+              Skip for now
+            </button>
+            <button (click)="currentStep.set('build')" 
+                    [disabled]="!isStep3Valid()"
+                    class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all active:scale-95 shadow-xl">
+              Confirm Specs
             </button>
           </div>
         </div>
@@ -232,7 +351,7 @@
           </div>
 
           <div class="flex gap-4 pt-10">
-            <button (click)="currentStep.set('media')" class="flex-1 py-5 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">Go Back</button>
+            <button (click)="currentStep.set('specs')" class="flex-1 py-5 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">Go Back</button>
             <button (click)="publishGame()" [disabled]="!gameFile() || isLoading()"
                     class="flex-[3] bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-5 rounded-sm font-black text-sm uppercase tracking-[0.4em] shadow-2xl transition-all flex items-center justify-center gap-4">
               @if (isLoading()) { <div class="w-5 h-5 border-4 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin"></div> PROCESSING... }

@@ -18,6 +18,9 @@ export class Discount {
   @Column({ name: 'end_date', type: 'timestamp' })
   endDate: Date;
 
+  @Column({ name: 'is_global', default: false })
+  isGlobal: boolean;
+
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
 

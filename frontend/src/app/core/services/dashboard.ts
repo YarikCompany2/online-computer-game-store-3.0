@@ -13,6 +13,10 @@ export interface IGameStats {
   totalRevenue: number;
   mainCover: string | null;
   status: string;
+  discount?: {
+    discountPercent: number;
+    isActive: boolean;
+  };
 }
 
 export interface IDashboardStats {
@@ -46,6 +50,10 @@ export class DashboardService {
     return this.http.get<any>(`${this.apiUrl}/game-stats/${gameId}`);
   }
 
+  checkTitle(title: string): Observable<{ available: boolean }> {
+    return this.http.get<{ available: boolean }>(`http://localhost:3000/games/check-title/${title}`);
+  }
+
   updateGame(gameId: string, dto: IUpdateGameDto): Observable<IGame> {
     return this.http.patch<IGame>(`http://localhost:3000/games/${gameId}`, dto);
   }
@@ -64,6 +72,14 @@ export class DashboardService {
 
   uploadMedia(formData: FormData): Observable<IUploadMediaResponse> {
     return this.http.post<IUploadMediaResponse>(`http://localhost:3000/media/upload`, formData);
+  }
+
+  getAvailableDiscounts(): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3000/discounts`);
+  }
+
+  applyDiscount(gameId: string, discountId: string): Observable<any> {
+    return this.http.post(`http://localhost:3000/discounts/apply`, { gameId, discountId });
   }
 
   deleteGame(gameId: string): Observable<any> {

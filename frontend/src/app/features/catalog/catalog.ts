@@ -50,7 +50,14 @@ export class CatalogComponent implements OnInit {
     }, { allowSignalWrites: true });
   }
 
-  featuredGames = computed(() => this.games().slice(0, 5));
+  featuredGames = computed(() => {
+    const allGames = this.games();
+    if (allGames.length === 0) return [];
+
+    return [...allGames]
+      .sort((a, b) => (b.calculatedPrice?.discountPercent || 0) - (a.calculatedPrice?.discountPercent || 0))
+      .slice(0, 5);
+  });
 
   ngOnInit() {
     this.categoryService.getCategories().subscribe({
@@ -106,9 +113,13 @@ export class CatalogComponent implements OnInit {
   }
 
   isFilterActive = computed(() => {
-    const hasSearch = this.searchState.searchQuery().length > 0;
-    const hasCategory = this.searchState.selectedCategoryId() !== null;
-    return hasSearch || hasCategory;
+    return (
+      this.searchState.searchQuery().length > 0 ||
+      this.searchState.selectedCategoryId() !== null ||
+      this.searchState.minPrice() !== null ||
+      this.searchState.maxPrice() !== null ||
+      this.searchState.freeOnly()
+    );
   });
 
   selectCategory(id: number | null) {

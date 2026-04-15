@@ -19,6 +19,12 @@ export class DiscountsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('personal')
+  async createPersonal(@Body() dto: CreateDiscountDto & { gameId: string }, @Request() req) {
+    return this.discountsService.createPersonal(dto, req.user.companyId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('apply')
   async applyToGame(@Body() dto: ApplyDiscountDto, @Request() req) {
     if (req.user.role !== UserRole.ADMIN && !req.user.companyId) {
@@ -29,6 +35,6 @@ export class DiscountsController {
 
   @Get()
   async findAll() {
-    return this.discountsService.findAll();
+    return this.discountsService.findAllGlobal();
   }
 }

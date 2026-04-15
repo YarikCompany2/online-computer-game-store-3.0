@@ -38,19 +38,28 @@
 
         <div class="pt-10 mt-10 border-t border-white/5 space-y-6">
           <div class="flex items-center gap-2 ml-1">
-             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="3"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-             <p class="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500/70">Restrictive Actions</p>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="3">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <path d="M12 9v4"/><path d="M12 17h.01"/>
+            </svg>
+            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500/70">Restrictive Actions</p>
           </div>
           
           <div class="flex flex-col md:flex-row gap-4">
             <button (click)="toggleStatus()" 
-                    class="flex-1 py-4 bg-[#171a21] border border-white/5 text-[#8f98a0] hover:text-white hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-widest rounded-sm">
-               {{ game.status === 'active' ? 'Archive Product' : 'Activate Product' }}
+                    [disabled]="game.status === 'pending_moderation'"
+                    [class.opacity-40]="game.status === 'pending_moderation'"
+                    [class.cursor-not-allowed]="game.status === 'pending_moderation'"
+                    class="flex-1 py-4 bg-[#171a21] border border-[#316282]/30 text-[#8f98a0] rounded-sm font-black text-[10px] uppercase tracking-widest transition-all">
+              {{ game.status === 'active' ? 'Deactivate Product' : 'Activate Product' }}
             </button>
 
             <button (click)="deleteGame()" 
+                    [disabled]="game.status === 'pending_moderation'"
+                    [class.opacity-60]="game.status === 'pending_moderation'"
+                    [class.cursor-not-allowed]="game.status === 'pending_moderation'"
                     class="flex-1 py-4 bg-rose-600/5 border border-rose-500/20 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-[10px] font-black uppercase tracking-widest rounded-sm">
-               Delete Permanently
+              Delete Permanently
             </button>
           </div>
         </div>

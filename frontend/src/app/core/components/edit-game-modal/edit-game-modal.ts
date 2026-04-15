@@ -5,6 +5,8 @@ import { IGame } from '../../interfaces/game.interface';
 import { IUpdateGameDto } from '../../interfaces/game-update.interface';
 import { DashboardService, IGameStats } from '../../services/dashboard';
 import { ToastService } from '../../services/toast';
+import { CategoryService } from '../../services/category';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-edit-game-modal',
@@ -13,6 +15,8 @@ import { ToastService } from '../../services/toast';
   templateUrl: './edit-game-modal.html'
 })
 export class EditGameModalComponent implements OnInit {
+  private http = inject(HttpClient);
+  private catService = inject(CategoryService);
   private dashboardService = inject(DashboardService);
   private toast = inject(ToastService);
 
@@ -71,6 +75,11 @@ export class EditGameModalComponent implements OnInit {
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     
     this.isLoading.set(true);
+
+    if (currentStatus === 'pending_moderation') {
+      this.toast.show('Moderation required before changing visibility', 'error');
+      return;
+    }
 
     this.dashboardService.updateGame(this.game.id, { status: newStatus } as any).subscribe({
       next: () => {

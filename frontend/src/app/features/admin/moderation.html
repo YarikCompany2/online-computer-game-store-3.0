@@ -5,36 +5,20 @@
       <div class="w-10 h-1 bg-[#66c0f4] shadow-[0_0_15px_rgba(102,192,244,0.3)]"></div>
       <span class="text-[#66c0f4] font-black uppercase text-[10px] tracking-[0.4em]">Security & Quality</span>
     </div>
-    <h1 class="text-6xl font-black uppercase text-white tracking-tighter leading-none">Moderation Desk</h1>
-    <p class="text-[#4e5667] font-bold uppercase text-[10px] tracking-[0.4em] mt-4 ml-1 opacity-60">
-      Global Verification Pipeline
-    </p>
+    <h1 class="text-6xl font-black italic uppercase text-white tracking-tighter leading-none">Moderation Desk</h1>
   </header>
 
-  <div class="bg-[#1e232b] border border-[#316282]/30 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-    
+  <div class="bg-[#1e232b] border border-[#316282]/30 rounded-sm shadow-2xl overflow-hidden">
     @if (isLoading()) {
-      <div class="py-40 flex flex-col items-center justify-center gap-6">
+      <div class="py-40 flex justify-center">
         <div class="w-12 h-12 border-4 border-[#316282]/30 border-t-[#66c0f4] rounded-full animate-spin"></div>
-        <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.3em]">Syncing Database...</p>
       </div>
     } 
-    
     @else if (pendingGames().length === 0) {
       <div class="py-48 text-center animate-in fade-in zoom-in duration-500">
-        <div class="w-20 h-20 bg-[#171a21] border border-[#316282]/20 rounded-sm flex items-center justify-center mx-auto mb-8 shadow-inner">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4e5667" stroke-width="2" stroke-linecap="square">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-        </div>
-        <h3 class="text-[#4e5667] font-black uppercase tracking-[0.5em] text-xl">
-          No games pending verification
-        </h3>
-        <p class="text-[#316282] text-[9px] font-bold uppercase tracking-[0.2em] mt-4">System Status: All Clear</p>
+        <p class="text-[#4e5667] font-black uppercase tracking-[0.5em] italic text-xl">Queue is Empty</p>
       </div>
     } 
-    
     @else {
       <table class="w-full text-left border-collapse">
         <thead class="bg-[#171a21] border-b border-[#316282]/20">
@@ -47,35 +31,28 @@
         <tbody class="divide-y divide-white/5">
           @for (game of pendingGames(); track game.id) {
             <tr class="hover:bg-[#316282]/5 transition-all group">
-              
               <td class="p-6">
-                <div class="flex items-center gap-6">
-                  <div class="w-24 aspect-video bg-black rounded-sm overflow-hidden border border-[#316282]/30 flex-shrink-0">
-                    @if (game.media?.[0]) {
-                      <img [src]="game.media[0].fileUrl" crossorigin="anonymous" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                    } @else {
-                      <div class="w-full h-full flex items-center justify-center text-[8px] font-black text-[#4e5667] uppercase">No Preview</div>
-                    }
+                <a [routerLink]="['/game', game.id]" class="flex items-center gap-6 group/link cursor-pointer">
+                  <div class="w-24 aspect-video bg-black rounded-sm overflow-hidden border border-[#316282]/30 flex-shrink-0 group-hover/link:border-[#66c0f4]/60 transition-all">
+                    <img [src]="game.media?.[0]?.fileUrl" crossorigin="anonymous" class="w-full h-full object-cover opacity-80 group-hover/link:opacity-100 transition-opacity">
                   </div>
                   <div>
-                    <p class="font-black text-white uppercase tracking-tight text-lg group-hover:text-[#66c0f4] transition-colors leading-none mb-2">
+                    <p class="font-black text-white uppercase tracking-tight text-lg group-hover/link:text-[#66c0f4] transition-colors leading-none mb-2">
                       {{ game.title }}
                     </p>
-                    <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-widest">
-                      Dev: <span class="text-[#8f98a0]">{{ game.developer?.name || 'Self' }}</span>
+                    <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-widest flex items-center gap-2">
+                      <span>Dev: {{ game.developer?.name }}</span>
+                      <span class="w-1 h-1 bg-[#316282] rounded-full"></span>
+                      <span class="text-[#66c0f4]">Click to inspect</span>
                     </p>
                   </div>
-                </div>
+                </a>
               </td>
-
-              <td class="p-6">
-                <span class="text-[#66c0f4] font-black text-xs uppercase tracking-widest">{{ game.publisher?.name }}</span>
-              </td>
-
+              <td class="p-6 font-black text-[#66c0f4] text-xs uppercase tracking-widest">{{ game.publisher?.name }}</td>
               <td class="p-6 text-right">
                 <div class="flex justify-end gap-3">
                   <button (click)="reject(game.id, game.title)" 
-                          class="px-6 py-2.5 bg-transparent border border-rose-500/30 text-rose-500/70 hover:bg-rose-500 hover:text-white rounded-sm font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+                          class="px-6 py-2.5 bg-[#e11d48] text-white hover:bg-[#be123c] rounded-sm font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg">
                     Reject
                   </button>
                   <button (click)="approve(game.id, game.title)" 
@@ -84,7 +61,6 @@
                   </button>
                 </div>
               </td>
-
             </tr>
           }
         </tbody>
@@ -92,3 +68,45 @@
     }
   </div>
 </div>
+@if (isApproveModalOpen()) {
+  <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/40 p-10 rounded-sm shadow-2xl relative">
+      <header class="text-center mb-8">
+        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Publish Project?</h2>
+        <div class="h-1 w-12 bg-[#66c0f4] mx-auto mt-2"></div>
+      </header>
+      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10">
+        Confirming <span class="text-white font-black">{{ selectedGame()?.title }}</span> will make it instantly available for purchase in the global store.
+      </p>
+      <div class="flex flex-col gap-2">
+        <button (click)="confirmApprove()" [disabled]="isApproving()"
+                class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3">
+          @if (isApproving()) { <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> SYNCING... }
+          @else { AUTHORIZE RELEASE }
+        </button>
+        <button (click)="isApproveModalOpen.set(false)" class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+@if (isRejectModalOpen()) {
+  <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="w-full max-w-md bg-[#1e232b] border border-rose-500/30 p-10 rounded-sm shadow-2xl relative">
+      <header class="text-center mb-8">
+        <h2 class="text-2xl font-black text-white uppercase tracking-tighter text-rose-500">Wipe Submission?</h2>
+        <div class="h-1 w-12 bg-rose-600 mx-auto mt-2"></div>
+      </header>
+      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10">
+        Rejecting <span class="text-white font-black">{{ selectedGame()?.title }}</span> will <span class="text-rose-500 font-bold uppercase">permanently delete</span> all associated data and build files.
+      </p>
+      <div class="flex flex-col gap-2">
+        <button (click)="confirmReject()" [disabled]="isRejecting()"
+                class="w-full bg-[#e11d48] hover:bg-[#be123c] text-white py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl shadow-rose-900/20">
+          @if (isRejecting()) { <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> DELETING... }
+          @else { CONFIRM REJECTION }
+        </button>
+        <button (click)="isRejectModalOpen.set(false)" class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Cancel</button>
+      </div>
+    </div>
+  </div>
+}

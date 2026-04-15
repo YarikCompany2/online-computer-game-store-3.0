@@ -55,6 +55,11 @@ export class GamesController {
     );
   }
 
+  @Get('check-title/:title')
+  async checkTitle(@Param('title') title: string) {
+    return this.gamesService.checkTitleAvailability(title);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createGameDto: CreateGameDto, @Request() req) {

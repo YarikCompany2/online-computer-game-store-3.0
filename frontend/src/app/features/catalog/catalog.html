@@ -1,70 +1,60 @@
 <div class="p-8 max-w-[1600px] mx-auto space-y-16 page-fade-in">
   
-  @if (!isFilterActive() && !isLoading() && featuredGames().length > 0) {
+  @if (currentPage() === 1 && !isFilterActive() && featuredGames().length > 0) {
     
     @let heroGame = featuredGames()[carouselIndex()];
     @let heroCover = heroGame.media.find(m => m.isMain)?.fileUrl || heroGame.media[0]?.fileUrl;
 
-    <section class="relative w-full h-[500px] rounded-sm overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/5 bg-[#0b0e14] animate-in fade-in duration-700">
+    <section class="relative w-full h-[500px] bg-[#0b0e14] rounded-sm overflow-hidden border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.6)] group animate-in fade-in duration-700">
       
-      <div class="absolute inset-0 z-0">
-        @if (heroCover) {
-          <img [src]="heroCover" class="w-full h-full object-cover blur-[100px] opacity-30 scale-125">
-        }
+      <div class="absolute top-0 right-0 w-full h-full flex justify-end">
+        <div class="relative w-full md:w-[70%] h-full">
+          <div class="absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-[#0b0e14] to-transparent z-10"></div>
+          <img [src]="heroCover" 
+               class="w-full h-full object-cover animate-in fade-in duration-1000">
+        </div>
       </div>
 
-      <div class="absolute top-0 right-0 w-full h-full z-10 flex justify-end">
-        @if (heroCover) {
-          <div class="relative h-full w-full md:w-[85%] overflow-hidden">
-            <div class="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0b0e14] to-transparent z-20"></div>
-            
-            <img [src]="heroCover" 
-                 class="h-full w-full object-cover animate-in fade-in duration-1000">
-          </div>
-        }
-      </div>
-
-      <div class="absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-[#0b0e14] via-[#0b0e14] to-transparent z-20"></div>
-
-      <div class="absolute inset-y-0 left-0 z-30 flex flex-col justify-end p-12 md:p-20 w-full md:w-1/2">
+      <div class="absolute inset-y-0 left-0 z-20 flex flex-col justify-center p-12 md:p-20 w-full md:w-1/2">
         <div class="animate-in slide-in-from-left-8 duration-700">
-          <span class="inline-block px-3 py-1 bg-[#316282] text-[#66c0f4] text-[10px] font-black uppercase tracking-[0.2em] border-l-4 border-[#66c0f4] mb-6">
+          
+          <span class="inline-block px-3 py-1 bg-[#316282] text-[#66c0f4] text-[10px] font-black uppercase tracking-[0.3em] border-l-4 border-[#66c0f4] mb-6">
             Featured & Recommended
           </span>
 
-          <h2 class="text-6xl font-black text-white uppercase tracking-tighter leading-[0.85] mb-8 drop-shadow-2xl">
+          <h2 class="text-6xl font-black text-white uppercase tracking-tighter leading-[0.9] mb-10 drop-shadow-2xl">
             {{ heroGame.title }}
           </h2>
           
           <div class="flex items-center gap-8">
             <button [routerLink]="['/game', heroGame.id]" 
-                    class="bg-white text-[#171a21] px-8 py-2.5 rounded-sm font-black uppercase tracking-[0.2em] text-[11px] hover:bg-[#66c0f4] hover:text-white transition-colors duration-200">
+                    class="bg-white text-[#171a21] px-10 py-4 rounded-sm font-black uppercase tracking-[0.2em] text-[11px] hover:bg-[#66c0f4] hover:text-white transition-all active:scale-95 shadow-2xl">
               View Details
             </button>
 
-            <div class="flex flex-col">
-                @if (heroGame.discount) {
-                    <span class="text-[#8f98a0] text-xs line-through tracking-tighter leading-none mb-1">${{ heroGame.price }}</span>
-                    <span class="text-4xl font-black text-[#a4d007] tracking-tighter leading-none">
-                        ${{ (heroGame.price * (1 - heroGame.discount.discountPercent/100)) | number:'1.2-2' }}
-                    </span>
-                } @else {
-                    <span class="text-4xl font-black text-[#c7d5e0] tracking-tighter leading-none">
-                        {{ +heroGame.price === 0 ? 'FREE' : '$' + heroGame.price }}
-                    </span>
-                }
+            <div class="text-4xl font-black text-[#c7d5e0] tracking-tighter italic uppercase">
+              {{ +heroGame.price === 0 ? 'Free' : '$' + heroGame.price }}
             </div>
           </div>
         </div>
       </div>
 
-      <button (click)="prevSlide()" class="absolute left-0 inset-y-0 z-40 w-16 flex items-center justify-center bg-black/0 hover:bg-black/30 text-white transition-all opacity-0 group-hover:opacity-100">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="m15 18-6-6 6-6"/></svg>
+      <button (click)="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 text-white/20 hover:text-[#66c0f4] transition-all opacity-0 group-hover:opacity-100">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button (click)="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 text-white/20 hover:text-[#66c0f4] transition-all opacity-0 group-hover:opacity-100">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
 
-      <button (click)="nextSlide()" class="absolute right-0 inset-y-0 z-40 w-16 flex items-center justify-center bg-black/0 hover:bg-black/30 text-white transition-all opacity-0 group-hover:opacity-100">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
+      <div class="absolute bottom-6 left-12 z-30 flex gap-2">
+        @for (g of featuredGames(); track g.id; let i = $index) {
+          <div (click)="carouselIndex.set(i)" 
+               [class.w-8]="carouselIndex() === i"
+               [class.bg-[#66c0f4]]="carouselIndex() === i"
+               [class.bg-white/20]="carouselIndex() !== i"
+               class="h-1.5 w-3 rounded-full cursor-pointer transition-all duration-300"></div>
+        }
+      </div>
 
     </section>
   }
@@ -114,7 +104,12 @@
                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90 group-hover:opacity-100">
               
               <div class="absolute bottom-0 right-0 flex items-center">
-                @if (game.discount) {
+                @if (game.status === 'coming_soon') {
+                  <div class="bg-rose-600 text-white px-3 py-1 font-black text-[10px] uppercase tracking-widest shadow-lg">
+                    Coming Soon
+                  </div>
+                } 
+                @else if (game.discount) {
                   <div class="bg-[#a4d007] text-[#171a21] px-2 py-1 font-black text-lg">-{{ game.discount.discountPercent }}%</div>
                   <div class="bg-[#000000]/80 px-2 py-1 flex flex-col items-end">
                     <span class="text-[#8f98a0] text-[10px] line-through">${{ game.price }}</span>

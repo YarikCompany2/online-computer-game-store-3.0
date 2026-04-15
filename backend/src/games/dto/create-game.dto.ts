@@ -2,6 +2,32 @@ import { IsArray, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsU
 import { GameStatus } from "../entities/game.entity";
 import { Type } from "class-transformer";
 
+export class GameRequirementDto {
+    @IsString()
+    type: 'minimum' | 'recommended';
+
+    @IsString()
+    @IsOptional()
+    processor: string;
+
+    @IsString()
+    @IsOptional()
+    ram: string;
+
+    @IsString()
+    @IsOptional()
+    gpu: string;
+
+    @IsString()
+    @IsOptional()
+    storage: string;
+
+    @IsArray()
+    @IsInt({ each: true })
+    platformIds: number[];
+}
+
+
 export class CreateGameDto {
     @IsString()
     @MinLength(2)
@@ -23,6 +49,10 @@ export class CreateGameDto {
     @IsString()
     fileUrl?: string;
 
+    @IsOptional()
+    @IsArray()
+    requirements?: GameRequirementDto[]; 
+
     @IsEnum(GameStatus)
     @IsOptional()
     status?: GameStatus;
@@ -38,4 +68,8 @@ export class CreateGameDto {
     @IsOptional()
     @IsUUID()
     publisherId?: string;
+
+    @IsOptional()
+    @IsString()
+    releaseDate?: string;
 }

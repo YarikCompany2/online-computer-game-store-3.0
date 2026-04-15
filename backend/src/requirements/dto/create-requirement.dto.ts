@@ -8,7 +8,6 @@ export class CreateRequirementDto {
   @IsEnum(RequirementType)
   type: RequirementType;
 
-  @IsString() os: string;
   @IsString() processor: string;
   @IsString() ram: string;
   @IsString() gpu: string;

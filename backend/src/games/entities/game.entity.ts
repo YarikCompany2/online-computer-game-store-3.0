@@ -41,7 +41,11 @@ export class Game {
     })
     status: GameStatus;
 
-    @CreateDateColumn({ name: 'created_at' })
+    @Column({ 
+      name: 'created_at', 
+      type: 'timestamp', 
+      default: () => 'CURRENT_TIMESTAMP' 
+    })
     createdAt: Date;
 
     @DeleteDateColumn({ name: 'deleted_at', select: false })

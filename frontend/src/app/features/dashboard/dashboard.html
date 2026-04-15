@@ -74,7 +74,7 @@
       <thead class="bg-[#171a21] border-b border-white/10">
         <tr>
           <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667]">Project</th>
-          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-32">Price</th>
+          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-32">Current Price</th>
           <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-32">Sales</th>
           <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-40">Gross Revenue</th>
           <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-right">Actions</th>
@@ -97,16 +97,36 @@
                   </span>
                   <div class="flex items-center gap-2">
                     <span class="text-[9px] font-mono text-[#4e5667] uppercase tracking-widest">ID: {{ game.id.substring(0,8) }}</span>
-                    @if (game.status !== 'active') {
-                        <span class="px-1.5 py-0.5 bg-rose-500/10 text-rose-500 text-[8px] font-black uppercase border border-rose-500/20">Awaiting Auth</span>
+                    
+                    @if (game.status === 'pending_moderation') {
+                        <span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[8px] font-black uppercase border border-rose-500/20 tracking-widest">
+                          Awaiting Auth
+                        </span>
+                    } @else if (game.status === 'inactive') {
+                        <span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase border border-amber-500/20 tracking-widest">
+                          Inactive
+                        </span>
+                    } @else {
+                        <span class="px-2 py-0.5 bg-[#a4d007]/10 text-[#a4d007] text-[8px] font-black uppercase border border-[#a4d007]/20 tracking-widest">
+                          Live
+                        </span>
                     }
                   </div>
                 </div>
               </div>
             </td>
 
-            <td class="p-6 text-center font-bold text-[#8f98a0] text-sm font-mono border-x border-white/[0.03]">
-                ${{ game.price | number:'1.2-2' }}
+            <td class="p-6 text-center font-bold text-sm font-mono">
+              @if (game.discount && game.discount.isActive) {
+                  <div class="flex flex-col items-center">
+                      <span class="text-[10px] text-[#4e5667] line-through">${{ game.price | number:'1.2-2' }}</span>
+                      <span class="text-[#a4d007] font-black text-base">
+                          ${{ (game.price * (1 - game.discount.discountPercent / 100)) | number:'1.2-2' }}
+                      </span>
+                  </div>
+              } @else {
+                  <span class="text-[#8f98a0]">${{ game.price | number:'1.2-2' }}</span>
+              }
             </td>
 
             <td class="p-6 text-center">
@@ -114,9 +134,13 @@
                 <p class="text-[8px] text-[#4e5667] font-black uppercase mt-1">Units</p>
             </td>
 
-            <td class="p-6 text-center bg-black/20">
-                <span class="text-2xl font-black text-[#a4d007] tracking-tighter leading-none">${{ game.totalRevenue | number:'1.2-2' }}</span>
-                <p class="text-[8px] text-[#588a1b] font-black uppercase mt-1">Total USD</p>
+            <td class="p-6 text-center">
+                <span class="text-2xl font-black text-[#a4d007] tracking-tighter leading-none">
+                    ${{ game.totalRevenue | number:'1.2-2' }}
+                </span>
+                <p class="text-[8px] text-[#4e5667] font-black uppercase mt-1 tracking-widest">
+                    Total USD
+                </p>
             </td>
 
             <td class="p-6 text-right">

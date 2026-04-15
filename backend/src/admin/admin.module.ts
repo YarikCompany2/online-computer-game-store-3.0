@@ -7,10 +7,11 @@ import { Game } from '../games/entities/game.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Company } from '../companies/entities/company.entity';
 import { Notification } from '../notification/entities/notification.entity';
+import { Discount } from '../discounts/entities/discount.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Game, Order, Company, Notification])
+    TypeOrmModule.forFeature([User, Game, Order, Company, Notification, Discount])
   ],
   controllers: [AdminController],
   providers: [AdminService],

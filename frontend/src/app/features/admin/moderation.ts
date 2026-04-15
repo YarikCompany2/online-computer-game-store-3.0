@@ -5,11 +5,12 @@ import { GameService } from '../../core/services/game';
 import { ToastService } from '../../core/services/toast';
 import { IGame } from '../../core/interfaces/game.interface';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-moderation',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './moderation.html'
 })
 export class ModerationComponent implements OnInit {
@@ -67,11 +68,10 @@ export class ModerationComponent implements OnInit {
   confirmApprove() {
     const game = this.selectedGame();
     if (!game) return;
-
     this.isApproving.set(true);
     this.adminService.verifyGame(game.id).subscribe({
       next: () => {
-        this.toast.show(`${game.title} is now LIVE on the store!`, 'success');
+        this.toast.show(`${game.title} is now LIVE`, 'success');
         this.isApproveModalOpen.set(false);
         this.isApproving.set(false);
         this.loadPending();
@@ -86,12 +86,10 @@ export class ModerationComponent implements OnInit {
   confirmReject() {
     const game = this.selectedGame();
     if (!game) return;
-
     this.isRejecting.set(true);
-    
     this.adminService.rejectAndWipe(game.id).subscribe({
       next: () => {
-        this.toast.show(`Game "${game.title}" rejected and wiped.`, 'success');
+        this.toast.show(`Game wiped from registry`, 'success');
         this.isRejectModalOpen.set(false);
         this.isRejecting.set(false);
         this.loadPending();

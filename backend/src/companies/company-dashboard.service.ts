@@ -45,7 +45,13 @@ export class CompanyDashboardService {
         salesCount: gameSales.length,
         totalRevenue: revenue,
         mainCover: game.media.find(m => m.isMain)?.fileUrl || null,
-        status: game.status
+        status: game.status,
+        discount: game.discount ? {
+          discountPercent: game.discount.discountPercent,
+          isActive: game.discount.isActive,
+          startDate: game.discount.startDate,
+          endDate: game.discount.endDate
+        } : null
       };
     });
 
@@ -62,7 +68,8 @@ export class CompanyDashboardService {
 
   async getGameDetailStats(gameId: string, companyId: string) {
     const game = await this.gameRepo.findOne({
-      where: { id: gameId, publisherId: companyId } 
+      where: { id: gameId, publisherId: companyId },
+      relations: ['discount']
     });
   
     if (!game) throw new NotFoundException('Game not found or you are not the publisher');
@@ -81,6 +88,13 @@ export class CompanyDashboardService {
     return {
         title: game.title,
         price: game.price,
+        discount: game.discount ? {
+          name: game.discount.name,
+          discountPercent: game.discount.discountPercent,
+          isActive: game.discount.isActive,
+          startDate: game.discount.startDate,
+          endDate: game.discount.endDate
+        } : null,
         history: salesData.map(d => ({
             date: d.date,
             count: Number(d.count),

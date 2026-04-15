@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Game } from '../games/entities/game.entity';
 import { Cart } from './entities/cart.entity';
-import { LibraryService } from 'src/library/library.service';
-import { LibraryModule } from 'src/library/library.module';
+import { LibraryService } from '../library/library.service';
+import { LibraryModule } from '../library/library.module';
 import { Library } from '../library/entities/library.entity';
 
 @Module({

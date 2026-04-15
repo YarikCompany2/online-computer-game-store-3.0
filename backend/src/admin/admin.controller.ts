@@ -6,6 +6,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserRole } from '../users/entities/user.entity';
+import { CreateDiscountDto } from '../discounts/dto/create-discount.dto';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -37,6 +38,30 @@ export class AdminController {
   @Roles(UserRole.MODERATOR, UserRole.ADMIN)
   getPendingGames() {
     return this.adminService.getPendingModerationGames();
+  }
+
+  @Get('discounts')
+  @Roles(UserRole.ADMIN)
+  async getDiscounts() {
+    return this.adminService.getAllGlobalDiscounts();
+  }
+
+  @Post('discounts')
+  @Roles(UserRole.ADMIN)
+  async createDiscount(@Body() dto: CreateDiscountDto) {
+    return this.adminService.createGlobalDiscount(dto);
+  }
+
+  @Patch('discounts/:id/toggle')
+  @Roles(UserRole.ADMIN)
+  async toggleDiscount(@Param('id') id: string) {
+    return this.adminService.toggleDiscount(id);
+  }
+
+  @Delete('discounts/:id')
+  @Roles(UserRole.ADMIN)
+  async removeDiscount(@Param('id') id: string) {
+    return this.adminService.deleteDiscount(id);
   }
 
   @Delete('moderation/reject/:id')

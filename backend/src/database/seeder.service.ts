@@ -63,14 +63,14 @@ export class SeederService {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
     const discountsData = [
-      { name: 'Summer Sale', percent: 50, start: lastMonth, end: nextMonth, active: true },
-      { name: 'Indie Weekend', percent: 25, start: now, end: nextMonth, active: true },
+      { name: 'Summer Sale', percent: 50, start: lastMonth, end: nextMonth, global: true, active: true },
+      { name: 'Indie Weekend', percent: 25, start: now, end: nextMonth, global: true, active: true },
     ];
     const discMap = new Map<string, Discount>();
     for (const d of discountsData) {
       let disc = await this.discountRepo.findOne({ where: { name: d.name } });
       if (!disc) disc = await this.discountRepo.save(this.discountRepo.create({
-          name: d.name, discountPercent: d.percent, startDate: d.start, endDate: d.end, isActive: d.active
+          name: d.name, discountPercent: d.percent, startDate: d.start, endDate: d.end, isGlobal: d.global, isActive: d.active
       }));
       discMap.set(d.name, disc);
     }
@@ -196,7 +196,6 @@ export class SeederService {
           gameId: game.id,
           type: RequirementType.MINIMUM,
           platforms: allPlatforms,
-          os: 'Windows 10 / Monterey / Ubuntu',
           processor: 'Intel Core i5',
           ram: '8 GB',
           gpu: 'NVIDIA GTX 760',
@@ -208,7 +207,6 @@ export class SeederService {
           gameId: game.id,
           type: RequirementType.RECOMMENDED,
           platforms: allPlatforms,
-          os: 'Windows 11 / Sonoma / SteamOS',
           processor: 'Intel Core i7',
           ram: '16 GB',
           gpu: 'NVIDIA GTX 1080 Ti',

@@ -8,7 +8,7 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { Media } from '../media/entities/media.entity';
 import { Requirement } from '../requirements/entities/requirement.entity';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class NotificationService {
@@ -36,6 +36,18 @@ export class NotificationService {
     });
 
     if (!notification) throw new NotFoundException('Notification not found');
+
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User profile not found');
+    }
+
+    if (notification.type === NotificationType.COMPANY_INVITATION && accept) {
+      if (user.role === UserRole.ADMIN || user.role === UserRole.MODERATOR) {
+        await this.notificationRepo.delete(notificationId);
+        throw new BadRequestException('Staff members cannot join studios.');
+      }
+    }
 
     if (notification.type === NotificationType.GAME_PUBLISH) {
       return this.handleGamePublishResponse(notification, accept);

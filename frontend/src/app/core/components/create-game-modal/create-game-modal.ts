@@ -10,7 +10,7 @@ import { debounceTime, distinctUntilChanged, firstValueFrom, Subject, switchMap 
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth';
 
-export type CreateStep = 'info' | 'media' | 'build';
+export type CreateStep = 'info' | 'media' | 'specs' | 'build';
 
 @Component({
   selector: 'app-create-game-modal',
@@ -56,6 +56,16 @@ export class CreateGameModalComponent implements OnInit {
 
   selectedDeveloperId = signal<string | null>(null);
 
+  releaseDate = signal<string>(new Date().toISOString().split('T')[0]);
+
+  minSpecs = signal({ os: '', processor: '', ram: '', gpu: '', storage: '' });
+  recSpecs = signal({ os: '', processor: '', ram: '', gpu: '', storage: '' });
+
+  minDate = signal(new Date().toISOString().split('T')[0]);
+
+  platforms = signal<any[]>([]);
+  selectedPlatformIds = signal<number[]>([]);
+
 
   isStep1Valid = computed(() => {
     const t = this.title().trim();
@@ -70,6 +80,12 @@ export class CreateGameModalComponent implements OnInit {
     return this.coverFile() !== null && 
            this.screenshotFiles().length >= 1 && 
            this.screenshotFiles().length <= 6;
+  });
+
+  isStep3Valid = computed(() => {
+    const hasPlatforms = this.selectedPlatformIds().length > 0;
+
+    return hasPlatforms;
   });
 
   nextStep() {
@@ -96,8 +112,25 @@ export class CreateGameModalComponent implements OnInit {
     categoryIds: [] as number[]
   };
 
+  copyMinToRec() {
+    const minValues = this.minSpecs();
+    
+    this.recSpecs.set({ ...minValues });
+  }
+
   ngOnInit() {
     this.catService.getCategories().subscribe(res => this.categories.set(res));
+
+    this.http.get<any[]>('http://localhost:3000/platform').subscribe({
+      next: (data) => {
+        console.log('Platforms loaded from DB:', data);
+        this.platforms.set(data);
+      },
+      error: (err) => {
+        this.toast.show('Failed to connect to platforms registry', 'error');
+        console.error(err);
+      }
+    });
 
     const user = this.auth.currentUser();
     if (user && user.companyId) {
@@ -152,9 +185,33 @@ export class CreateGameModalComponent implements OnInit {
     this.searchResults.set([]);
   }
 
-  submitInfo(): void {
+  async submitInfo() {
     if (this.isStep1Valid()) {
-      this.currentStep.set('media');
+      this.isLoading.set(true); 
+
+      this.dashService.checkTitle(this.title().trim()).subscribe({
+        next: (res) => {
+          if (res.available) {
+            this.currentStep.set('media');
+          } else {
+            this.toast.show(`The title "${this.title()}" is already in use by another project.`, 'error');
+          }
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.toast.show('Error checking title availability.', 'error');
+          this.isLoading.set(false);
+        }
+      });
+    }
+  }
+
+  togglePlatform(id: number) {
+    const current = this.selectedPlatformIds();
+    if (current.includes(id)) {
+      this.selectedPlatformIds.set(current.filter(pId => pId !== id));
+    } else {
+      this.selectedPlatformIds.set([...current, id]);
     }
   }
 
@@ -251,22 +308,46 @@ export class CreateGameModalComponent implements OnInit {
     this.isLoading.set(true);
 
     try {
+      const requirements = [];
+      
+      if (this.selectedPlatformIds().length > 0) {
+        requirements.push({
+          type: 'minimum',
+          ...this.minSpecs(),
+          platformIds: this.selectedPlatformIds()
+        });
+        
+        if (this.recSpecs().processor.trim() || this.recSpecs().gpu.trim()) {
+          requirements.push({
+            type: 'recommended',
+            ...this.recSpecs(),
+            platformIds: this.selectedPlatformIds()
+          });
+        }
+      }
+
       const payload = {
         title: this.title(),
         description: this.description(),
         price: this.price(),
         categoryIds: this.categoryIds(),
-        developerId: this.selectedDeveloperId() || undefined 
+        developerId: this.selectedDeveloperId() || undefined,
+        releaseDate: this.releaseDate(),
+        requirements: requirements.length > 0 ? requirements : undefined 
       };
 
-      const newGame = await firstValueFrom(this.dashService.createGame(payload));
+      const newGame = await firstValueFrom(this.http.post<any>('http://localhost:3000/games', payload));
+      
       await this.uploadAllMedia(newGame.id);
 
-      this.toast.show('Published successfully!', 'success');
+      this.toast.show('Deployment Successful: Project is now live!', 'success');
       this.created.emit();
       this.close.emit();
+      
     } catch (err: any) {
-      this.toast.show(err.error?.message || 'Check terminal for errors', 'error');
+      const errorMessage = err.error?.message || 'Check terminal for database connection errors';
+      this.toast.show(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage, 'error');
+      console.error('[Publish Error]', err);
     } finally {
       this.isLoading.set(false);
     }

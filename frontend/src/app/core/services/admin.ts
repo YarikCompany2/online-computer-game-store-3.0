@@ -17,6 +17,14 @@ export class AdminService {
     return this.http.get<IGlobalStats>(`${this.apiUrl}/stats`);
   }
 
+  getGlobalDiscounts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/discounts`);
+  }
+
+  createGlobalDiscount(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/discounts`, data);
+  }
+
   getUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/users`);
   }
@@ -47,5 +55,13 @@ export class AdminService {
 
   rejectAndWipe(gameId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/moderation/reject/${gameId}`);
+  }
+
+  toggleDiscount(id: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/discounts/${id}/toggle`, {});
+  }
+
+  deleteDiscount(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/discounts/${id}`);
   }
 }

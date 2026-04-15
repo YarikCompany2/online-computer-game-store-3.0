@@ -112,6 +112,108 @@
         <p class="mt-8 text-center text-[10px] text-[#4e5667] font-bold uppercase tracking-[0.4em]">No database entries found</p>
     }
   </div>
+
+  <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl space-y-10">
+      <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-[#a4d007]/10 text-[#a4d007] rounded-sm flex items-center justify-center border border-[#a4d007]/20">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </div>
+          <div>
+              <h3 class="text-2xl font-black text-white uppercase italic leading-none tracking-widest">Global Sales Registry</h3>
+              <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-[0.3em] mt-2">Platform-wide marketing events</p>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#171a21] p-8 rounded-sm border border-white/5">
+          <div class="md:col-span-2 space-y-1">
+              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">Event Title</label>
+              <input type="text" [(ngModel)]="newDiscount.name" placeholder="SUMMER SALE 2026"
+                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-white outline-none focus:border-[#66c0f4]/50 transition-all">
+          </div>
+          <div class="space-y-1">
+              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">Percent (%)</label>
+              <input type="number" [(ngModel)]="newDiscount.discountPercent"
+                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#a4d007] outline-none">
+          </div>
+          <div class="space-y-1">
+              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">Start Date</label>
+              <input type="date" [(ngModel)]="newDiscount.startDate"
+                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#66c0f4] outline-none uppercase">
+          </div>
+          <div class="space-y-1">
+              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">End Date</label>
+              <input type="date" [(ngModel)]="newDiscount.endDate"
+                    [min]="getMinEndDate()"
+                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#66c0f4] outline-none uppercase">
+          </div>
+          <div class="md:col-span-5 pt-4">
+              <button (click)="saveGlobalDiscount()" [disabled]="isSavingDiscount()"
+                      class="w-full bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl active:scale-95">
+                  Initialize Global Promotion
+              </button>
+          </div>
+      </div>
+
+      <div class="mt-12 space-y-4 border-t border-white/5 pt-10">
+        <div class="flex items-center gap-3 mb-6 ml-1">
+            <div class="w-1 h-4 bg-[#4e5667]"></div>
+            <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#4e5667]">Active Registries</h4>
+        </div>
+
+        <div class="space-y-2">
+            @for (d of discounts(); track d.id) {
+                <div class="flex items-center justify-between p-6 bg-[#171a21] border border-white/5 rounded-sm hover:border-[#316282]/50 transition-all group">
+                    <div class="flex items-center gap-12">
+                        <div class="min-w-[200px]">
+                            <p class="text-[8px] font-black text-[#4e5667] uppercase mb-1 tracking-widest">Event Identity</p>
+                            <p class="font-black text-white uppercase text-base leading-none tracking-tighter">{{ d.name }}</p>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="text-[8px] font-black text-[#4e5667] uppercase mb-1 tracking-widest">Reduction</p>
+                            <p class="font-black text-[#a4d007] text-xl leading-none uppercase">-{{ d.discountPercent }}%</p>
+                        </div>
+
+                        <div class="hidden lg:block">
+                            <p class="text-[8px] font-black text-[#4e5667] uppercase mb-1 tracking-widest">Active Period</p>
+                            <div class="flex items-center gap-3 text-[10px] font-bold text-[#8f98a0] uppercase tracking-widest leading-none">
+                                <span>{{ d.startDate | date:'mediumDate':'UTC' }}</span>
+                                <span class="w-4 h-px bg-[#316282]/40"></span>
+                                <span>{{ d.endDate | date:'mediumDate':'UTC' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <div class="flex flex-col items-end gap-1">
+                          <p class="text-[7px] font-black text-[#4e5667] uppercase tracking-widest">System Status</p>
+                          
+                          @let status = getDiscountStatus(d);
+                          
+                          <button (click)="toggleStatus(d.id)"
+                                  [class.bg-[#a4d007]]="status === 'Online'"
+                                  [class.bg-amber-500]="status === 'Scheduled'"
+                                  [class.bg-[#316282]]="status === 'Disabled'"
+                                  [class.bg-rose-900]="status === 'Expired'"
+                                  class="px-3 py-1 rounded-sm text-[#171a21] text-[9px] font-black uppercase tracking-[0.2em] transition-all">
+                              {{ status }}
+                          </button>
+                        </div>
+                        
+                        <button (click)="removeDiscount(d.id)" 
+                                class="p-2.5 text-[#4e5667] hover:text-rose-500 hover:bg-rose-500/5 transition-all">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            } @empty {
+                <div class="py-16 text-center border border-dashed border-[#316282]/20 bg-[#171a21]/50 rounded-sm">
+                    <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.5em]">No global promotions registered in database</p>
+                </div>
+            }
+        </div>
+    </div>
+  </div>
 </div>
 @if (isStaffModalOpen()) {
   <div class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">

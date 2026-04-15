@@ -17,24 +17,24 @@ export class CartService {
   }
 
   addToCart(gameId: string) {
-    return this.http.post(this.apiUrl, { gameId }, { headers: this.getHeaders() }).pipe(
+    return this.http.post(this.apiUrl, { gameId }).pipe(
         tap(() => this.cartItemsCount.update(v => v + 1))
     );
   }
 
   getCart() {
-    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+    return this.http.get<any[]>(this.apiUrl).pipe(
         tap(items => this.cartItemsCount.set(items.length))
     );
   }
 
   removeFromCart(gameId: string) {
-    return this.http.delete(`${this.apiUrl}/${gameId}`, { headers: this.getHeaders() }).pipe(
+    return this.http.delete(`${this.apiUrl}/${gameId}`).pipe(
         tap(() => this.cartItemsCount.update(v => v - 1))
     );
   }
 
   checkout() {
-    return this.http.post(`${this.ordersUrl}/checkout`, {}, { headers: this.getHeaders() });
+    return this.http.post(`${this.ordersUrl}/checkout`, {});
   }
 }

@@ -14,6 +14,7 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 export class AdminHubComponent implements OnInit {
   private adminService = inject(AdminService);
   private toast = inject(ToastService);
+  private searchSubject = new Subject<string>();
 
   stats = signal<any>(null);
 
@@ -25,10 +26,22 @@ export class AdminHubComponent implements OnInit {
   userSearchQuery = signal('');
   searchResults = signal<any[]>([]);
   isSearching = signal(false);
-  private searchSubject = new Subject<string>();
+  
+  discounts = signal<any[]>([]);
+  isSavingDiscount = signal(false);
+
+  minDate = signal(new Date().toISOString().split('T')[0]);
+
+  newDiscount = {
+    name: '',
+    discountPercent: 10,
+    startDate: '',
+    endDate: ''
+  };
 
   ngOnInit() {
     this.loadStats();
+    this.loadDiscounts();
 
     this.searchSubject.pipe(
       debounceTime(400),
@@ -45,6 +58,49 @@ export class AdminHubComponent implements OnInit {
 
   loadStats() {
     this.adminService.getStats().subscribe(data => this.stats.set(data));
+  }
+
+  loadDiscounts() {
+    this.adminService.getGlobalDiscounts().subscribe({
+      next: (res) => {
+        console.log('API RESPONSE (DISCOUNTS):', res);
+        this.discounts.set(res);
+      },
+      error: (err) => console.error('Failed to load discounts:', err)
+    });
+  }
+
+  saveGlobalDiscount() {
+    if (!this.newDiscount.name || !this.newDiscount.startDate || !this.newDiscount.endDate) {
+      this.toast.show('Please fill all fields', 'error');
+      return;
+    }
+    
+    this.isSavingDiscount.set(true);
+    this.adminService.createGlobalDiscount(this.newDiscount).subscribe({
+      next: () => {
+        this.toast.show('Global event created!', 'success');
+        this.loadDiscounts();
+        this.isSavingDiscount.set(false);
+        this.newDiscount = { name: '', discountPercent: 10, startDate: '', endDate: '' };
+      }
+    });
+  }
+
+  toggleStatus(id: string) {
+    this.adminService.toggleDiscount(id).subscribe(() => {
+      this.loadDiscounts();
+      this.toast.show('Discount status updated', 'success');
+    });
+  }
+
+  removeDiscount(id: string) {
+    if (confirm('Delete this event permanently?')) {
+      this.adminService.deleteDiscount(id).subscribe(() => {
+        this.loadDiscounts();
+        this.toast.show('Event removed', 'success');
+      });
+    }
   }
 
   onSearchInput(val: string) {
@@ -102,6 +158,28 @@ export class AdminHubComponent implements OnInit {
         this.isProcessing.set(false);
       }
     });
+  }
+
+  getMinEndDate(): string {
+    return this.newDiscount.startDate || this.minDate();
+  }
+
+  getDiscountStatus(d: any): 'Online' | 'Scheduled' | 'Expired' | 'Disabled' {
+    if (!d.isActive) return 'Disabled';
+    
+    const now = new Date().getTime();
+    const start = new Date(d.startDate).getTime();
+    const end = new Date(d.endDate).getTime();
+
+    if (now < start) return 'Scheduled';
+    if (now > end) return 'Expired';
+    return 'Online';
+  }
+
+  preventNegativeAndDot(event: KeyboardEvent) {
+    if (['-', '+', 'e', '.'].includes(event.key)) {
+      event.preventDefault();
+    }
   }
 
   demote(userId: string, username: string) {

@@ -25,6 +25,10 @@ export class CompaniesService {
   async create(createCompanyDto: CreateCompanyDto, ownerId: string): Promise<Company> {
     const user = await this.userRepository.findOne({ where: { id: ownerId } });
 
+    if (user && (user.role === UserRole.ADMIN || user.role === UserRole.MODERATOR)) {
+      throw new BadRequestException('Platform staff members are prohibited from owning commercial studios.');
+    }
+
     if (user && user.companyId) {
       throw new BadRequestException('User already owns a company');
     }
@@ -73,6 +77,10 @@ export class CompaniesService {
     const targetUser = await this.usersService.findByIdentifier(identifier);
     if (!targetUser) {
       throw new NotFoundException(`User "${identifier}" not found`);
+    }
+
+    if (targetUser.role === UserRole.ADMIN || targetUser.role === UserRole.MODERATOR) {
+      throw new BadRequestException('Cannot recruit platform staff members into a studio.');
     }
 
     if (targetUser.companyId) {

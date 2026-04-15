@@ -7,7 +7,7 @@ import { Company } from './entities/company.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { type PaginatedResource } from '../common/interfaces/paginated-resource.interface';
 import { GetCompaniesFilterDto } from './dto/get-companies-filter.dto';
-import { NotificationType } from 'src/notification/entities/notification.entity';
+import { NotificationType } from '../notification/entities/notification.entity';
 
 @Controller('companies')
 export class CompaniesController {
