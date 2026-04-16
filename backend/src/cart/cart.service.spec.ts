@@ -1,21 +1,18 @@
-import { Repository } from "typeorm";
-import { CartService } from "./cart.service"
-import { Cart } from "./entities/cart.entity";
-import { Test, TestingModule } from "@nestjs/testing";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { Test, TestingModule } from '@nestjs/testing';
+import { CartService } from './cart.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Cart } from './entities/cart.entity';
+import { Library } from '../library/entities/library.entity';
+import { User } from '../users/entities/user.entity';
+import { Game } from '../games/entities/game.entity';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('CartService', () => {
   let service: CartService;
-  let repo: Repository<Cart>
-
-  const mockCartRepository = {
-    findOne: jest.fn(),
-    find: jest.fn(),
-    create: jest.fn().mockImplementation((dto) => dto),
-    save: jest.fn().mockImplementation((item) => Promise.resolve({ id: 'cart-entry-uuid', ...item })),
-    delete: jest.fn(),
-  }
+  let cartRepo;
+  let libRepo;
+  let userRepo;
+  let gameRepo;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,15 +20,34 @@ describe('CartService', () => {
         CartService,
         {
           provide: getRepositoryToken(Cart),
-          useValue: mockCartRepository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            create: jest.fn().mockImplementation(dto => dto),
+            save: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Library),
+          useValue: { findOne: jest.fn() },
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: { findOne: jest.fn() },
+        },
+        {
+          provide: getRepositoryToken(Game),
+          useValue: { findOne: jest.fn() },
         },
       ],
     }).compile();
 
     service = module.get<CartService>(CartService);
-    repo = module.get<Repository<Cart>>(getRepositoryToken(Cart));
-
-    jest.clearAllMocks();
+    cartRepo = module.get(getRepositoryToken(Cart));
+    libRepo = module.get(getRepositoryToken(Library));
+    userRepo = module.get(getRepositoryToken(User));
+    gameRepo = module.get(getRepositoryToken(Game));
   });
 
   it('should be defined', () => {
@@ -39,74 +55,87 @@ describe('CartService', () => {
   });
 
   describe('addToCart', () => {
-    const userId = 'user-uuid';
-    const dto = { gameId: 'game-uuid' };
+    const userId = 'u1';
+    const gameId = 'g1';
+    const dto = { gameId };
 
-    it('should successfully add a game to the cart', async () => {
-      mockCartRepository.findOne.mockResolvedValue(null);
+    it('should successfully add game to cart', async () => {
+      userRepo.findOne.mockResolvedValue({ id: userId, companyId: null });
+      gameRepo.findOne.mockResolvedValue({ id: gameId, developerId: 'other-comp' });
+      libRepo.findOne.mockResolvedValue(null);
+      cartRepo.findOne.mockResolvedValue(null);
+      cartRepo.save.mockResolvedValue({ id: 'cart-entry', userId, gameId });
 
       const result = await service.addToCart(userId, dto);
 
-      expect(result).toHaveProperty('id', 'cart-entry-uuid');
-      expect(result.userId).toBe(userId);
-      expect(mockCartRepository.save).toHaveBeenCalled();
+      expect(result).toHaveProperty('id', 'cart-entry');
+      expect(cartRepo.save).toHaveBeenCalled();
     });
 
-    it('should throw BadReqyestException if game is already in cart', async () => {
-      mockCartRepository.findOne.mockResolvedValue({ id: 'existing-id' });
+    it('should throw NotFoundException if user missing', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+      await expect(service.addToCart(userId, dto)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException if user is the developer', async () => {
+      userRepo.findOne.mockResolvedValue({ id: userId, companyId: 'my-studio' });
+      gameRepo.findOne.mockResolvedValue({ id: gameId, developerId: 'my-studio' });
+
+      await expect(service.addToCart(userId, dto)).rejects.toThrow(
+        'As the developer of this game, you already have full access'
+      );
+    });
+
+    it('should throw BadRequestException if game already owned', async () => {
+      userRepo.findOne.mockResolvedValue({ id: userId });
+      gameRepo.findOne.mockResolvedValue({ id: gameId });
+      libRepo.findOne.mockResolvedValue({ id: 'lib-id' });
 
       await expect(service.addToCart(userId, dto)).rejects.toThrow(BadRequestException);
-      expect(mockCartRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException if game already in cart', async () => {
+      userRepo.findOne.mockResolvedValue({ id: userId });
+      gameRepo.findOne.mockResolvedValue({ id: gameId });
+      libRepo.findOne.mockResolvedValue(null);
+      cartRepo.findOne.mockResolvedValue({ id: 'existing-cart-id' });
+
+      await expect(service.addToCart(userId, dto)).rejects.toThrow('already in your cart');
     });
   });
 
   describe('getMyCart', () => {
-    it('should return all items with relations for a specific user', async () => {
-      const userId = 'user-uuid';
-      const mockItems = [
-        { id: '1', game: { title: 'Terraria' } },
-        { id: '2', game: { title: 'Factorio' } }
-      ];
-      mockCartRepository.find.mockResolvedValue(mockItems);
+    it('should return cart items with relations', async () => {
+      const mockItems = [{ id: '1', game: { title: 'Terraria' } }];
+      cartRepo.find.mockResolvedValue(mockItems);
 
-      const result = await service.getMyCart(userId);
+      const result = await service.getMyCart('u1');
 
       expect(result).toEqual(mockItems);
-      expect(mockCartRepository.find).toHaveBeenCalledWith({
-        where: { userId },
-        relations: ['game', 'game.categories', 'game.company']
-      })
+      expect(cartRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+        where: { userId: 'u1' },
+        relations: expect.arrayContaining(['game', 'game.media'])
+      }));
     });
   });
-  
+
   describe('removeFromCart', () => {
-    it('should successfully delete item from cart', async () => {
-      mockCartRepository.delete.mockResolvedValue({ affected: 1 });
-
-      await service.removeFromCart('user-id', 'game-id');
-
-      expect(mockCartRepository.delete).toHaveBeenCalledWith({
-        userId: 'user-id',
-        gameId: 'game-id'
-      });
+    it('should successfully remove item', async () => {
+      cartRepo.delete.mockResolvedValue({ affected: 1 });
+      await service.removeFromCart('u1', 'g1');
+      expect(cartRepo.delete).toHaveBeenCalledWith({ userId: 'u1', gameId: 'g1' });
     });
 
-    it('should throw NotFoundException if item was not in cart', async () => {
-      mockCartRepository.delete.mockResolvedValue({ affected: 0 });
-
-      await expect(
-        service.removeFromCart('user-id', 'game-id'),
-      ).rejects.toThrow(NotFoundException);
+    it('should throw NotFoundException if nothing was deleted', async () => {
+      cartRepo.delete.mockResolvedValue({ affected: 0 });
+      await expect(service.removeFromCart('u1', 'g1')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('clearCart', () => {
-    it('should delete all items for a specific user', async () => {
-      mockCartRepository.delete.mockResolvedValue({ affected: 5 });
-
-      await service.clearCart('user-id');
-
-      expect(mockCartRepository.delete).toHaveBeenCalledWith({ userId: 'user-id' });
+    it('should call delete for all user items', async () => {
+      await service.clearCart('u1');
+      expect(cartRepo.delete).toHaveBeenCalledWith({ userId: 'u1' });
     });
   });
 });

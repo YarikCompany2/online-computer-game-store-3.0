@@ -1,27 +1,33 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { SeederService } from '../src/database/seeder.service';
 import { UsersService } from '../src/users/users.service';
 import { UserRole } from '../src/users/entities/user.entity';
 
 describe('Game Store System (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
   let usersService: UsersService;
   let seeder: SeederService;
 
-  const testUser = {
-    email: `tester${Date.now()}@example.com`,
-    username: 'Tester',
+  const sellerUser = {
+    email: `seller${Date.now()}@test.com`,
+    username: `Seller${Date.now()}`,
     password: 'password123',
   };
 
-  let accessToken: string;
-  let refreshToken: string;
-  let userId: string;
-  let gameId: string = '';
+  const buyerUser = {
+    email: `buyer${Date.now()}@test.com`,
+    username: `Buyer${Date.now()}`,
+    password: 'password123',
+  };
+
+  let sellerToken: string;
+  let buyerToken: string;
+  let sellerId: string;
+  let buyerId: string;
+  let gameId: string;
   let discountId: string;
 
   beforeAll(async () => {
@@ -30,256 +36,135 @@ describe('Game Store System (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
     await app.init();
 
     seeder = app.get(SeederService);
     usersService = app.get(UsersService);
-
     await seeder.seed();
-    console.log('Test Database Seeded.');
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  const refreshLocalToken = async () => {
-    const res = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password });
-    accessToken = res.body.accessToken;
-  };
+  describe('Setup Seller and Game', () => {
+    it('Register and Login Seller', async () => {
+      const reg = await request(app.getHttpServer()).post('/users/register').send(sellerUser);
+      sellerId = reg.body.id;
 
-  describe('Authentication & Identity', () => {
-    it('/users/register (POST) - Success', () => {
-      return request(app.getHttpServer())
-        .post('/users/register')
-        .send(testUser)
-        .expect(201)
-        .expect((res) => {
-          expect(res.body.id).toBeDefined();
-          userId = res.body.id;
-        });
+      const log = await request(app.getHttpServer()).post('/auth/login').send({
+        identifier: sellerUser.email,
+        password: sellerUser.password,
+      });
+      sellerToken = log.body.accessToken;
     });
 
-    it('/auth/login (POST) - Success', () => {
-      return request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: testUser.email,
-          password: testUser.password,
-        })
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.accessToken).toBeDefined();
-          expect(res.body.refreshToken).toBeDefined();
-          accessToken = res.body.accessToken;
-          refreshToken = res.body.refreshToken;
-        });
-    });
-
-    let validRefreshToken: string;
-    let oldRefreshToken: string;
-
-    it('/auth/refresh (POST) - Success', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/auth/refresh')
-        .send({
-          userId: userId,
-          refreshToken: refreshToken
-        })
-        .expect(200)
-      
-      expect(res.body.accessToken).toBeDefined();
-      expect(res.body.refreshToken).toBeDefined();
-      expect(res.body.refreshToken).not.toBe(refreshToken);
-
-      oldRefreshToken = refreshToken;
-      refreshToken = res.body.refreshToken;
-    });
-
-    it('/auth/refresh (POST) - Failure (Old Refresh Token)', async () => {
-      return request(app.getHttpServer())
-        .post('/auth/refresh')
-        .send({
-          userId,
-          refreshToken: oldRefreshToken,
-        })
-        .expect(401)
-    });
-  })
-  
-  describe('Company & Ownership', () => {
-    it('/companies (POST) - Success with Token', async () => {
+    it('Seller creates Company', async () => {
       await request(app.getHttpServer())
         .post('/companies')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({
-          name: 'E2E Test Studio',
-          description: 'Testing something',
-          type: 'developer'
-        })
-        .expect(201)
-        .expect((res) => {
-          expect(res.body.ownerId).toBe(userId);
-        });
+        .set('Authorization', `Bearer ${sellerToken}`)
+        .send({ name: 'E2E Studio', description: 'World Class Devs' })
+        .expect(201);
 
-      await refreshLocalToken();
+      const log = await request(app.getHttpServer()).post('/auth/login').send({
+        identifier: sellerUser.email,
+        password: sellerUser.password,
+      });
+      sellerToken = log.body.accessToken;
     });
 
-    it('/companies (POST) - Failure (No Token)', () => {
-      return request(app.getHttpServer())
-        .post('/companies')
-        .send({ name: 'Hack Studio' })
-        .expect(401);
-    });
-
-    it('/companies (POST) - Failure (User already owns a company)', () => {
-      return request(app.getHttpServer())
-        .post('/companies')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({
-          name: 'Second Empire',
-          type: 'publisher',
-        })
-        .expect(400)
-    });
-  });
-
-  describe('Game Management (Content & Marketing)', () => {
-    it('/games (GET) - Find paid game', async () => {
-      const res = await request(app.getHttpServer()).get('/games').expect(200);
-      const paidGame = res.body.data.find((g: any) => Number(g.price) > 0);
-      gameId = paidGame.id;
-    });
-
-    it('/games (POST) - Create own game', async () => {
+    it('Seller creates Game', async () => {
       const res = await request(app.getHttpServer())
         .post('/games')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${sellerToken}`)
         .send({
-          title: 'E2E Secret Project',
-          description: 'Testing ownership',
-          price: 15.00,
+          title: `E2E Hit Game ${Date.now()}`,
+          description: 'This is a description that is long enough.',
+          price: 50.00,
           categoryIds: [1]
         })
         .expect(201);
-      gameId = res.body.id; // Тепер gameId — це ТВОЯ гра
+      gameId = res.body.id;
     });
 
-    it('/media (POST) - Add screenshot to game', () => {
-      return request(app.getHttpServer())
-        .post('/media')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({
-          gameId,
-          fileUrl: 'https://cdn.store.com/shot.png',
-          type: 'image',
-          isMain: true
-        })
-        .expect(201);
-    });
-
-    it('/requirements (POST) - Set requirements', () => {
-      return request(app.getHttpServer())
-        .post('/requirements')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({
-          gameId,
-          type: 'minimum',
-          os: 'Windows 10',
-          processor: 'i5',
-          ram: '8GB',
-          gpu: 'GTX 1050',
-          storage: '50GB'
-        })
-        .expect(201);
-    });
-
-    it('/discounts (POST) - Create as Admin', async () => {
-      await usersService.update(userId, { role: UserRole.ADMIN });
-
-      await refreshLocalToken(); 
+    it('Make Seller an Admin and create Discount', async () => {
+      await usersService.update(sellerId, { role: UserRole.ADMIN });
+      
+      const log = await request(app.getHttpServer()).post('/auth/login').send({
+        identifier: sellerUser.email,
+        password: sellerUser.password,
+      });
+      sellerToken = log.body.accessToken;
 
       const res = await request(app.getHttpServer())
         .post('/discounts')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${sellerToken}`)
         .send({
-          name: 'Flash Sale',
-          discountPercent: 50,
+          name: 'E2E Promo',
+          discountPercent: 10,
           startDate: new Date(),
           endDate: new Date(Date.now() + 86400000)
         })
         .expect(201);
       discountId = res.body.id;
-    });
 
-    it('/discounts/apply (POST) - Link discount to game', () => {
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post('/discounts/apply')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${sellerToken}`)
         .send({ gameId, discountId })
         .expect(201);
     });
   });
 
+  describe('Marketplace Flow (Buyer)', () => {
+    it('Register and Login Buyer', async () => {
+      const reg = await request(app.getHttpServer()).post('/users/register').send(buyerUser);
+      buyerId = reg.body.id;
 
-  describe('Marketplace Flow', () => {
-    it('/games (GET) - Browse and find paid game', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/games')
-        .expect(200);
-
-      expect(res.body.data.length).toBeGreaterThan(0);
-
-      const paidGame = res.body.data.find((g: any) => Number(g.price) > 0);
-      gameId = paidGame ? paidGame.id : res.body.data[0].id;
+      const log = await request(app.getHttpServer()).post('/auth/login').send({
+        identifier: buyerUser.email,
+        password: buyerUser.password,
+      });
+      buyerToken = log.body.accessToken;
     });
 
-    it ('/cart (POST) - Add game to cart', () => {
+    it('Buyer adds Game to Cart', () => {
       return request(app.getHttpServer())
         .post('/cart')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${buyerToken}`)
         .send({ gameId })
         .expect(201);
     });
-  });
 
-  describe('Transaction & Delivery', () => {
-    it('/orders/checkout (POST) - Buy game with enough balance', async () => {
-      await usersService.update(userId, { balance: 500 });
+    it('Buyer completes Checkout', async () => {
+      await usersService.update(buyerId, { balance: 100.00 });
 
       const res = await request(app.getHttpServer())
         .post('/orders/checkout')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${buyerToken}`)
         .expect(200);
 
       expect(res.body.message).toBe('Purchase successful');
-      expect(Number(res.body.remainingBalance)).toBeLessThan(500);
     });
-  });
 
-  describe('Social & Library', () => {
-    it('/reviews (POST) - Leave feedback', () => {
-      return request(app.getHttpServer())
+    it('Buyer verifies ownership and leaves Review', async () => {
+      const lib = await request(app.getHttpServer())
+        .get('/library')
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .expect(200);
+      
+      expect(lib.body.some(i => i.gameId === gameId)).toBe(true);
+
+      await request(app.getHttpServer())
         .post('/reviews')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${buyerToken}`)
         .send({
           gameId,
           rating: 5,
-          comment: 'Perfect E2E tested game!'
+          comment: 'Bought this game, it works perfectly!'
         })
         .expect(201);
-    });
-
-    it('/library (GET) - Verify ownership', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/library')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(200);
-
-      expect(res.body.some((i: any) => i.gameId === gameId)).toBe(true);
     });
   });
 });

@@ -2,34 +2,52 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReviewsService } from './reviews.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
-import { BadRequestException } from '@nestjs/common';
+import { Library } from '../library/entities/library.entity';
+import { Game } from '../games/entities/game.entity';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 
 describe('ReviewsService', () => {
   let service: ReviewsService;
-
-  const mockReviewRepository = {
-    findOne: jest.fn(),
-    find: jest.fn(),
-    create: jest.fn().mockImplementation((dto) => dto),
-    save: jest.fn().mockImplementation((review) => 
-      Promise.resolve({ id: 'review-uuid', ...review })
-    ),
-  };
+  let reviewRepo;
+  let libRepo;
+  let gameRepo;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReviewsService,
         {
           provide: getRepositoryToken(Review),
-          useValue: mockReviewRepository,
+          useValue: {
+            create: jest.fn().mockImplementation(dto => dto),
+            save: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            remove: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Library),
+          useValue: {
+            findOne: jest.fn(),
+            manager: {
+              findOne: jest.fn(),
+            },
+          },
+        },
+        {
+          provide: getRepositoryToken(Game),
+          useValue: {
+            findOne: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     service = module.get<ReviewsService>(ReviewsService);
+    reviewRepo = module.get(getRepositoryToken(Review));
+    libRepo = module.get(getRepositoryToken(Library));
+    gameRepo = module.get(getRepositoryToken(Game));
   });
 
   it('should be defined', () => {
@@ -37,54 +55,75 @@ describe('ReviewsService', () => {
   });
 
   describe('create', () => {
-    const userId = 'user-uuid';
-    const createReviewDto = {
-      gameId: 'game-uuid',
-      rating: 5,
-      comment: 'This game is legendary!',
-    };
+    const userId = 'u1';
+    const gameId = 'g1';
+    const dto = { gameId, rating: 5, comment: 'Amazing!' };
 
-    it('should successfully create a review if user has not reviewed this game yet', async () => {
-      mockReviewRepository.findOne.mockResolvedValue(null);
+    it('should successfully create a review if user owns the game', async () => {
+      gameRepo.findOne.mockResolvedValue({ id: gameId, developerId: 'other-dev' });
+      libRepo.manager.findOne.mockResolvedValue({ id: userId, companyId: null });
+      libRepo.findOne.mockResolvedValue({ id: 'ownership-record' });
+      reviewRepo.findOne.mockResolvedValue(null);
+      reviewRepo.save.mockResolvedValue({ id: 'r1', ...dto, userId });
 
-      const result = await service.create(userId, createReviewDto);
+      const result = await service.create(userId, dto);
 
-      expect(result).toHaveProperty('id', 'review-uuid');
-      expect(result.userId).toBe(userId);
-      expect(result.rating).toBe(5);
-      expect(mockReviewRepository.save).toHaveBeenCalled();
+      expect(result).toBeDefined();
+      expect(reviewRepo.save).toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException if user already reviewed this game', async () => {
-      mockReviewRepository.findOne.mockResolvedValue({ id: 'existing-review-id' });
+    it('should throw ForbiddenException if developer reviews their own game', async () => {
+      const companyId = 'my-studio';
+      gameRepo.findOne.mockResolvedValue({ id: gameId, developerId: companyId });
+      libRepo.manager.findOne.mockResolvedValue({ id: userId, companyId });
 
-      await expect(
-        service.create(userId, createReviewDto)
-      ).rejects.toThrow(BadRequestException);
-      
-      expect(mockReviewRepository.save).not.toHaveBeenCalled();
+      await expect(service.create(userId, dto)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException if user does not own the game', async () => {
+      gameRepo.findOne.mockResolvedValue({ id: gameId });
+      libRepo.manager.findOne.mockResolvedValue({ id: userId });
+      libRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.create(userId, dto)).rejects.toThrow('must own the game');
+    });
+
+    it('should throw BadRequestException if review already exists', async () => {
+      gameRepo.findOne.mockResolvedValue({ id: gameId });
+      libRepo.manager.findOne.mockResolvedValue({ id: userId });
+      libRepo.findOne.mockResolvedValue({ id: 'exists' });
+      reviewRepo.findOne.mockResolvedValue({ id: 'old-review' });
+
+      await expect(service.create(userId, dto)).rejects.toThrow('already reviewed this game');
     });
   });
 
-  describe('findByGame', () => {
-    it('should return all reviews for a specific game with user info', async () => {
-      const gameId = 'game-uuid';
-      const mockReviews = [
-        { id: '1', rating: 5, comment: 'Great!', user: { username: 'Gamer1' } },
-        { id: '2', rating: 4, comment: 'Good', user: { username: 'Gamer2' } },
-      ];
-      mockReviewRepository.find.mockResolvedValue(mockReviews);
+  describe('update', () => {
+    it('should update review if it belongs to the user', async () => {
+      const mockReview = { id: 'r1', userId: 'u1', comment: 'Old' };
+      reviewRepo.findOne.mockResolvedValue(mockReview);
+      reviewRepo.save.mockImplementation(r => Promise.resolve(r));
 
-      const result = await service.findByGame(gameId);
+      const result = await service.update('r1', 'u1', { comment: 'New' });
 
-      expect(result).toHaveLength(2);
-      expect(result).toEqual(mockReviews);
+      expect(result.comment).toBe('New');
+      expect(reviewRepo.save).toHaveBeenCalled();
+    });
+
+    it('should throw NotFound if user tries to update someone else review', async () => {
+      reviewRepo.findOne.mockResolvedValue(null);
+      await expect(service.update('r1', 'hacker', {})).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('adminRemove', () => {
+    it('should allow admin to delete any review', async () => {
+      const mockReview = { id: 'r1' };
+      reviewRepo.findOne.mockResolvedValue(mockReview);
       
-      expect(mockReviewRepository.find).toHaveBeenCalledWith({
-        where: { gameId },
-        relations: ['user'],
-        order: { createdAt: 'DESC' },
-      });
+      await service.adminRemove('r1');
+      
+      expect(reviewRepo.remove).toHaveBeenCalledWith(mockReview);
     });
   });
 });

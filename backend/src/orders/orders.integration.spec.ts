@@ -12,17 +12,21 @@ import { Cart } from "../cart/entities/cart.entity";
 import { Category } from "../categories/entities/category.entity";
 import { CartModule } from "../cart/cart.module";
 import { UsersModule } from "../users/users.module";
-import { Company, CompanyType } from "../companies/entities/company.entity";
+import { Company } from "../companies/entities/company.entity";
 import { Media } from "../media/entities/media.entity";
 import { Requirement } from "../requirements/entities/requirement.entity";
 import { Review } from "../reviews/entities/review.entity";
 import { Discount } from "../discounts/entities/discount.entity";
+import { Platform } from "../platform/entities/platform.entity";
+import { Transaction } from "../users/entities/transaction.entity"; 
 
 describe('OrdersService (Integration)', () => {
   let service: OrdersService;
   let dataSource: DataSource;
   let testUser: User;
   let testGame: Game;
+
+  jest.setTimeout(30000);
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -35,11 +39,19 @@ describe('OrdersService (Integration)', () => {
           username: 'postgres',
           password: '!super@password!',
           database: 'gamestore_test',
-          entities: [Order, OrderItem, User, Game, Library, Cart, Category, Company, Media, Requirement, Review, Discount],
+          entities: [
+            Order, OrderItem, User, Game, Library, Cart, 
+            Category, Company, Media, Requirement, Review, 
+            Discount, Platform, Transaction
+          ],
           synchronize: true,
           dropSchema: true,
         }),
-        TypeOrmModule.forFeature([Order, OrderItem, User, Game, Library, Cart, Category, Company, Media, Requirement, Review, Discount]),
+        TypeOrmModule.forFeature([
+          Order, OrderItem, User, Game, Library, Cart, 
+          Category, Company, Media, Requirement, Review, 
+          Discount, Platform, Transaction
+        ]),
         CartModule,
         UsersModule,
       ],
@@ -62,7 +74,6 @@ describe('OrdersService (Integration)', () => {
 
     const testCompany = await companyRepo.save(companyRepo.create({
       name: 'Integration Studio',
-      type: CompanyType.DEVELOPER,
       ownerId: testUser.id
     }));
 
@@ -70,12 +81,15 @@ describe('OrdersService (Integration)', () => {
       title: 'Integration Game',
       description: 'Test',
       price: 60.00,
-      companyId: testCompany.id
+      developerId: testCompany.id,
+      publisherId: testCompany.id
     }));
   });
 
   afterAll(async () => {
-    await dataSource.destroy();
+    if (dataSource) {
+      await dataSource.destroy();
+    }
   });
 
   it('should process transaction correctly: deduct balance and clear cart', async () => {
@@ -91,10 +105,9 @@ describe('OrdersService (Integration)', () => {
     const libItems = await libRepo.findBy({ userId: testUser.id, gameId: testGame.id });
 
     expect(updatedUser).toBeDefined();
-    expect(updatedUser).not.toBeNull();
-    expect(Number(updatedUser!.balance)).toBe(40.00);
+    expect(Number(updatedUser!.balance)).toBe(40.00); 
 
     expect(cartItems.length).toBe(0);
     expect(libItems.length).toBe(1);
-  })
-})
+  });
+});

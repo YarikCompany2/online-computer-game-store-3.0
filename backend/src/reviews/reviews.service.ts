@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Library } from '../library/entities/library.entity';
+import { Game } from '../games/entities/game.entity';
 
 @Injectable()
 export class ReviewsService {
@@ -12,9 +13,20 @@ export class ReviewsService {
     private readonly reviewRepository: Repository<Review>,
     @InjectRepository(Library)
     private readonly libraryRepository: Repository<Library>,
+    @InjectRepository(Game)
+    private readonly gameRepository: Repository<Game>,
   ) {}
 
   async create(userId: string, dto: CreateReviewDto) {
+    const game = await this.gameRepository.findOne({ where: { id: dto.gameId } });
+    const user = await this.libraryRepository.manager.findOne('User', { where: { id: userId } }) as any;
+
+    if (!game) throw new NotFoundException('Game not found');
+
+    if (user.companyId && (user.companyId === game.developerId || user.companyId === game.publisherId)) {
+      throw new ForbiddenException('Developers are prohibited from reviewing their own products.');
+    }
+
     const ownsGame = await this.libraryRepository.findOne({
       where: { userId, gameId: dto.gameId }
     });

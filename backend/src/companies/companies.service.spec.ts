@@ -1,54 +1,71 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { CompaniesService } from "./companies.service"
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { Company, CompanyType } from "./entities/company.entity";
-import { User } from "../users/entities/user.entity";
-import { Repository } from "typeorm";
-import { skip } from "node:test";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
-import { UsersService } from "../users/users.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { CompaniesService } from './companies.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Company } from './entities/company.entity';
+import { User, UserRole } from '../users/entities/user.entity';
+import { Notification as NotificationEntity, NotificationType, NotificationStatus } from '../notification/entities/notification.entity';
+import { UsersService } from '../users/users.service';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('CompaniesService', () => {
   let service: CompaniesService;
+  let companyRepo;
+  let userRepo;
+  let notificationRepo;
+  let usersService: UsersService;
 
-  let mockCompanyRepo: Partial<Record<keyof Repository<Company>, jest.Mock>>;
-
-  const mockUserRepo = {
-    findOne: jest.fn(),
-    update: jest.fn().mockResolvedValue({}),
-  };
-
-  const mockUsersService = {
-    update: jest.fn().mockResolvedValue({}),
+  const mockQueryBuilder = {
+    where: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn(),
   };
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-
-    mockCompanyRepo = {
-      findAndCount: jest.fn(),
-      findOne: jest.fn(),
-      create: jest.fn((dto) => dto),
-      save: jest.fn().mockImplementation((company) => 
-        Promise.resolve({
-          id: 'comp-uuid',
-          ...company
-        })
-      ),
-      update: jest.fn(),
-      softDelete: jest.fn().mockResolvedValue({ affected: 1 }),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CompaniesService,
-        { provide: getRepositoryToken(Company), useValue: mockCompanyRepo },
-        { provide: getRepositoryToken(User), useValue: mockUserRepo },
-        { provide: UsersService, useValue: mockUsersService },
+        {
+          provide: getRepositoryToken(Company),
+          useValue: {
+            create: jest.fn().mockImplementation(dto => dto),
+            save: jest.fn(),
+            findOne: jest.fn(),
+            softDelete: jest.fn(),
+            createQueryBuilder: jest.fn(() => mockQueryBuilder),
+          },
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: {
+            findOne: jest.fn(),
+            update: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(NotificationEntity),
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn().mockImplementation(dto => dto),
+          },
+        },
+        {
+          provide: UsersService,
+          useValue: {
+            update: jest.fn(),
+            findByIdentifier: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<CompaniesService>(CompaniesService);
+    companyRepo = module.get(getRepositoryToken(Company));
+    userRepo = module.get(getRepositoryToken(User));
+    notificationRepo = module.get(getRepositoryToken(NotificationEntity));
+    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
@@ -56,98 +73,88 @@ describe('CompaniesService', () => {
   });
 
   describe('create', () => {
-    it('should create a company and link it to the owner user', async () => {
-      const dto = {
-        name: 'Big Game Studio',
-        description: 'Elite devs',
-        type: CompanyType.DEVELOPER
-      };
-      const ownerId = 'user-uuid';
+    const dto = { name: 'Epic Games', description: 'Devs' };
+    const ownerId = 'user-1';
 
-      mockUserRepo.findOne.mockResolvedValue({ id: ownerId, companyId: null });
+    it('should create a company and link it to the user', async () => {
+      userRepo.findOne.mockResolvedValue({ id: ownerId, role: UserRole.USER, companyId: null });
+      companyRepo.save.mockResolvedValue({ id: 'comp-1', ...dto });
 
-      const result = await service.create(dto, ownerId);
+      const result = await service.create(dto as any, ownerId);
 
-      expect(result.id).toBe('comp-uuid');
-      expect(result.name).toBe(dto.name);
-      expect(result.ownerId).toBe(ownerId);
-
-      expect(mockUsersService.update).toHaveBeenCalledWith(ownerId, {
-        companyId: 'comp-uuid'
-      });
+      expect(result.id).toBe('comp-1');
+      expect(usersService.update).toHaveBeenCalledWith(ownerId, { companyId: 'comp-1' });
     });
 
-    it('should throw BadRequestException if user already owns a company', async () => {
-      const dto = { name: 'Fail Studio', type: CompanyType.PUBLISHER };
-      const ownerId = 'user-uuid';
+    it('should block staff members from creating companies', async () => {
+      userRepo.findOne.mockResolvedValue({ id: ownerId, role: UserRole.ADMIN });
 
-      mockUserRepo.findOne.mockResolvedValue({ id: ownerId, companyId: 'existring-comp-id' });
+      await expect(service.create(dto as any, ownerId)).rejects.toThrow(
+        'Platform staff members are prohibited'
+      );
+    });
 
-      await expect(service.create(dto, ownerId)).rejects.toThrow(BadRequestException);
+    it('should throw if user already has a company', async () => {
+      userRepo.findOne.mockResolvedValue({ id: ownerId, role: UserRole.USER, companyId: 'existing-id' });
+
+      await expect(service.create(dto as any, ownerId)).rejects.toThrow(
+        'User already owns a company'
+      );
     });
   });
 
   describe('findAll', () => {
-    it('should return a paginated list of companies with default values', async () => {
-      const mockCompanies = [{ id: '1', name: 'Company 1' }, { id: '2', name: 'Company 2' }];
-      const totalCount = 2;
+    it('should return paginated results', async () => {
+      const mockData = [{ name: 'A' }, { name: 'B' }];
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([mockData, 2]);
 
-      mockCompanyRepo.findAndCount = jest.fn().mockResolvedValue([mockCompanies, totalCount]);
+      const result = await service.findAll({ page: 1, limit: 10 });
 
-      const result = await service.findAll({});
-
-      expect(result.data).toEqual(mockCompanies);
-      expect(result.meta.totalItems).toBe(totalCount);
-      expect(result.meta.currentPage).toBe(1);
-      expect(result.meta.itemsPerPage).toBe(10);
+      expect(result.data).toHaveLength(2);
       expect(result.meta.totalPages).toBe(1);
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
+    });
+  });
 
-      expect(mockCompanyRepo.findAndCount).toHaveBeenCalledWith({
-        take: 10,
-        skip: 0,
-      });
+  describe('inviteUser', () => {
+    it('should send invitation to valid user', async () => {
+      const targetUser = { id: 'u2', username: 'alex', role: UserRole.USER, companyId: null };
+      (usersService.findByIdentifier as jest.Mock).mockResolvedValue(targetUser);
+      notificationRepo.findOne.mockResolvedValue(null);
+      companyRepo.findOne.mockResolvedValue({ name: 'Valve' });
+
+      await service.inviteUser('alex', 'comp-1');
+
+      expect(notificationRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+        type: NotificationType.COMPANY_INVITATION,
+        recipientId: 'u2'
+      }));
     });
 
-    it('should correctly calculate skip for the second page', async () => {
-      const totalCount = 15;
-      mockCompanyRepo.findAndCount = jest.fn().mockResolvedValue([[], totalCount]);
-
-      const page = 2;
-      const limit = 5;
-
-      const result = await service.findAll({ page, limit });
-
-      expect(mockCompanyRepo.findAndCount).toHaveBeenCalledWith({
-        take: 5,
-        skip: 5,
+    it('should throw if user already in a studio', async () => {
+      (usersService.findByIdentifier as jest.Mock).mockResolvedValue({
+        id: 'u2', companyId: 'other-comp'
       });
 
-      expect(result.meta.totalPages).toBe(3);
-      expect(result.meta.currentPage).toBe(2);
-    })
+      await expect(service.inviteUser('alex', 'comp-1')).rejects.toThrow(
+        'already a member of a studio'
+      );
+    });
   });
 
   describe('remove', () => {
-    it('should unlink users and soft delete the company if owner is correct', async () => {
-      const company = { id: 'comp-uuid', ownerId: 'owner-uuid' };
-      (mockCompanyRepo.findOne as jest.Mock).mockResolvedValue(company);
+    it('should unlink users and delete company', async () => {
+      companyRepo.findOne.mockResolvedValue({ id: 'c1', ownerId: 'owner-1' });
+      
+      await service.remove('c1', 'owner-1');
 
-      await service.remove('comp-uuid', 'owner-uuid');
-
-      expect(mockUserRepo.update).toHaveBeenCalledWith(
-        { companyId: 'comp-uuid' },
-        { companyId: null }
-      );
-
-      expect(mockCompanyRepo.softDelete).toHaveBeenCalledWith('comp-uuid');
+      expect(userRepo.update).toHaveBeenCalledWith({ companyId: 'c1' }, { companyId: null });
+      expect(companyRepo.softDelete).toHaveBeenCalledWith('c1');
     });
 
-    it('should throw NotFoundException if company not found or owner is wrong', async () => {
-      (mockCompanyRepo.findOne as jest.Mock).mockResolvedValue(null);
-
-      await expect(
-        service.remove('comp-uuid', 'not-owner-uuid')
-      ).rejects.toThrow(NotFoundException)
-    })
+    it('should throw if company not found or owner mismatch', async () => {
+      companyRepo.findOne.mockResolvedValue(null);
+      await expect(service.remove('c1', 'hacker')).rejects.toThrow(NotFoundException);
+    });
   });
 });

@@ -14,7 +14,7 @@ export class Review {
   gameId: string;
 
   @Column({ type: 'int' })
-  rating: number; // 1-5
+  rating: number;
 
   @Column({ type: 'text' })
   comment: string;
