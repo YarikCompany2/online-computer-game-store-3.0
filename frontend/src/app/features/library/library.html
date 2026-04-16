@@ -1,17 +1,14 @@
 <div class="p-8 max-w-[1400px] mx-auto space-y-12 animate-in fade-in duration-500">
   
-  <header class="flex items-center gap-6 mb-16">
-    <div class="w-16 h-16 bg-[#316282] text-[#66c0f4] rounded-sm flex items-center justify-center shadow-xl border border-white/10">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <header class="flex items-center gap-5 mb-16">
+    <div class="w-12 h-12 bg-[#316282]/20 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20 shadow-lg">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
       </svg>
     </div>
     <div>
-      <h1 class="text-5xl font-black uppercase tracking-tighter text-white leading-none">Your Library</h1>
-      <p class="text-[#8f98a0] font-bold uppercase text-[10px] tracking-[0.4em] mt-2 ml-0.5 opacity-60">
-        {{ auth.isLoggedIn() ? 'Management & Licenses' : 'Authentication Required' }}
-      </p>
+      <h1 class="text-3xl font-bold text-white tracking-tight leading-none">Your library</h1>
     </div>
   </header>
 
@@ -22,13 +19,10 @@
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
       </div>
-      <h2 class="text-2xl font-black text-white uppercase tracking-[0.2em] italic mb-4">Access Restricted</h2>
-      <p class="text-[#8f98a0] text-sm mb-10 max-w-md mx-auto leading-relaxed">
-        Your digital collection is synchronized with your global account. Please sign in to view your licenses.
-      </p>
-      <button routerLink="/login" 
-              class="bg-[#66c0f4] text-[#171a21] px-12 py-4 rounded-sm font-black text-xs uppercase tracking-[0.3em] hover:bg-[#55a9d8] transition-all active:scale-95 shadow-xl">
-        Sign In to Library
+      <h2 class="text-xl font-bold text-white tracking-tight mb-4">Access restricted</h2>
+      <p class="text-[#8f98a0] text-sm mb-8 max-w-xs mx-auto">Please sign in to view your collection.</p>
+      <button routerLink="/login" class="bg-[#66c0f4] text-[#171a21] px-8 py-3 rounded-sm font-bold text-sm transition-all active:scale-95">
+        Sign in
       </button>
     </div>
   }
@@ -49,37 +43,31 @@
   @else {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       @for (item of ownedGames(); track item.id) {
-        <div class="group bg-[#1e232b] border border-white/5 rounded-sm overflow-hidden hover:border-[#66c0f4]/40 transition-all duration-300 shadow-2xl flex flex-col">
+        <div class="group bg-[#1e232b] border border-white/5 rounded-sm overflow-hidden hover:border-[#66c0f4]/40 transition-all duration-300 shadow-xl flex flex-col">
           
           <div class="aspect-video relative overflow-hidden bg-black">
             @let cover = item.game.media.find(m => m.isMain)?.fileUrl;
-            <img [src]="cover || 'assets/placeholder.png'" 
-                 crossorigin="anonymous"
-                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90 group-hover:opacity-100">
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-[#171a21] via-transparent to-transparent opacity-60"></div>
+            <img [src]="cover || 'assets/placeholder.png'" crossorigin="anonymous" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90">
           </div>
 
           <div class="p-5 flex items-center justify-between gap-4 bg-[#1e232b]">
             <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-black text-white truncate uppercase tracking-tight">{{ item.game.title }}</h3>
-                <p class="text-[#565d66] text-[9px] font-bold uppercase tracking-widest">{{ item.game.developer?.name }}</p>
+                <h3 class="text-base font-semibold text-white truncate tracking-tight">{{ item.game.title }}</h3>
+                <p class="text-[#565d66] text-xs font-medium">{{ item.game.developer?.name }}</p>
             </div>
             
             <div class="flex gap-2">
               <button [routerLink]="['/game', item.game.id]" 
-                      class="px-4 py-2 text-[#8f98a0] hover:text-white border border-white/10 hover:bg-white/5 font-bold text-[10px] uppercase rounded-sm transition-all">
+                      class="px-3 py-1.5 text-[#8f98a0] hover:text-white border border-white/10 hover:bg-white/5 font-semibold text-xs rounded-sm transition-all">
                 Details
               </button>
 
               <button (click)="onPlayClick(item.game.id, item.game.title)" 
-                      class="px-8 py-2 bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] font-black text-[11px] uppercase tracking-widest rounded-sm transition-all shadow-lg active:scale-95 flex items-center gap-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                      class="px-6 py-1.5 bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] font-bold text-xs rounded-sm transition-all shadow-md active:scale-95 flex items-center gap-2">
                 Play
               </button>
             </div>
           </div>
-
         </div>
       }
     </div>
@@ -88,25 +76,28 @@
 
 @if (showLauncherModal()) {
   <div class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" (click)="closeModal()">
-    <div class="w-full max-w-md bg-[#1e232b] border-t-4 border-t-[#66c0f4] border-x border-b border-white/5 p-10 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] text-center relative" (click)="$event.stopPropagation()">
+    <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl text-center relative" (click)="$event.stopPropagation()">
       
-      <div class="w-16 h-16 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center mx-auto mb-6 border border-[#66c0f4]/20">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <div class="w-14 h-14 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center mx-auto mb-6 border border-[#66c0f4]/20 shadow-inner">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
       </div>
 
-      <h2 class="text-2xl font-black text-white uppercase tracking-tighter leading-tight mb-4">Launch Required</h2>
-      <p class="text-[#8f98a0] text-sm leading-relaxed mb-8">
-        To play <span class="text-white font-bold">{{ selectedGameForLaunch()?.title }}</span>, you need the SAD Hub desktop client installed on your system.
+      <h2 class="text-2xl font-bold text-white tracking-tight leading-tight mb-4">Launcher is required</h2>
+      
+      <p class="text-[#8f98a0] text-sm leading-relaxed mb-10 font-normal">
+        To play <span class="text-white font-semibold">{{ selectedGameForLaunch()?.title }}</span>, you need the desktop client installed on your system.
       </p>
 
       <div class="space-y-3">
         <a href="http://localhost:3000/uploads/launcher/SAD_Hub_Setup.exe" 
-           class="block w-full bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl">
-          Download Launcher
+           class="block w-full bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-3.5 rounded-sm font-bold text-sm transition-all active:scale-95 shadow-lg">
+          Download launcher
         </a>
 
         <button (click)="triggerDeepLink()" 
-                class="w-full py-3 text-[#8f98a0] hover:text-white font-bold text-[10px] uppercase tracking-[0.2em] transition-all">
+                class="w-full py-2.5 text-[#4e5667] hover:text-white font-medium text-xs transition-colors">
           Already installed. Cancel
         </button>
       </div>

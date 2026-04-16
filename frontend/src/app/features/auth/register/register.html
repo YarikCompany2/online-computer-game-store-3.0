@@ -1,61 +1,62 @@
 <div class="min-h-[85vh] flex items-center justify-center p-6 page-fade-in">
-  <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/30 p-12 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative overflow-hidden">
+  <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl relative overflow-hidden">
     
-    <div class="absolute top-0 left-0 w-full h-1 bg-[#66c0f4]"></div>
+    <div class="absolute top-0 left-0 w-full h-1 bg-[#66c0f4] opacity-80"></div>
 
     <div class="text-center mb-10">
-      <h1 class="text-4xl font-black tracking-tighter text-white uppercase">Join Community</h1>
-      <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.3em] mt-4 opacity-60">Create your global gaming identity</p>
+      <h1 class="text-3xl font-bold tracking-tight text-white">Join community</h1>
+      <div class="h-0.5 w-8 bg-[#66c0f4] mx-auto mt-3 opacity-60"></div>
+      <p class="text-[#8f98a0] text-xs font-medium mt-3 opacity-70">Create your global gaming identity</p>
     </div>
 
-    <form (ngSubmit)="onSubmit()" class="space-y-6">
-      <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Profile Name</label>
+    <form (ngSubmit)="onSubmit()" class="space-y-5">
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold uppercase tracking-wider text-[#4e5667] ml-1">Profile name</label>
         <input type="text" name="username" [ngModel]="username()" (ngModelChange)="username.set($event)"
                placeholder="How others will see you"
-               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-bold placeholder:text-[#4e5667]">
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-3 px-4 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-normal placeholder:text-[#4e5667]">
       </div>
 
-      <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Email Address</label>
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold uppercase tracking-wider text-[#4e5667] ml-1">Email address</label>
         <input type="email" name="email" [ngModel]="email()" (ngModelChange)="email.set($event)"
                placeholder="For account verification"
-               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-bold placeholder:text-[#4e5667]">
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-3 px-4 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-normal placeholder:text-[#4e5667]">
       </div>
 
-      <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Account Password</label>
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold uppercase tracking-wider text-[#4e5667] ml-1">Account password</label>
         <input type="password" name="password" [ngModel]="password()" (ngModelChange)="password.set($event)"
                placeholder="••••••••"
-               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-[0.3em] font-bold">
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-3 px-4 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-tight font-normal">
       </div>
 
-      <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Verify Security Key</label>
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold uppercase tracking-wider text-[#4e5667] ml-1">Repeat password</label>
         <input type="password" name="confirmPassword" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)"
-               [class.border-rose-500]="confirmPassword() && !passwordsMatch()"
+               [class.border-rose-500/50]="confirmPassword() && !passwordsMatch()"
                placeholder="••••••••"
-               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-[0.3em] font-bold">
+               class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-3 px-4 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-tight font-normal">
         
         @if (confirmPassword() && !passwordsMatch()) {
-          <p class="text-rose-500 text-[9px] font-bold uppercase tracking-widest ml-1 mt-2">Passwords do not match</p>
+          <p class="text-rose-500 text-[10px] font-medium ml-1 mt-2">Passwords do not match</p>
         }
       </div>
 
       <button type="submit" [disabled]="isLoading() || !isFormValid()"
-              class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-20 text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.4em] transition-all active:scale-[0.98] shadow-xl mt-4">
+              class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-20 text-[#171a21] py-3.5 rounded-sm font-bold text-sm transition-all active:scale-[0.98] shadow-lg mt-4">
         @if (isLoading()) {
-          <div class="w-5 h-5 border-4 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin mx-auto"></div>
+          <div class="w-5 h-5 border-3 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin mx-auto"></div>
         } @else {
-          Create Account
+          Create account
         }
       </button>
     </form>
 
-    <div class="mt-12 pt-8 border-t border-white/5 text-center">
-      <p class="text-[#4e5667] text-[10px] font-bold uppercase tracking-widest">
+    <div class="mt-10 pt-8 border-t border-white/5 text-center">
+      <p class="text-[#4e5667] text-xs font-medium">
         Already have a profile? 
-        <a routerLink="/login" class="text-[#66c0f4] hover:text-white transition-colors ml-2">Sign In</a>
+        <a routerLink="/login" class="text-[#66c0f4] hover:text-white font-bold transition-colors ml-1.5">Sign in</a>
       </p>
     </div>
   </div>

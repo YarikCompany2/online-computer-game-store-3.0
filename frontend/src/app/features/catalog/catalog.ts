@@ -118,7 +118,8 @@ export class CatalogComponent implements OnInit {
       this.searchState.selectedCategoryId() !== null ||
       this.searchState.minPrice() !== null ||
       this.searchState.maxPrice() !== null ||
-      this.searchState.freeOnly()
+      this.searchState.freeOnly() === true || 
+      this.searchState.sortBy() !== 'newest'  
     );
   });
 

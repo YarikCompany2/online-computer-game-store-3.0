@@ -14,14 +14,14 @@
           </div>
 
           <input type="text" #searchInput (keyup.enter)="onSearchSubmit(searchInput.value)"
-                placeholder="SEARCH FOR GAMES..." 
-                class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-2.5 pl-10 pr-32 text-[#c7d5e0] placeholder:text-[#4e5667] focus:border-[#66c0f4]/50 outline-none transition-all text-xs uppercase tracking-[0.2em] font-medium">
+      placeholder="Search for games..." 
+      class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-2.5 pl-10 pr-32 text-[#c7d5e0] placeholder:text-[#4e5667] focus:border-[#66c0f4]/50 outline-none transition-all text-sm font-normal tracking-normal">
 
           <div class="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
             
             @if (isAnyFilterActive()) {
               <button (click)="resetFilters()"
-                      class="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/60 hover:text-rose-500 transition-colors animate-in fade-in slide-in-from-right-2 duration-300">
+                      class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-normal text-rose-500/60 hover:text-rose-500 transition-colors">
                 Clear
               </button>
               <div class="w-px h-4 bg-white/10 mx-1"></div>
@@ -42,30 +42,31 @@
               <div class="space-y-8">
                 <header class="flex items-center gap-2 mb-2">
                   <div class="w-1 h-4 bg-[#66c0f4]"></div>
-                  <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-[#66c0f4]">Advanced Filters</h4>
+                  <h4 class="text-sm font-semibold text-[#66c0f4]">Advanced filters</h4>
                 </header>
 
-                <div class="space-y-3">
-                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-[#4e5667] ml-1">Sort Results By</label>
+
+                <div class="space-y-2">
+                  <label class="text-[11px] font-medium text-[#4e5667] ml-1">Sort results by</label>
                   <div class="relative">
                     <select [ngModel]="stagedSortBy()" (ngModelChange)="stagedSortBy.set($event)"
-                            class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-bold text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none appearance-none cursor-pointer tracking-wider">
-                      <option value="newest">Newest Arrivals</option>
+                            class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-normal text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none appearance-none cursor-pointer">
+                      <option value="newest">Newest arrivals</option>
                       <option value="price_low">Price: Low to High</option>
                       <option value="price_high">Price: High to Low</option>
                       <option value="title">Alphabetical (A-Z)</option>
-                      <option value="oldest">Classic Gems</option>
+                      <option value="oldest">Classic gems</option>
                     </select>
                     <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#316282]">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path d="m6 9 6 6 6-6"/></svg>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
                     </div>
                   </div>
                 </div>
 
                 <div class="flex items-center justify-between p-4 bg-[#171a21] border border-[#316282]/20 rounded-sm">
                   <div>
-                    <p class="text-[10px] font-black text-white uppercase tracking-widest">Free to Play</p>
-                    <p class="text-[8px] text-[#4e5667] font-bold uppercase mt-0.5">Show only $0 games</p>
+                    <p class="text-sm font-semibold text-white">Free to Play</p>
+                    <p class="text-[10px] text-[#4e5667] font-medium mt-0.5">Show only $0 games</p>
                   </div>
                   <button (click)="stagedFreeOnly.set(!stagedFreeOnly())"
                           [class.bg-[#66c0f4]]="stagedFreeOnly()"
@@ -77,21 +78,22 @@
                   </button>
                 </div>
 
-                <div class="space-y-3" [class.opacity-20]="stagedFreeOnly()">
-                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-[#4e5667] ml-1">Price Range ($)</label>
+
+                <div class="space-y-2" [class.opacity-20]="stagedFreeOnly()">
+                  <label class="text-[11px] font-medium text-[#4e5667] ml-1">Price range ($)</label>
                   <div class="flex items-center gap-3">
-                    <input type="number" placeholder="MIN" [(ngModel)]="minPriceInput" (keydown)="restrictNumeric($event)" [disabled]="stagedFreeOnly()"
-                          class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all placeholder:text-[#4e5667] [appearance:textfield]">
+                    <input type="number" placeholder="Min" [(ngModel)]="minPriceInput" (keydown)="restrictNumeric($event)" [disabled]="stagedFreeOnly()"
+                          class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-medium text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all placeholder:text-[#4e5667] [appearance:textfield]">
                     <div class="w-4 h-px bg-[#316282]/40 flex-shrink-0"></div>
-                    <input type="number" placeholder="MAX" [(ngModel)]="maxPriceInput" (keydown)="restrictNumeric($event)" [disabled]="stagedFreeOnly()"
-                          class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all placeholder:text-[#4e5667] [appearance:textfield]">
+                    <input type="number" placeholder="Max" [(ngModel)]="maxPriceInput" (keydown)="restrictNumeric($event)" [disabled]="stagedFreeOnly()"
+                          class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-medium text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all placeholder:text-[#4e5667] [appearance:textfield]">
                   </div>
                 </div>
 
-                <div class="space-y-3 pt-4">
+               <div class="pt-2">
                   <button (click)="applyFilters()" 
-                          class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-4 rounded-sm font-black text-[11px] uppercase tracking-[0.3em] shadow-xl transition-all active:scale-95">
-                    Apply Parameters
+                          class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-3 rounded-sm font-bold text-sm transition-all active:scale-95 shadow-lg">
+                    Apply parameters
                   </button>
                 </div>
               </div>
@@ -119,24 +121,24 @@
               <div (click)="$event.stopPropagation()" 
                   class="absolute right-0 mt-4 w-80 top-full bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-xl z-[110] overflow-hidden animate-in fade-in zoom-in duration-200">
                 
-                <div class="p-6 border-b border-white/5 bg-[#171a21]/50 flex items-center gap-3">
+                <div class="p-5 border-b border-white/5 bg-[#171a21]/50 flex items-center gap-3">
                   <div class="w-1 h-4 bg-[#66c0f4]"></div>
-                  <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-[#66c0f4]">Notifications</h4>
+                  <h4 class="text-sm font-semibold text-[#66c0f4]">Notifications</h4>
                 </div>
 
                 <div class="max-h-[400px] overflow-y-auto p-4 space-y-3 custom-scrollbar">
                   @for (n of notifications(); track n.id) {
-                    <div class="p-4 bg-[#171a21]/50 border border-white/5 rounded-sm space-y-4 hover:border-[#316282]/30 transition-all">
-                      <p class="text-[11px] leading-relaxed text-[#c7d5e0] font-medium">{{ n.message }}</p>
+                    <div class="p-4 bg-[#171a21]/50 border border-white/5 rounded-sm space-y-3 hover:border-[#316282]/30 transition-all">
+                      <p class="text-sm text-[#c7d5e0] font-normal leading-relaxed">{{ n.message }}</p>
                       
                       @if (n.type === 'game_publish' || n.type === 'company_invitation') {
                         <div class="flex gap-2">
                           <button (click)="respondToNotif(n.id, true)" 
-                                  class="flex-1 py-2 text-[9px] font-black uppercase tracking-widest bg-[#66c0f4] text-[#171a21] rounded-sm hover:bg-[#55a9d8] transition-all">
+                                  class="flex-1 py-2 text-xs font-bold bg-[#66c0f4] text-[#171a21] rounded-sm hover:bg-[#55a9d8] transition-all">
                             Accept
                           </button>
                           <button (click)="respondToNotif(n.id, false)" 
-                                  class="flex-1 py-2 text-[9px] font-black uppercase tracking-widest bg-white/5 text-[#4e5667] rounded-sm hover:text-rose-500 transition-all">
+                                  class="flex-1 py-2 text-xs font-bold bg-white/5 text-[#4e5667] rounded-sm hover:text-rose-500 transition-all">
                             Dismiss
                           </button>
                         </div>
@@ -149,8 +151,7 @@
                           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
                         </svg>
                       </div>
-                      <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.4em]">Everything is quiet</p>
-                      <p class="text-[8px] text-[#316282] uppercase tracking-widest mt-2">No new updates found</p>
+                      <p class="text-sm font-semibold text-[#4e5667]">Everything is quiet</p>
                     </div>
                   }
                 </div>
@@ -179,56 +180,58 @@
 
             @if (isMenuOpen()) {
               <div (click)="$event.stopPropagation()" 
-                  class="absolute right-0 top-full mt-3 w-72 bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[110] overflow-hidden animate-in fade-in zoom-in duration-200">
+                    class="absolute right-0 top-full mt-3 w-72 bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[110] overflow-hidden animate-in fade-in zoom-in duration-200">
                 
                 <div class="p-6 border-b border-white/5 bg-[#171a21]/50 flex flex-col items-center">
                     <div class="w-16 h-16 rounded-sm overflow-hidden mb-4 border border-white/10 shadow-xl relative group/avatar">
                         @if (auth.currentUser()?.avatarUrl) {
-                            <img [src]="auth.currentUser()?.avatarUrl" crossorigin="anonymous" class="w-full h-full object-cover">
+                          <img [src]="auth.currentUser()?.avatarUrl" crossorigin="anonymous" class="w-full h-full object-cover">
                         } @else {
-                            <div class="w-full h-full bg-[#316282] flex items-center justify-center font-black text-2xl text-[#c7d5e0]">
-                                {{ auth.currentUser()?.username?.[0].toUpperCase() }}
-                            </div>
+                          <div class="w-full h-full bg-[#316282] flex items-center justify-center font-bold text-2xl text-[#c7d5e0]">
+                            {{ auth.currentUser()?.username?.[0].toUpperCase() }}
+                          </div>
                         }
-                        <label class="absolute inset-0 bg-black/70 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                            <input type="file" class="hidden" (change)="onAvatarSelected($event)" accept="image/*">
-                            <span class="text-[8px] font-black text-white uppercase tracking-widest">Change</span>
+                        <label class="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center cursor-pointer transition-all duration-200">
+                          <input type="file" class="hidden" (change)="onAvatarSelected($event)" accept="image/*">
+                          <span class="text-[11px] font-medium text-white shadow-sm">
+                            Change
+                          </span>
                         </label>
                     </div>
 
-                    <p class="text-lg font-black text-white uppercase tracking-tight leading-none mb-1 text-center">
+                    <p class="text-base font-bold text-white tracking-tight leading-none mb-1.5 text-center">
                       {{ auth.currentUser()?.username }}
                     </p>
-                    <span class="text-[9px] text-[#66c0f4] font-black uppercase tracking-[0.3em]">
+                    <span class="text-[11px] text-[#66c0f4] font-semibold uppercase tracking-wider">
                       {{ auth.currentUser()?.role }}
                     </span>
                 </div>
 
                 <div class="px-6 py-5 bg-[#171a21]/30 flex justify-between items-center border-b border-white/5">
                     <div>
-                        <p class="text-[8px] text-[#4e5667] uppercase font-black tracking-[0.2em] mb-1">Your Balance</p>
-                        <p class="text-2xl font-black text-[#a4d007] tracking-tighter leading-none">
-                          ${{ auth.currentUser()?.balance || '0.00' }}
-                        </p>
+                      <p class="text-[10px] text-[#4e5667] font-bold uppercase tracking-wider mb-1">Your balance</p>
+                      <p class="text-2xl font-bold text-[#a4d007] tracking-tight leading-none">
+                        ${{ auth.currentUser()?.balance || '0.00' }}
+                      </p>
                     </div>
                     <button (click)="openTopUp()" 
-                            class="w-8 h-8 bg-[#a4d007]/10 text-[#a4d007] hover:bg-[#a4d007] hover:text-[#171a21] rounded-sm transition-all border border-[#a4d007]/20 flex items-center justify-center shadow-lg active:scale-90">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
+                        class="w-8 h-8 bg-[#a4d007]/10 text-[#a4d007] hover:bg-[#a4d007] hover:text-[#171a21] rounded-sm transition-all border border-[#a4d007]/20 flex items-center justify-center shadow-lg active:scale-90">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
                     </button>
                 </div>
                 
                 <div class="p-2 space-y-1 bg-[#171a21]/20">
-                    <button (click)="auth.logout(); closeMenu()" 
-                            class="w-full text-left px-4 py-3 text-[10px] font-black text-[#8f98a0] hover:text-white hover:bg-[#316282]/30 rounded-sm transition-all uppercase tracking-[0.2em]">
-                        Sign Out
-                    </button>
-                    
-                    <button (click)="openDeleteModal()" 
-                            class="w-full text-left px-4 py-3 text-[10px] font-black text-rose-500/40 hover:text-rose-500 hover:bg-rose-500/10 rounded-sm transition-all uppercase tracking-[0.2em]">
-                        Delete Account
-                    </button>
+                  <button (click)="auth.logout(); closeMenu()" 
+                      class="w-full text-left px-4 py-2.5 text-sm font-medium text-[#8f98a0] hover:text-white hover:bg-[#316282]/30 rounded-sm transition-all">
+                    Sign out
+                  </button>
+                  
+                  <button (click)="openDeleteModal()" 
+                      class="w-full text-left px-4 py-2.5 text-sm font-medium text-rose-500/80 hover:text-rose-500 hover:bg-rose-500/10 rounded-sm transition-all">
+                    Delete account
+                  </button>
                 </div>
 
               </div>
@@ -315,40 +318,45 @@
 }
 
 @if (reviewModal.isOpen()) {
-  <div class="fixed inset-0 z-[999] flex items-center justify-center p-6 bg-[#020617]/80 backdrop-blur-xl animate-in fade-in duration-300">
-    <div class="w-full max-w-2xl bg-[#1e232b] border-t-4 border-t-[#66c0f4] border-x border-b border-white/5 p-10 rounded-sm shadow-2xl relative overflow-hidden">
-      <div class="relative z-10 space-y-8">
-        <h2 class="text-3xl font-black text-white tracking-tighter uppercase">
-          {{ reviewModal.isEditing() ? 'Edit Review' : 'Share thoughts on ' + reviewModal.gameTitle() }}
+  <div class="fixed inset-0 z-[999] flex items-center justify-center p-6 bg-[#020617]/80 backdrop-blur-md animate-in fade-in duration-300">
+    <div class="w-full max-w-xl bg-[#1e232b] border border-[#316282]/40 p-10 rounded-sm shadow-2xl relative">
+      
+      <div class="space-y-8">
+        <h2 class="text-2xl font-bold text-white tracking-tight">
+          {{ reviewModal.isEditing() ? 'Edit review' : 'Share your thoughts on ' + reviewModal.gameTitle() }}
         </h2>
           
-        <div class="flex gap-1 bg-white/5 p-2 rounded-sm border border-white/5">
+        <div class="flex gap-1.5 bg-[#171a21] p-3 rounded-sm border border-white/5 w-fit">
           @for (star of [1,2,3,4,5]; track star) {
-            <button (click)="reviewRating.set(star)" class="transition-transform active:scale-90 p-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
-                    [attr.fill]="reviewRating() >= star ? '#818cf8' : 'none'" 
-                    [attr.stroke]="reviewRating() >= star ? '#818cf8' : '#334155'"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <button (click)="reviewRating.set(star)" class="transition-transform active:scale-90">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" 
+                    [attr.fill]="reviewRating() >= star ? '#66c0f4' : 'none'" 
+                    [attr.stroke]="reviewRating() >= star ? '#66c0f4' : '#334155'"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
             </button>
           }
         </div>
 
         <textarea [ngModel]="reviewComment()" (ngModelChange)="reviewComment.set($event)"
                   placeholder="What did you like or dislike about the game?"
-                  class="w-full bg-[#171a21] border border-white/10 rounded-sm p-6 text-slate-200 outline-none focus:border-[#66c0f4]/50 transition-all min-h-[200px] resize-none text-base"></textarea>
+                  class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm p-4 text-slate-200 outline-none focus:border-[#66c0f4]/50 transition-all min-h-[160px] resize-none text-sm font-normal leading-relaxed"></textarea>
 
         <div class="flex gap-4">
           <button (click)="reviewModal.close()" 
-                  class="flex-1 py-5 rounded-sm font-bold text-slate-500 hover:text-white hover:bg-white/5 transition-all uppercase tracking-widest text-xs">
+                  class="flex-1 py-3 rounded-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all text-sm">
             Discard
           </button>
+          
           <button (click)="submitReviewFromGlobal()" 
                   [disabled]="isSubmittingReview() || !reviewComment().trim()"
-                  class="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-sm font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all active:scale-95">
-            {{ isSubmittingReview() ? 'Processing...' : (reviewModal.isEditing() ? 'Update Review' : 'Publish Review') }}
+                  class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-3 rounded-sm font-bold text-sm shadow-lg transition-all active:scale-95 disabled:opacity-30">
+            {{ isSubmittingReview() ? 'Processing...' : (reviewModal.isEditing() ? 'Update review' : 'Publish review') }}
           </button>
         </div>
       </div>
+
     </div>
   </div>
 }

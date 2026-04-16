@@ -1,49 +1,49 @@
 <div class="min-h-[80vh] flex items-center justify-center p-6 page-fade-in">
-  <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/30 p-12 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+  <div class="w-full max-w-md bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl">
     
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-black tracking-tighter text-white uppercase">Welcome Back</h1>
-      <div class="h-1 w-12 bg-[#66c0f4] mx-auto mt-2"></div>
-      <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.2em] mt-4 opacity-60">Enter credentials to sync library</p>
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold tracking-tight text-white">Welcome back</h1>
+      <div class="h-0.5 w-8 bg-[#66c0f4] mx-auto mt-3 opacity-60"></div>
+      <p class="text-[#8f98a0] text-xs font-medium mt-4 opacity-70">Enter your user info to enter</p>
     </div>
 
     @if (error()) {
-      <div class="bg-rose-500/10 border-l-4 border-rose-500 text-rose-500 p-4 mb-8 text-[11px] font-bold uppercase tracking-widest animate-in fade-in">
+      <div class="bg-rose-500/10 border-l-2 border-rose-500 text-rose-500 p-3 mb-8 text-xs font-semibold rounded-xs animate-in fade-in">
         {{ error() }}
       </div>
     }
 
-    <form (ngSubmit)="onSubmit()" class="space-y-8">
-      <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Account Identifier</label>
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold uppercase tracking-wider text-[#4e5667] ml-1">Account identifier</label>
         <input type="text" name="identifier" 
               [ngModel]="identifier()" (ngModelChange)="identifier.set($event)" required
-              class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-bold placeholder:text-[#4e5667]"
+              class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-3 px-4 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all font-normal placeholder:text-[#4e5667]"
               placeholder="Username or Email">
       </div>
 
-      <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Security Key</label>
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold uppercase tracking-wider text-[#4e5667] ml-1">Password</label>
         <input type="password" name="password" 
               [ngModel]="password()" (ngModelChange)="password.set($event)" required
-              class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-4 px-5 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-[0.3em]"
+              class="w-full bg-[#171a21] border border-[#316282]/20 rounded-sm py-3 px-4 text-[#c7d5e0] focus:border-[#66c0f4]/50 outline-none transition-all tracking-tight font-normal"
               placeholder="••••••••">
       </div>
       
       <button type="submit" [disabled]="isLoading() || !isFormValid()"
-              class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-20 text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all active:scale-[0.98] shadow-xl">
+              class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-20 text-[#171a21] py-3.5 rounded-sm font-bold text-sm transition-all active:scale-[0.98] shadow-lg mt-4">
         @if (isLoading()) {
-          <div class="w-5 h-5 border-4 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin mx-auto"></div>
+          <div class="w-5 h-5 border-3 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin mx-auto"></div>
         } @else {
-          Sign In
+          Sign in
         }
       </button>
     </form>
 
-    <div class="mt-12 pt-8 border-t border-white/5 text-center">
-      <p class="text-[#4e5667] text-[10px] font-bold uppercase tracking-widest">
+    <div class="mt-10 pt-8 border-t border-white/5 text-center">
+      <p class="text-[#4e5667] text-xs font-medium">
         New to the platform? 
-        <a routerLink="/register" class="text-[#66c0f4] hover:text-white transition-colors ml-2">Create Account</a>
+        <a routerLink="/register" class="text-[#66c0f4] hover:text-white font-bold transition-colors ml-1.5">Create account</a>
       </p>
     </div>
   </div>

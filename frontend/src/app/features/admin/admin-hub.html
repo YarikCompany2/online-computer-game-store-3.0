@@ -1,39 +1,35 @@
 <div class="p-12 max-w-7xl mx-auto space-y-12 page-fade-in">
   
-  <header>
-    <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-1 bg-[#66c0f4] shadow-[0_0_15px_rgba(102,192,244,0.3)]"></div>
-        <span class="text-[#66c0f4] font-black uppercase text-[10px] tracking-[0.4em]">Command Center</span>
-    </div>
-    <h1 class="text-6xl font-black uppercase text-white leading-none tracking-tighter">Admin Hub</h1>
+  <header class="mb-10">
+    <h1 class="text-4xl font-bold text-white tracking-tight leading-none">Admin Hub</h1>
   </header>
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
     <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl relative group">
-      <p class="text-[#4e5667] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Total Users</p>
-      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalUsers }}</p>
+      <p class="text-[#4e5667] text-xs font-semibold uppercase tracking-wider mb-6">Total users</p>
+      <p class="text-4xl font-bold text-white tracking-tight">{{ stats()?.totalUsers }}</p>
     </div>
     
     <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl">
-      <p class="text-[#66c0f4] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Moderators</p>
-      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalModerators }}</p>
+      <p class="text-[#66c0f4] text-xs font-semibold uppercase tracking-wider mb-6">Moderators</p>
+      <p class="text-4xl font-bold text-white tracking-tight">{{ stats()?.totalModerators }}</p>
     </div>
 
     <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl">
-      <p class="text-[#a4d007] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Registered Studios</p>
-      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalCompanies }}</p>
+      <p class="text-[#a4d007] text-xs font-semibold uppercase tracking-wider mb-6">Registered studios</p>
+      <p class="text-4xl font-bold text-white tracking-tight">{{ stats()?.totalCompanies }}</p>
     </div>
 
     <div class="bg-[#1e232b] border border-[#316282]/30 p-8 rounded-sm shadow-xl">
-      <p class="text-[#4e5667] text-[9px] font-black uppercase tracking-[0.3em] mb-4">Studio Members</p>
-      <p class="text-5xl font-black text-white tracking-tighter">{{ stats()?.totalCompanyMembers }}</p>
+      <p class="text-[#4e5667] text-xs font-semibold uppercase tracking-wider mb-6">Studio members</p>
+      <p class="text-4xl font-bold text-white tracking-tight">{{ stats()?.totalCompanyMembers }}</p>
     </div>
   </div>
 
   <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl relative overflow-hidden">
     <div class="flex items-center gap-4 mb-10">
-        <div class="w-12 h-12 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div class="w-10 h-10 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M2 21v-2a4 4 0 0 1 4-4h5"></path>
               <circle cx="18.5" cy="17.5" r="3.5"></circle>
@@ -41,19 +37,19 @@
             </svg>
         </div>
         <div>
-            <h3 class="text-2xl font-black text-white uppercase leading-none tracking-widest">Find & Manage Users</h3>
-            <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-[0.3em] mt-2">Authority & Role Distribution</p>
+            <h3 class="text-xl font-bold text-white tracking-tight">Find and manage users</h3>
+            <p class="text-xs font-medium text-[#4e5667] mt-1">Authority and role distribution</p>
         </div>
     </div>
 
     <div class="relative">
       <input type="text" [ngModel]="userSearchQuery()" (ngModelChange)="onSearchInput($event)"
-             placeholder="SEARCH BY USERNAME OR EMAIL..."
-             class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-5 px-8 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-black text-xs tracking-[0.2em] placeholder:text-[#4e5667]">
+             placeholder="Search by username or email..."
+             class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-normal text-sm placeholder:text-[#4e5667]">
       
       @if (isSearching()) {
         <div class="absolute right-6 top-1/2 -translate-y-1/2">
-            <div class="w-5 h-5 border-2 border-[#66c0f4] border-t-transparent rounded-full animate-spin"></div>
+            <div class="w-4 h-4 border-2 border-[#66c0f4] border-t-transparent rounded-full animate-spin"></div>
         </div>
       }
     </div>
@@ -61,29 +57,29 @@
     @if (searchResults().length > 0) {
       <div class="mt-8 space-y-2 border-t border-white/5 pt-8">
         @for (u of searchResults(); track u.id) {
-          <div class="flex items-center justify-between p-6 bg-[#171a21] border border-white/5 rounded-sm hover:border-[#316282]/50 transition-all group">
+          <div class="flex items-center justify-between p-5 bg-[#171a21] border border-white/5 rounded-sm hover:border-[#316282]/50 transition-all group">
   
-            <div class="flex items-center gap-6">
-                <div class="w-10 h-10 bg-[#316282]/40 flex items-center justify-center font-black text-[#66c0f4] text-sm rounded-sm border border-[#66c0f4]/20">
+            <div class="flex items-center gap-5">
+                <div class="w-9 h-9 bg-[#316282]/40 flex items-center justify-center font-bold text-[#66c0f4] text-xs rounded-sm border border-[#66c0f4]/20">
                     {{ u.username[0].toUpperCase() }}
                 </div>
                 
                 <div class="flex items-center gap-5">
                     <div>
-                        <p class="font-black text-white uppercase tracking-wider leading-none mb-1.5">{{ u.username }}</p>
-                        <p class="text-[9px] text-[#4e5667] font-mono leading-none tracking-wider">{{ u.email }}</p>
+                        <p class="font-bold text-white text-sm tracking-tight leading-none mb-1">{{ u.username }}</p>
+                        <p class="text-[11px] text-[#4e5667] font-mono leading-none">{{ u.email }}</p>
                     </div>
 
                     @if (u.role === 'moderator') {
-                      <span class="bg-[#316282] text-[#66c0f4] px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-[0.2em] border border-[#66c0f4]/30">
+                      <span class="bg-[#316282]/30 text-[#66c0f4] px-2.5 py-1 rounded-sm text-[10px] font-semibold uppercase tracking-wider border border-[#66c0f4]/20">
                         Moderator
                       </span>
                     } @else if (u.role === 'admin') {
-                      <span class="bg-[#c7d5e0] text-[#171a21] px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-[0.2em]">
+                      <span class="bg-white/10 text-white px-2.5 py-1 rounded-sm text-[10px] font-semibold uppercase tracking-wider">
                         Administrator
                       </span>
                     } @else {
-                      <span class="bg-[#1e232b] text-[#4e5667] border border-white/5 px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-[0.2em]">
+                      <span class="text-[#4e5667] border border-white/5 px-2.5 py-1 rounded-sm text-[10px] font-semibold uppercase tracking-wider">
                         User
                       </span>
                     }
@@ -93,15 +89,15 @@
             <div class="flex gap-2">
                 @if (u.role === 'user') {
                   <button (click)="openStaffModal(u, 'promote')"
-                          class="bg-[#66c0f4] text-[#171a21] px-6 py-2.5 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-[#55a9d8] transition-colors active:scale-95">
-                    Assign Mod
+                          class="bg-[#66c0f4] text-[#171a21] px-5 py-2 rounded-sm font-bold text-xs hover:bg-[#55a9d8] transition-all active:scale-95">
+                    Assign mod
                   </button>
                 }
                 
                 @if (u.role === 'moderator') {
                   <button (click)="openStaffModal(u, 'demote')"
-                          class="bg-[#e11d48] text-white px-6 py-2.5 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-[#be123c] transition-colors active:scale-95">
-                    Revoke Mod
+                          class="bg-rose-600 text-white px-5 py-2 rounded-sm font-bold text-xs hover:bg-rose-700 transition-all active:scale-95">
+                    Revoke mod
                   </button>
                 }
             </div>
@@ -109,109 +105,117 @@
         }
       </div>
     } @else if (userSearchQuery().length >= 2 && !isSearching()) {
-        <p class="mt-8 text-center text-[10px] text-[#4e5667] font-bold uppercase tracking-[0.4em]">No database entries found</p>
+        <p class="mt-8 text-center text-xs text-[#4e5667] font-medium italic">No database entries found</p>
     }
   </div>
 
   <div class="bg-[#1e232b] border border-[#316282]/30 p-10 rounded-sm shadow-2xl space-y-10">
       <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-[#a4d007]/10 text-[#a4d007] rounded-sm flex items-center justify-center border border-[#a4d007]/20">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          </div>
-          <div>
-              <h3 class="text-2xl font-black text-white uppercase italic leading-none tracking-widest">Global Sales Registry</h3>
-              <p class="text-[9px] text-[#4e5667] font-bold uppercase tracking-[0.3em] mt-2">Platform-wide marketing events</p>
-          </div>
-      </div>
+        <div class="w-10 h-10 bg-[#a4d007]/10 text-[#a4d007] rounded-sm flex items-center justify-center border border-[#a4d007]/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+        </div>
+        <div>
+            <h3 class="text-xl font-bold text-white tracking-tight">Global sales registry</h3>
+            <p class="text-xs font-medium text-[#4e5667] mt-1">Platform-wide marketing events</p>
+        </div>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#171a21] p-8 rounded-sm border border-white/5">
-          <div class="md:col-span-2 space-y-1">
-              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">Event Title</label>
-              <input type="text" [(ngModel)]="newDiscount.name" placeholder="SUMMER SALE 2026"
-                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-white outline-none focus:border-[#66c0f4]/50 transition-all">
-          </div>
-          <div class="space-y-1">
-              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">Percent (%)</label>
-              <input type="number" [(ngModel)]="newDiscount.discountPercent"
-                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#a4d007] outline-none">
-          </div>
-          <div class="space-y-1">
-              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">Start Date</label>
-              <input type="date" [(ngModel)]="newDiscount.startDate"
-                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#66c0f4] outline-none uppercase">
-          </div>
-          <div class="space-y-1">
-              <label class="text-[8px] font-black uppercase text-[#4e5667] ml-1">End Date</label>
-              <input type="date" [(ngModel)]="newDiscount.endDate"
-                    [min]="getMinEndDate()"
-                    class="w-full bg-[#1e232b] border border-[#316282]/30 rounded-sm py-3 px-4 text-xs font-black text-[#66c0f4] outline-none uppercase">
-          </div>
-          <div class="md:col-span-5 pt-4">
-              <button (click)="saveGlobalDiscount()" [disabled]="isSavingDiscount()"
-                      class="w-full bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl active:scale-95">
-                  Initialize Global Promotion
-              </button>
-          </div>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white/[0.02] p-8 rounded-sm border border-white/5">
+        <div class="md:col-span-2 space-y-1.5">
+            <label class="text-[11px] font-semibold text-[#4e5667] ml-1">Event title</label>
+            <input type="text" [(ngModel)]="newDiscount.name" placeholder="E.g. Summer Sale 2026"
+                  class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-normal text-white outline-none focus:border-[#66c0f4]/50 transition-all">
+        </div>
+        
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-semibold text-[#4e5667] ml-1">Reduction (%)</label>
+          <input type="text" 
+                [(ngModel)]="newDiscount.discountPercent"
+                (keydown)="restrictNumeric($event)"
+                maxlength="2"
+                placeholder="10"
+                class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-bold text-[#a4d007] outline-none focus:border-[#66c0f4]/50 transition-all">
+        </div>
+        <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-[#4e5667] ml-1">Start date</label>
+            <input type="date" [(ngModel)]="newDiscount.startDate"
+                  class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-medium text-[#66c0f4] outline-none">
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-[#4e5667] ml-1">End date</label>
+            <input type="date" [(ngModel)]="newDiscount.endDate" [min]="getMinEndDate()"
+                  class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-sm font-medium text-[#66c0f4] outline-none">
+        </div>
+
+        <div class="md:col-span-5 pt-4">
+            <button (click)="saveGlobalDiscount()" [disabled]="isSavingDiscount()"
+                    class="w-full bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-3.5 rounded-sm font-bold text-sm transition-all shadow-lg active:scale-95">
+                Initialize global promotion
+            </button>
+        </div>
       </div>
 
       <div class="mt-12 space-y-4 border-t border-white/5 pt-10">
-        <div class="flex items-center gap-3 mb-6 ml-1">
-            <div class="w-1 h-4 bg-[#4e5667]"></div>
-            <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#4e5667]">Active Registries</h4>
-        </div>
+    <div class="flex items-center gap-3 mb-6 ml-1">
+        <div class="w-1 h-4 bg-[#4e5667] opacity-50"></div>
+        <h4 class="text-sm font-semibold text-[#4e5667]">Active registries</h4>
+    </div>
 
-        <div class="space-y-2">
-            @for (d of discounts(); track d.id) {
-                <div class="flex items-center justify-between p-6 bg-[#171a21] border border-white/5 rounded-sm hover:border-[#316282]/50 transition-all group">
-                    <div class="flex items-center gap-12">
-                        <div class="min-w-[200px]">
-                            <p class="text-[8px] font-black text-[#4e5667] uppercase mb-1 tracking-widest">Event Identity</p>
-                            <p class="font-black text-white uppercase text-base leading-none tracking-tighter">{{ d.name }}</p>
-                        </div>
-
-                        <div class="text-center">
-                            <p class="text-[8px] font-black text-[#4e5667] uppercase mb-1 tracking-widest">Reduction</p>
-                            <p class="font-black text-[#a4d007] text-xl leading-none uppercase">-{{ d.discountPercent }}%</p>
-                        </div>
-
-                        <div class="hidden lg:block">
-                            <p class="text-[8px] font-black text-[#4e5667] uppercase mb-1 tracking-widest">Active Period</p>
-                            <div class="flex items-center gap-3 text-[10px] font-bold text-[#8f98a0] uppercase tracking-widest leading-none">
-                                <span>{{ d.startDate | date:'mediumDate':'UTC' }}</span>
-                                <span class="w-4 h-px bg-[#316282]/40"></span>
-                                <span>{{ d.endDate | date:'mediumDate':'UTC' }}</span>
-                            </div>
-                        </div>
+    <div class="space-y-2">
+        @for (d of discounts(); track d.id) {
+            <div class="flex items-center justify-between p-6 bg-[#171a21] border border-white/5 rounded-sm hover:border-[#316282]/50 transition-all group">
+                <div class="flex items-center gap-12">
+                    <div class="min-w-[200px]">
+                        <p class="text-[10px] font-medium text-[#4e5667] mb-1">Event identity</p>
+                        <p class="font-bold text-white text-base tracking-tight leading-none">{{ d.name }}</p>
                     </div>
 
-                    <div class="flex items-center gap-6">
-                        <div class="flex flex-col items-end gap-1">
-                          <p class="text-[7px] font-black text-[#4e5667] uppercase tracking-widest">System Status</p>
-                          
-                          @let status = getDiscountStatus(d);
-                          
-                          <button (click)="toggleStatus(d.id)"
-                                  [class.bg-[#a4d007]]="status === 'Online'"
-                                  [class.bg-amber-500]="status === 'Scheduled'"
-                                  [class.bg-[#316282]]="status === 'Disabled'"
-                                  [class.bg-rose-900]="status === 'Expired'"
-                                  class="px-3 py-1 rounded-sm text-[#171a21] text-[9px] font-black uppercase tracking-[0.2em] transition-all">
-                              {{ status }}
-                          </button>
+                    <div class="text-center">
+                        <p class="text-[10px] font-medium text-[#4e5667] mb-1">Reduction</p>
+                        <p class="font-bold text-[#a4d007] text-xl leading-none">-{{ d.discountPercent }}%</p>
+                    </div>
+
+                    <div class="hidden lg:block">
+                        <p class="text-[10px] font-medium text-[#4e5667] mb-1">Active period</p>
+                        <div class="flex items-center gap-2 text-xs font-medium text-[#8f98a0] tracking-tight leading-none">
+                            <span>{{ d.startDate | date:'mediumDate':'UTC' }}</span>
+                            <span class="w-3 h-px bg-[#316282]/40"></span>
+                            <span>{{ d.endDate | date:'mediumDate':'UTC' }}</span>
                         </div>
-                        
-                        <button (click)="removeDiscount(d.id)" 
-                                class="p-2.5 text-[#4e5667] hover:text-rose-500 hover:bg-rose-500/5 transition-all">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                        </button>
                     </div>
                 </div>
-            } @empty {
-                <div class="py-16 text-center border border-dashed border-[#316282]/20 bg-[#171a21]/50 rounded-sm">
-                    <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.5em]">No global promotions registered in database</p>
+
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col items-end gap-1">
+                      <p class="text-[9px] font-medium text-[#4e5667] mb-0.5">System status</p>
+                      
+                      @let status = getDiscountStatus(d);
+                      
+                      <button (click)="toggleStatus(d.id)"
+                              [class.bg-[#a4d007]]="status === 'Online'"
+                              [class.bg-amber-500]="status === 'Scheduled'"
+                              [class.bg-[#316282]]="status === 'Disabled'"
+                              [class.bg-rose-900]="status === 'Expired'"
+                              class="px-2.5 py-1 rounded-sm text-[#171a21] text-[10px] font-bold tracking-wide transition-all">
+                          {{ status }}
+                      </button>
+                    </div>
+                    
+                    <button (click)="removeDiscount(d.id)" 
+                            class="p-2.5 text-[#4e5667] hover:text-rose-500 hover:bg-rose-500/5 transition-all">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
                 </div>
-            }
-        </div>
+            </div>
+        } @empty {
+            <div class="py-16 text-center border border-dashed border-[#316282]/20 bg-white/[0.01] rounded-sm">
+                <p class="text-sm font-medium text-[#4e5667] italic">No global promotions registered in database</p>
+            </div>
+        }
+      </div>
     </div>
   </div>
 </div>
@@ -222,23 +226,23 @@
          class="w-full max-w-md bg-[#1e232b] border p-10 rounded-sm shadow-2xl relative">
       
       <header class="text-center mb-8">
-        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">
-            {{ modalMode() === 'promote' ? 'Promote to Staff?' : 'Revoke Authority?' }}
+        <h2 class="text-xl font-bold text-white tracking-tight">
+            {{ modalMode() === 'promote' ? 'Promote to staff?' : 'Revoke authority?' }}
         </h2>
         <div [class.bg-[#66c0f4]]="modalMode() === 'promote'"
              [class.bg-rose-500]="modalMode() === 'demote'"
-             class="h-1 w-12 mx-auto mt-2 transition-colors"></div>
+             class="h-0.5 w-8 mx-auto mt-3 transition-colors opacity-60"></div>
       </header>
 
-      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10">
+      <p class="text-[#8f98a0] text-sm text-center leading-relaxed mb-10 font-normal">
         @if (modalMode() === 'promote') {
             Are you sure you want to assign moderator rights to 
-            <span class="text-white font-black">{{ targetUser()?.username }}</span>? 
-            This user will gain access to the Moderation Desk.
+            <span class="text-white font-semibold">{{ targetUser()?.username }}</span>? 
+            This user will gain access to the moderation desk.
         } @else {
             Are you sure you want to revoke moderator rights from 
-            <span class="text-white font-black">{{ targetUser()?.username }}</span>? 
-            This user will <span class="text-rose-500 font-bold">lose all access</span> to staff-only areas.
+            <span class="text-white font-semibold">{{ targetUser()?.username }}</span>? 
+            This user will <span class="text-rose-400 font-medium">lose all access</span> to staff-only areas.
         }
       </p>
 
@@ -248,25 +252,60 @@
                 [class.bg-[#66c0f4]]="modalMode() === 'promote'"
                 [class.text-[#171a21]]="modalMode() === 'promote'" 
                 
-                [class.bg-[#e11d48]]="modalMode() === 'demote'"
+                [class.bg-rose-600]="modalMode() === 'demote'"
                 [class.text-white]="modalMode() === 'demote'" 
                 
-                class="w-full py-4 rounded-sm font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:scale-95 shadow-xl">
+                class="w-full py-3.5 rounded-sm font-bold text-sm transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg">
           
           @if (isProcessing()) {
             <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
             Syncing...
           } @else {
-            {{ modalMode() === 'promote' ? 'Establish Authority' : 'Confirm Revocation' }}
+            {{ modalMode() === 'promote' ? 'Establish authority' : 'Confirm revocation' }}
           }
         </button>
 
         <button (click)="closeStaffModal()" 
                 [disabled]="isProcessing()"
-                class="w-full py-3 text-[#4e5667] hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">
-          Cancel Action
+                class="w-full py-2.5 text-[#4e5667] hover:text-white font-medium text-xs transition-colors">
+          Cancel
         </button>
       </div>
+    </div>
+  </div>
+}
+@if (isDeleteModalOpen()) {
+  <div class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+    
+    <div class="w-full max-w-md bg-[#1e232b] border border-rose-500/30 p-10 rounded-sm shadow-2xl relative overflow-hidden">
+      
+      <div class="absolute -top-12 -right-12 w-32 h-32 bg-rose-600/5 blur-3xl rounded-full"></div>
+
+      <header class="text-center mb-6 relative z-10">
+        <h2 class="text-xl font-bold text-rose-500 tracking-tight">
+            Delete event?
+        </h2>
+        <div class="h-0.5 w-8 bg-rose-600 mx-auto mt-3 opacity-60"></div>
+      </header>
+
+      <div class="text-center space-y-4 mb-10 relative z-10">
+        <p class="text-[#8f98a0] text-sm leading-relaxed font-normal">
+            This action will permanently remove the marketing event from the global registry. This cannot be undone.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2 relative z-10">
+        <button (click)="confirmDeleteDiscount()" 
+                class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-sm font-bold text-sm transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg">
+          Confirm deletion
+        </button>
+
+        <button (click)="isDeleteModalOpen.set(false)" 
+                class="w-full py-2.5 text-[#4e5667] hover:text-white font-semibold text-xs transition-colors">
+          Cancel
+        </button>
+      </div>
+
     </div>
   </div>
 }

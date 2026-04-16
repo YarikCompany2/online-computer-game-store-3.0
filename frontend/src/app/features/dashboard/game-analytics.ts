@@ -55,11 +55,16 @@ export class GameAnalyticsComponent implements OnInit {
   loadGameStats() {
     this.dashService.getGameDetailStats(this.gameId).subscribe({
       next: (res) => {
-        this.data.set(res);
+        const filledHistory = this.fillDataGaps(res.history);
+
+        this.data.set({ ...res, history: filledHistory });
+
         const units = res.history.reduce((sum: number, h: any) => sum + h.count, 0);
         const rev = res.history.reduce((sum: number, h: any) => sum + h.revenue, 0);
+        
         this.totalUnits.set(units);
         this.totalRevenue.set(rev);
+
         setTimeout(() => this.initChart(), 0);
       }
     });
@@ -161,7 +166,10 @@ export class GameAnalyticsComponent implements OnInit {
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: history.map((h: any) => new Date(h.date).toLocaleDateString()),
+        labels: history.map((h: any) => {
+          const d = new Date(h.date);
+          return `${d.getUTCDate()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+        }),
         datasets: [{
           data: history.map((h: any) => metric === 'units' ? h.count : h.revenue),
           borderColor: themeColor,
@@ -193,6 +201,39 @@ export class GameAnalyticsComponent implements OnInit {
 
   removeDiscount() {
     this.isTerminateModalOpen.set(true);
+  }
+
+  private fillDataGaps(history: any[]) {
+    const filledHistory = [];
+    const DAYS_TO_SHOW = 14;
+    
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const dataMap = new Map();
+    history.forEach(item => {
+      const d = new Date(item.date);
+      const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+      dataMap.set(dateKey, item);
+    });
+
+    for (let i = DAYS_TO_SHOW - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setUTCDate(today.getUTCDate() - i); 
+
+      const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+
+      if (dataMap.has(dateKey)) {
+        filledHistory.push(dataMap.get(dateKey));
+      } else {
+        filledHistory.push({
+          date: dateKey,
+          count: 0,
+          revenue: 0
+        });
+      }
+    }
+    return filledHistory;
   }
 
   preventNegativeAndDot(event: KeyboardEvent) {

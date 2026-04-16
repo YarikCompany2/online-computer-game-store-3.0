@@ -3,10 +3,8 @@
     
     <header class="mb-8 flex justify-between items-start">
       <div>
-        <h2 class="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">Add Funds</h2>
-        <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.3em] mt-3">SAD Wallet Service</p>
+        <h2 class="text-2xl font-bold text-white tracking-tight leading-none">Add funds</h2>
       </div>
-      <div class="hidden sm:block px-3 py-1 bg-[#a4d007]/10 border border-[#a4d007]/20 text-[#a4d007] text-[10px] font-bold uppercase rounded-sm">Verified Secure</div>
     </header>
 
     <div class="mb-8 relative aspect-[1.7/1] bg-gradient-to-br from-[#316282] to-[#1e232b] rounded-md p-6 md:p-8 border border-white/10 shadow-2xl overflow-hidden">
@@ -15,74 +13,60 @@
           <div class="h-0.5 bg-black/20 w-full"></div>
           <div class="h-0.5 bg-black/20 w-full"></div>
         </div>
-        <span class="text-white/30 italic font-black text-lg tracking-tighter uppercase">Sad Bank</span>
       </div>
 
-      <div class="text-xl md:text-2xl font-mono text-white tracking-[0.15em] mb-8 drop-shadow-lg">
+      <div class="text-xl md:text-2xl font-mono text-white tracking-[0.15em] mb-8">
         {{ cardNumber() || '0000 0000 0000 0000' }}
       </div>
 
       <div class="flex justify-between items-end">
         <div>
-          <p class="text-[7px] uppercase text-[#c7d5e0]/60 font-bold">Holder</p>
-          <p class="text-xs font-bold text-white uppercase">{{ currentUser()?.username }}</p>
+          <p class="text-[8px] uppercase text-[#c7d5e0]/60 font-bold">Holder</p>
+          <p class="text-sm font-semibold text-white uppercase">{{ currentUser()?.username }}</p>
         </div>
         <div class="text-right">
-          <p class="text-[7px] uppercase text-[#c7d5e0]/60 font-bold">Expires</p>
-          <p class="text-xs font-bold text-white">{{ cardExpiry() || 'MM/YY' }}</p>
+          <p class="text-[8px] uppercase text-[#c7d5e0]/60 font-bold">Expires</p>
+          <p class="text-sm font-semibold text-white">{{ cardExpiry() || 'MM/YY' }}</p>
         </div>
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-      <div class="col-span-2 space-y-1">
-        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1">Card Number</label>
-        <input type="text" 
-              [value]="cardNumber()"
-              (input)="onCardInput($event)"
+      <div class="col-span-2 space-y-1.5">
+        <label class="text-[11px] font-semibold text-[#4e5667] ml-1">Card number</label>
+        <input type="text" [value]="cardNumber()" (input)="onCardInput($event)"
               placeholder="0000 0000 0000 0000"
-              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-white outline-none font-mono">
+              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-white outline-none font-mono text-sm focus:border-[#66c0f4]/50">
       </div>
 
-      <div class="space-y-1">
-        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1">Expiry (MM/YY)</label>
-        <input type="text" 
-              [value]="cardExpiry()"
-              (input)="onExpiryInput($event)"
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold text-[#4e5667] ml-1">Expiry (MM/YY)</label>
+        <input type="text" [value]="cardExpiry()" (input)="onExpiryInput($event)"
               placeholder="MM/YY"
-              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-white outline-none text-center font-mono">
+              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-white outline-none text-center font-mono text-sm">
       </div>
 
-      <div class="space-y-1">
-        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1">CVV</label>
-        <input type="password" 
-              [value]="cardCvv()"
-              (input)="onCvvInput($event)"
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-semibold text-[#4e5667] ml-1">CVV</label>
+        <input type="password" [value]="cardCvv()" (input)="onCvvInput($event)"
               placeholder="•••"
-              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-2.5 px-4 text-white outline-none text-center tracking-[0.5em]">
+              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-white outline-none text-center tracking-[0.3em]">
       </div>
 
-      <div class="col-span-2 space-y-1 pt-2">
-        <label class="text-[9px] font-black uppercase text-[#4e5667] ml-1">Amount ($)</label>
-        <input type="text" 
-              [value]="amount()"
-              (input)="onAmountInput($event)"
+      <div class="col-span-2 space-y-1.5 pt-2">
+        <label class="text-[11px] font-semibold text-[#4e5667] ml-1">Amount ($)</label>
+        <input type="text" [value]="amount()" (input)="onAmountInput($event)"
               placeholder="Min $1"
-              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-4 text-[#a4d007] outline-none font-black text-xl italic">
+              class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-3.5 px-4 text-[#a4d007] outline-none font-bold text-xl">
       </div>
     </div>
 
-    <div class="flex gap-4 mt-8">
-      <button (click)="onCancel()" class="flex-1 py-3 text-[#8f98a0] font-bold text-xs uppercase hover:text-white transition-colors">Discard</button>
+    <div class="flex gap-4 mt-10">
+      <button (click)="onCancel()" class="flex-1 py-3 text-[#8f98a0] font-semibold text-sm hover:text-white transition-colors">Discard</button>
       <button (click)="confirm()" 
               [disabled]="isLoading() || !isFormValid()"
-              class="flex-[2] bg-[#a4d007] disabled:opacity-20 hover:bg-[#bef30a] text-[#171a21] py-3 rounded-sm font-black text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95 flex items-center justify-center gap-3">
-        @if (isLoading()) {
-          <div class="w-4 h-4 border-2 border-[#171a21]/30 border-t-[#171a21] rounded-full animate-spin"></div>
-          PROCESSING
-        } @else {
-          ADD TO WALLET
-        }
+              class="flex-[2] bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-3.5 rounded-sm font-bold text-sm shadow-lg transition-all active:scale-95 disabled:opacity-30">
+        {{ isLoading() ? 'Processing...' : 'Add to wallet' }}
       </button>
     </div>
   </div>

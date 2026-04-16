@@ -22,6 +22,9 @@ export class AdminHubComponent implements OnInit {
   isProcessing = signal(false);
   targetUser = signal<any | null>(null);
   modalMode = signal<'promote' | 'demote'>('promote');
+
+  isDeleteModalOpen = signal(false);
+  discountIdToDelete = signal<string | null>(null);
   
   userSearchQuery = signal('');
   searchResults = signal<any[]>([]);
@@ -77,12 +80,23 @@ export class AdminHubComponent implements OnInit {
     }
     
     this.isSavingDiscount.set(true);
-    this.adminService.createGlobalDiscount(this.newDiscount).subscribe({
+
+    const payload = {
+      ...this.newDiscount,
+      discountPercent: Number(this.newDiscount.discountPercent)
+    };
+
+    this.adminService.createGlobalDiscount(payload).subscribe({
       next: () => {
         this.toast.show('Global event created!', 'success');
         this.loadDiscounts();
         this.isSavingDiscount.set(false);
         this.newDiscount = { name: '', discountPercent: 10, startDate: '', endDate: '' };
+      },
+      error: (err) => {
+        this.toast.show(err.error?.message || 'Failed to create discount', 'error');
+        this.isSavingDiscount.set(false);
+        console.error('Server error:', err);
       }
     });
   }
@@ -95,12 +109,8 @@ export class AdminHubComponent implements OnInit {
   }
 
   removeDiscount(id: string) {
-    if (confirm('Delete this event permanently?')) {
-      this.adminService.deleteDiscount(id).subscribe(() => {
-        this.loadDiscounts();
-        this.toast.show('Event removed', 'success');
-      });
-    }
+    this.discountIdToDelete.set(id);
+    this.isDeleteModalOpen.set(true);
   }
 
   onSearchInput(val: string) {
@@ -160,6 +170,24 @@ export class AdminHubComponent implements OnInit {
     });
   }
 
+  confirmDeleteDiscount() {
+    const id = this.discountIdToDelete();
+    if (id) {
+      this.adminService.deleteDiscount(id).subscribe({
+        next: () => {
+          this.loadDiscounts();
+          this.toast.show('Event removed', 'success');
+          this.isDeleteModalOpen.set(false);
+          this.discountIdToDelete.set(null);
+        },
+        error: () => {
+          this.toast.show('Failed to delete event', 'error');
+          this.isDeleteModalOpen.set(false);
+        }
+      });
+    }
+  }
+
   getMinEndDate(): string {
     return this.newDiscount.startDate || this.minDate();
   }
@@ -178,6 +206,28 @@ export class AdminHubComponent implements OnInit {
 
   preventNegativeAndDot(event: KeyboardEvent) {
     if (['-', '+', 'e', '.'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  restrictNumeric(event: KeyboardEvent) {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+      'ArrowLeft', 'ArrowRight', 'Home', 'End'
+    ];
+
+    if (allowedKeys.includes(event.key) || event.ctrlKey || event.metaKey) {
+      return;
+    }
+
+    const input = event.target as HTMLInputElement;
+
+    if (!/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === '0' && input.selectionStart === 0) {
       event.preventDefault();
     }
   }

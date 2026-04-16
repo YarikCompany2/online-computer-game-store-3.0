@@ -1,85 +1,185 @@
 <div class="fixed inset-0 z-[200] overflow-y-auto bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
   <div class="min-h-full flex items-center justify-center p-6">
-    
-    <div class="w-full max-w-2xl bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative p-12">
+    <div class="w-full max-w-4xl bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-2xl relative p-12">
       
-      <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#66c0f4]/5 blur-3xl rounded-full"></div>
-
-      <header class="mb-12">
-        <div class="flex items-center gap-3 mb-2">
-            <span class="w-1 h-8 bg-[#66c0f4] shadow-[0_0_15px_rgba(102,192,244,0.3)]"></span>
-            <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Edit Project</h2>
-        </div>
-        <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em] ml-4 opacity-60">Management Console</p>
+      <header class="mb-10">
+        <h2 class="text-3xl font-bold text-white tracking-tight">Edit project</h2>
       </header>
 
-      <div class="space-y-8 relative z-10">
+      <div class="space-y-10">
         <div class="space-y-2">
-          <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">App Title</label>
-          <input type="text" [(ngModel)]="editData.title"
-                 class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-bold text-lg">
+          <label class="text-[11px] font-semibold text-[#66c0f4] uppercase tracking-wider ml-1">Description</label>
+          <textarea [(ngModel)]="editData.description" rows="4" 
+                    class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm p-4 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-normal leading-relaxed"></textarea>
         </div>
 
-        <div class="space-y-2">
-          <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Product Description</label>
-          <textarea [(ngModel)]="editData.description" rows="6"
-                    class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all resize-none leading-relaxed font-medium"></textarea>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Standard Price (USD)</label>
-          <div class="flex items-center bg-[#171a21] border border-[#316282]/30 rounded-sm px-6 focus-within:border-[#66c0f4]/50 transition-all">
-            <span class="text-[#66c0f4] font-black text-xl mr-3 select-none">$</span>
-            <input type="number" [(ngModel)]="editData.price"
-                   placeholder="0.00"
-                   class="flex-1 bg-transparent border-none py-4 text-white text-xl font-black outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+        <div class="space-y-4">
+          <p class="text-[11px] font-semibold text-[#66c0f4] uppercase tracking-wider ml-1">Genres</p>
+          <div class="flex flex-wrap gap-2">
+            @for (cat of categories(); track cat.id) {
+              <button (click)="toggleCategory(cat.id)"
+                      [class.bg-[#316282]]="categoryIds().includes(cat.id)"
+                      [class.text-white]="categoryIds().includes(cat.id)"
+                      [class.border-[#66c0f4]]="categoryIds().includes(cat.id)"
+                      class="px-4 py-1.5 border border-white/5 bg-[#171a21] text-[#8f98a0] text-xs font-medium rounded-sm hover:border-[#66c0f4]/50 transition-all">
+                {{ cat.name | titlecase }}
+              </button>
+            }
           </div>
         </div>
 
-        <div class="pt-10 mt-10 border-t border-white/5 space-y-6">
-          <div class="flex items-center gap-2 ml-1">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="3">
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-              <path d="M12 9v4"/><path d="M12 17h.01"/>
-            </svg>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500/70">Restrictive Actions</p>
+        <div class="space-y-4">
+          <p class="text-[11px] font-semibold text-[#66c0f4] uppercase tracking-wider ml-1">Target platforms</p>
+          <div class="flex gap-4">
+            @for (p of platforms(); track p.id) {
+              <button (click)="togglePlatform(p.id)"
+                      [class.bg-[#316282]]="selectedPlatformIds().includes(p.id)"
+                      [class.text-white]="selectedPlatformIds().includes(p.id)"
+                      class="flex-1 py-3 border border-white/5 bg-[#171a21] text-[#4e5667] text-xs font-bold rounded-sm transition-all">
+                {{ p.name }}
+              </button>
+            }
           </div>
-          
-          <div class="flex flex-col md:flex-row gap-4">
+        </div>
+
+        <div class="grid grid-cols-2 gap-8">
+          <div class="space-y-4">
+            <p class="text-[11px] font-bold text-[#66c0f4] uppercase tracking-wider text-center">Minimum specs</p>
+            <div class="space-y-3 bg-[#171a21] p-6 rounded-sm border border-white/5">
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Processor</label>
+                <input type="text" [(ngModel)]="minSpecs().processor" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#66c0f4]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Memory (RAM)</label>
+                <input type="text" [(ngModel)]="minSpecs().ram" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#66c0f4]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Graphics (GPU)</label>
+                <input type="text" [(ngModel)]="minSpecs().gpu" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#66c0f4]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Storage</label>
+                <input type="text" [(ngModel)]="minSpecs().storage" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#66c0f4]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <p class="text-[11px] font-bold text-[#a4d007] uppercase tracking-wider text-center">Recommended specs</p>
+            <div class="space-y-3 bg-[#171a21] p-6 rounded-sm border border-white/5">
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Processor</label>
+                <input type="text" [(ngModel)]="recSpecs().processor" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#a4d007]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Memory (RAM)</label>
+                <input type="text" [(ngModel)]="recSpecs().ram" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#a4d007]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Graphics (GPU)</label>
+                <input type="text" [(ngModel)]="recSpecs().gpu" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#a4d007]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-medium text-[#4e5667] ml-0.5">Storage</label>
+                <input type="text" [(ngModel)]="recSpecs().storage" 
+                      class="w-full bg-black/20 border border-transparent focus:border-[#a4d007]/30 p-2 text-sm text-white rounded-xs outline-none transition-all font-normal">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 space-y-8">
+  
+          <div class="flex flex-col sm:flex-row gap-3 pt-8 border-t border-white/5">
+            
             <button (click)="toggleStatus()" 
-                    [disabled]="game.status === 'pending_moderation'"
-                    [class.opacity-40]="game.status === 'pending_moderation'"
-                    [class.cursor-not-allowed]="game.status === 'pending_moderation'"
-                    class="flex-1 py-4 bg-[#171a21] border border-[#316282]/30 text-[#8f98a0] rounded-sm font-black text-[10px] uppercase tracking-widest transition-all">
-              {{ game.status === 'active' ? 'Deactivate Product' : 'Activate Product' }}
+                    [disabled]="isLoading() || game.status === 'pending_moderation'"
+                    class="flex-1 py-2.5 bg-white/[0.02] border border-white/5 hover:bg-white/5 text-[#a4d007] disabled:opacity-20 disabled:grayscale rounded-sm font-semibold text-xs transition-all flex items-center justify-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              {{ game.status === 'active' ? 'Deactivate project' : 'Activate project' }}
             </button>
 
-            <button (click)="deleteGame()" 
-                    [disabled]="game.status === 'pending_moderation'"
-                    [class.opacity-60]="game.status === 'pending_moderation'"
-                    [class.cursor-not-allowed]="game.status === 'pending_moderation'"
-                    class="flex-1 py-4 bg-rose-600/5 border border-rose-500/20 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-[10px] font-black uppercase tracking-widest rounded-sm">
-              Delete Permanently
+            <button (click)="openDeleteModal()" 
+                    [disabled]="isLoading() || game.status === 'pending_moderation'"
+                    class="flex-1 py-2.5 bg-rose-500/[0.03] border border-rose-500/10 text-rose-500/60 hover:text-rose-500 disabled:opacity-20 disabled:grayscale rounded-sm font-semibold text-xs transition-all flex items-center justify-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+              </svg>
+              Delete project
             </button>
           </div>
-        </div>
 
-        <div class="flex flex-col md:flex-row gap-4 pt-10 border-t border-white/5">
-          <button (click)="close.emit()" 
-                  class="flex-1 py-5 text-[#4e5667] font-black hover:text-white uppercase tracking-[0.3em] text-[10px] transition-colors">
-            Discard
-          </button>
-          <button (click)="save()" [disabled]="isLoading()"
-                  class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.4em] shadow-xl shadow-[#66c0f4]/10 transition-all active:scale-95 disabled:opacity-20">
-            {{ isLoading() ? 'Syncing...' : 'Update Records' }}
-          </button>
+          @if (game.status === 'pending_moderation') {
+            <p class="text-center text-[10px] text-amber-500/60 font-medium italic -mt-4 animate-in fade-in duration-500">
+              Management tools are unavailable while the project is under moderation
+            </p>
+          }
+
+          <div class="flex items-center gap-4 pt-6 border-t border-white/[0.03]">
+            <button (click)="close.emit()" 
+                    class="flex-1 py-3 text-[#4e5667] font-semibold text-sm hover:text-white transition-colors text-left pl-2">
+              Discard changes
+            </button>
+            
+            <button (click)="save()" [disabled]="isLoading()"
+                    class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-3.5 rounded-sm font-bold text-sm shadow-xl transition-all active:scale-95 disabled:opacity-30">
+              {{ isLoading() ? 'Updating...' : 'Update records' }}
+            </button>
+          </div>
+
         </div>
       </div>
-
-      <button (click)="close.emit()" class="absolute top-8 right-8 text-[#4e5667] hover:text-white transition-colors">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-
     </div>
   </div>
 </div>
+@if (isDeleteModalOpen()) {
+  <div class="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
+    
+    <div class="w-full max-w-md bg-[#1e232b] border border-rose-500/20 p-10 rounded-sm shadow-2xl relative overflow-hidden">
+      
+      <div class="absolute -top-12 -right-12 w-32 h-32 bg-rose-600/5 blur-3xl rounded-full"></div>
+
+      <header class="text-center mb-6 relative z-10">
+        <h2 class="text-xl font-bold text-rose-500 tracking-tight">Delete project?</h2>
+        <div class="h-0.5 w-8 bg-rose-600 mx-auto mt-3 opacity-60"></div>
+      </header>
+
+      <div class="text-center space-y-4 mb-10 relative z-10">
+        <p class="text-[#8f98a0] text-sm leading-relaxed font-normal">
+            You are about to permanently delete <span class="text-white font-semibold">"{{ game.title }}"</span>.
+            This action cannot be undone.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2 relative z-10">
+        <button (click)="confirmDelete()" 
+                [disabled]="isLoading()"
+                class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-sm font-bold text-sm transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg">
+          @if (isLoading()) {
+            <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            Deleting...
+          } @else {
+            Confirm deletion
+          }
+        </button>
+
+        <button (click)="isDeleteModalOpen.set(false)" 
+                [disabled]="isLoading()"
+                class="w-full py-2.5 text-[#4e5667] hover:text-white font-medium text-xs transition-colors">
+          Go back
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

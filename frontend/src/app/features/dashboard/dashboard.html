@@ -2,61 +2,62 @@
   
   <header class="flex justify-between items-end mb-16">
     <div>
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-1 bg-[#a4d007]"></div>
-        <span class="text-[#a4d007] font-black uppercase text-[10px] tracking-[0.4em]">Business Intelligence</span>
-      </div>
-      <h1 class="text-6xl font-black uppercase text-white leading-none tracking-tighter">Dev Hub</h1>
-      <p class="text-[#8f98a0] font-bold uppercase text-[10px] tracking-[0.2em] mt-4 ml-1 opacity-60">
-        Studio Performance & Analytics
-      </p>
+      <h1 class="text-4xl font-bold text-white tracking-tight leading-none">Dev Hub</h1>
     </div>
     
     @if (isOwner()) {
       <button (click)="openCreateModal()"
-          class="bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] px-10 py-5 rounded-sm font-black text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(102,192,244,0.2)] active:scale-95">
-        Release New Game
+          class="bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] px-8 py-3.5 rounded-sm font-bold text-sm shadow-lg transition-all active:scale-95">
+        Release new game
       </button>
     }
   </header>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-[#1e232b] border border-white/5 p-10 rounded-sm shadow-2xl relative overflow-hidden group">
+    <div class="bg-[#1e232b] border border-white/5 p-8 rounded-sm shadow-xl relative overflow-hidden group">
       <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#a4d007]/5 blur-3xl"></div>
-      <p class="text-[#8f98a0] text-[10px] font-black uppercase tracking-[0.2em] mb-6">Total Revenue</p>
-      <p class="text-6xl font-black text-[#a4d007] tracking-tighter">${{ stats()?.totalRevenue | number:'1.2-2' }}</p>
+      <p class="text-[#8f98a0] text-xs font-semibold uppercase tracking-wider mb-6">Total revenue</p>
+      <p class="text-4xl font-bold text-[#a4d007] tracking-tight leading-none">
+        ${{ stats()?.totalRevenue | number:'1.2-2' }}
+      </p>
     </div>
 
-    <div class="bg-[#1e232b] border border-white/5 p-10 rounded-sm shadow-2xl">
-      <p class="text-[#8f98a0] text-[10px] font-black uppercase tracking-[0.2em] mb-6">Units Sold</p>
-      <p class="text-6xl font-black text-white tracking-tighter">{{ stats()?.totalSales }}</p>
+    <div class="bg-[#1e232b] border border-white/5 p-8 rounded-sm shadow-xl">
+      <p class="text-[#8f98a0] text-xs font-semibold uppercase tracking-wider mb-6">Units sold</p>
+      <p class="text-4xl font-bold text-white tracking-tight leading-none">
+        {{ stats()?.totalSales }}
+      </p>
     </div>
 
-    <div class="bg-[#1e232b] border border-white/5 p-10 rounded-sm shadow-2xl">
-      <p class="text-[#8f98a0] text-[10px] font-black uppercase tracking-[0.2em] mb-6">Portfolio Size</p>
-      <p class="text-6xl font-black text-[#66c0f4] tracking-tighter">{{ stats()?.activeGamesCount }}</p>
+    <div class="bg-[#1e232b] border border-white/5 p-8 rounded-sm shadow-xl">
+      <p class="text-[#8f98a0] text-xs font-semibold uppercase tracking-wider mb-6">Games count</p>
+      <p class="text-4xl font-bold text-[#66c0f4] tracking-tight leading-none">
+        {{ stats()?.activeGamesCount }}
+      </p>
     </div>
   </div>
 
-  <div class="bg-[#1e232b] border border-white/5 p-10 rounded-sm shadow-2xl relative overflow-hidden">
+  <div class="bg-[#1e232b] border border-white/5 p-8 rounded-sm shadow-2xl relative overflow-hidden">
     <div class="flex items-center gap-4 mb-10">
-      <div class="w-12 h-12 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+      <div class="w-10 h-10 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20 shadow-sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>
+        </svg>
       </div>
       <div>
-        <h3 class="text-2xl font-black text-white uppercase tracking-widest leading-none">Recruit Team</h3>
-        <p class="text-[9px] text-[#4e5667] font-bold uppercase mt-2 tracking-widest">Expand your studio by inviting members</p>
+        <h3 class="text-xl font-bold text-white tracking-tight leading-none">Recruit team</h3>
+        <p class="text-xs font-medium text-[#4e5667] mt-1.5">Expand your studio by inviting members</p>
       </div>
     </div>
 
     <div class="flex gap-4">
       <input type="text" #inviteInput
-            placeholder="ENTER USERNAME OR EMAIL..."
-            class="flex-1 bg-[#171a21] border border-[#316282]/30 rounded-sm py-5 px-8 text-white outline-none focus:border-[#66c0f4] transition-all font-bold tracking-widest text-xs placeholder:text-[#4e5667]">
+            placeholder="Enter username or email..."
+            class="flex-1 bg-[#171a21] border border-[#316282]/30 rounded-sm py-3 px-6 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-normal text-sm placeholder:text-[#4e5667]">
       
       <button (click)="sendInvite(inviteInput.value); inviteInput.value = ''"
-              class="bg-[#316282] hover:bg-[#3d7ba3] text-white px-12 py-5 rounded-sm font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl">
-        Send Invite
+              class="bg-[#316282] hover:bg-[#3d7ba3] text-white px-10 py-3 rounded-sm font-bold text-sm transition-all active:scale-95 shadow-lg">
+        Send invite
       </button>
     </div>
   </div>
@@ -64,50 +65,50 @@
   <div class="space-y-6 pt-12">
   
   <div class="flex items-center gap-4 ml-1">
-    <div class="w-1 h-8 bg-[#66c0f4] shadow-[0_0_15px_rgba(102,192,244,0.3)]"></div>
-    <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Detailed Breakdown</h3>
+    <div class="w-1 h-6 bg-[#66c0f4] opacity-50 shadow-[0_0_10px_rgba(102,192,244,0.2)]"></div>
+    <h3 class="text-xl font-bold text-white tracking-tight">Detailed breakdown</h3>
   </div>
   
-  <div class="bg-[#1e232b] border border-white/10 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+  <div class="bg-[#1e232b] border border-white/10 rounded-sm shadow-2xl overflow-hidden">
     <table class="w-full text-left border-collapse">
       
       <thead class="bg-[#171a21] border-b border-white/10">
         <tr>
-          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667]">Project</th>
-          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-32">Current Price</th>
-          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-32">Sales</th>
-          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-center w-40">Gross Revenue</th>
-          <th class="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#4e5667] text-right">Actions</th>
+          <th class="p-6 text-[11px] font-bold uppercase tracking-wider text-[#4e5667]">Project</th>
+          <th class="p-6 text-[11px] font-bold uppercase tracking-wider text-[#4e5667] text-center w-32">Current price</th>
+          <th class="p-6 text-[11px] font-bold uppercase tracking-wider text-[#4e5667] text-center w-32">Sales</th>
+          <th class="p-6 text-[11px] font-bold uppercase tracking-wider text-[#4e5667] text-center w-40">Gross revenue</th>
+          <th class="p-6 text-[11px] font-bold uppercase tracking-wider text-[#4e5667] text-right">Actions</th>
         </tr>
       </thead>
 
       <tbody class="divide-y divide-white/5">
         @for (game of stats()?.games; track game.id) {
           <tr [routerLink]="['/dashboard/game', game.id]" 
-              class="hover:bg-[#316282]/10 transition-all cursor-pointer group">
+              class="hover:bg-[#316282]/10 transition-all cursor-pointer group text-[#c7d5e0]">
             
             <td class="p-6">
               <div class="flex items-center gap-6">
-                <div class="w-24 aspect-video rounded-sm overflow-hidden bg-black border border-white/10 flex-shrink-0 shadow-lg">
+                <div class="w-24 aspect-video rounded-sm overflow-hidden bg-black border border-white/5 flex-shrink-0 shadow-lg">
                   <img [src]="game.mainCover || 'assets/placeholder.png'" crossorigin="anonymous" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                 </div>
                 <div class="flex flex-col">
-                  <span class="font-black text-white uppercase tracking-tight text-base group-hover:text-[#66c0f4] transition-colors leading-none mb-2">
+                  <span class="font-bold text-white text-base tracking-tight group-hover:text-[#66c0f4] transition-colors leading-none mb-2">
                     {{ game.title }}
                   </span>
                   <div class="flex items-center gap-2">
-                    <span class="text-[9px] font-mono text-[#4e5667] uppercase tracking-widest">ID: {{ game.id.substring(0,8) }}</span>
+                    <span class="text-[10px] font-mono text-[#4e5667]">ID: {{ game.id.substring(0,8) }}</span>
                     
                     @if (game.status === 'pending_moderation') {
-                        <span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[8px] font-black uppercase border border-rose-500/20 tracking-widest">
-                          Awaiting Auth
+                        <span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[9px] font-bold uppercase tracking-wider border border-rose-500/20 rounded-xs">
+                          Awaiting auth
                         </span>
                     } @else if (game.status === 'inactive') {
-                        <span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase border border-amber-500/20 tracking-widest">
+                        <span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[9px] font-bold uppercase tracking-wider border border-amber-500/20 rounded-xs">
                           Inactive
                         </span>
                     } @else {
-                        <span class="px-2 py-0.5 bg-[#a4d007]/10 text-[#a4d007] text-[8px] font-black uppercase border border-[#a4d007]/20 tracking-widest">
+                        <span class="px-2 py-0.5 bg-[#a4d007]/10 text-[#a4d007] text-[9px] font-bold uppercase tracking-wider border border-[#a4d007]/20 rounded-xs">
                           Live
                         </span>
                     }
@@ -116,11 +117,11 @@
               </div>
             </td>
 
-            <td class="p-6 text-center font-bold text-sm font-mono">
+            <td class="p-6 text-center font-semibold text-sm">
               @if (game.discount && game.discount.isActive) {
                   <div class="flex flex-col items-center">
                       <span class="text-[10px] text-[#4e5667] line-through">${{ game.price | number:'1.2-2' }}</span>
-                      <span class="text-[#a4d007] font-black text-base">
+                      <span class="text-[#a4d007] font-bold text-sm">
                           ${{ (game.price * (1 - game.discount.discountPercent / 100)) | number:'1.2-2' }}
                       </span>
                   </div>
@@ -130,23 +131,23 @@
             </td>
 
             <td class="p-6 text-center">
-                <span class="text-2xl font-black text-white tracking-tighter">{{ game.salesCount }}</span>
-                <p class="text-[8px] text-[#4e5667] font-black uppercase mt-1">Units</p>
+                <span class="text-xl font-bold text-white tracking-tight">{{ game.salesCount }}</span>
+                <p class="text-[10px] text-[#4e5667] font-medium uppercase mt-1">Units</p>
             </td>
 
             <td class="p-6 text-center">
-                <span class="text-2xl font-black text-[#a4d007] tracking-tighter leading-none">
+                <span class="text-xl font-bold text-[#a4d007] tracking-tight leading-none">
                     ${{ game.totalRevenue | number:'1.2-2' }}
                 </span>
-                <p class="text-[8px] text-[#4e5667] font-black uppercase mt-1 tracking-widest">
+                <p class="text-[10px] text-[#4e5667] font-medium uppercase mt-1 tracking-wider">
                     Total USD
                 </p>
             </td>
 
             <td class="p-6 text-right">
               <button (click)="openEdit(game, $event)" 
-                      class="px-5 py-2.5 bg-transparent border border-[#66c0f4]/30 text-[#66c0f4] hover:bg-[#66c0f4] hover:text-[#171a21] rounded-sm font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg">
-                Edit Settings
+                      class="px-4 py-2 bg-transparent border border-[#66c0f4]/30 text-[#66c0f4] hover:bg-[#66c0f4] hover:text-[#171a21] rounded-sm font-bold text-xs transition-all active:scale-95 shadow-md">
+                Edit settings
               </button>
             </td>
 

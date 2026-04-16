@@ -235,6 +235,14 @@ export class GameDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  isDeveloperOfThisGame = computed(() => {
+    const g = this.game();
+    const user = this.auth.currentUser();
+    if (!g || !user || !user.companyId) return false;
+
+    return user.companyId === g.developer?.id || user.companyId === g.publisher?.id;
+  });
+
   openApproveModal() {
     this.isApproveModalOpen.set(true);
   }

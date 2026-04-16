@@ -1,19 +1,18 @@
 <div class="p-8 max-w-5xl mx-auto space-y-12 animate-in fade-in duration-500">
   
-  <header class="flex items-center gap-6 mb-16">
-    <div class="w-16 h-16 bg-[#316282] text-[#66c0f4] rounded-sm flex items-center justify-center shadow-xl border border-white/10">
+  <header class="flex items-center gap-5 mb-12">
+    <div class="w-12 h-12 bg-[#316282]/20 text-[#66c0f4] rounded-sm flex items-center justify-center border border-[#66c0f4]/20 shadow-lg">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
     </div>
     <div>
-      <h1 class="text-4xl font-black uppercase tracking-tighter text-white leading-none">Your Shopping Cart</h1>
-      <p class="text-[#8f98a0] font-bold uppercase text-[10px] tracking-[0.4em] mt-2 ml-0.5 opacity-60">Review items before checkout</p>
+      <h1 class="text-3xl font-bold text-white tracking-tight leading-none">Shopping cart</h1>
     </div>
   </header>
 
   @if (items().length === 0) {
     <div class="text-center py-32 bg-[#1e232b]/50 border border-white/5 rounded-sm">
-      <p class="text-[#4e5667] text-xl font-bold uppercase tracking-widest">Your cart is empty</p>
-      <button routerLink="/" class="mt-4 text-[#66c0f4] font-black hover:underline uppercase text-xs tracking-widest">Return to Store</button>
+      <p class="text-[#4e5667] text-lg font-medium">Your cart is empty</p>
+      <button routerLink="/" class="mt-4 text-[#66c0f4] font-bold hover:underline text-sm">Return to store</button>
     </div>
   } @else {
     <div class="space-y-3">
@@ -25,18 +24,18 @@
           </div>
           
           <div class="flex-1 min-w-0">
-            <h3 class="text-base font-bold text-[#c7d5e0] truncate uppercase tracking-tight">{{ item.game.title }}</h3>
-            <p class="text-[#565d66] text-[10px] font-bold uppercase tracking-widest">{{ item.game.developer?.name }}</p>
+            <h3 class="text-lg font-semibold text-[#c7d5e0] truncate tracking-tight">{{ item.game.title }}</h3>
+            <p class="text-[#565d66] text-sm font-medium">{{ item.game.developer?.name }}</p>
           </div>
 
           <div class="text-right flex flex-col items-end gap-1">
             @if (item.game.discount) {
-              <span class="text-[10px] text-[#8f98a0] line-through">${{ item.game.price }}</span>
-              <span class="text-lg font-black text-[#a4d007]">${{ (item.game.price * (1 - item.game.discount.discountPercent / 100)) | number:'1.2-2' }}</span>
+              <span class="text-lg font-semibold text-[#66c0f4] tracking-tight">${{ item.game.price }}</span>
+              <span class="text-xl font-bold text-[#a4d007] tracking-tight">${{ (item.game.price * (1 - item.game.discount.discountPercent / 100)) | number:'1.2-2' }}</span>
             } @else {
-              <span class="text-lg font-black text-[#66c0f4]">${{ item.game.price }}</span>
+              <span class="text-xl font-bold text-[#66c0f4] tracking-tight">${{ item.game.price }}</span>
             }
-            <button (click)="removeItem(item.gameId)" class="text-[#4e5667] hover:text-rose-500 transition-colors uppercase text-[9px] font-bold tracking-widest mt-1">
+            <button (click)="removeItem(item.gameId)" class="text-[#4e5667] hover:text-rose-500 transition-colors text-[11px] font-medium mt-1">
               Remove
             </button>
           </div>
@@ -46,21 +45,15 @@
 
     <div class="mt-12 bg-[#1b2838] border border-white/10 p-8 rounded-sm shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8">
       <div class="text-center md:text-left">
-        <p class="text-[#8f98a0] uppercase font-bold text-[10px] tracking-[0.4em] mb-2">Estimated Total</p>
-        <p class="text-5xl font-black text-white uppercase tracking-tighter">${{ totalPrice() }}</p>
+        <p class="text-[#8f98a0] font-semibold text-xs uppercase tracking-wider mb-1">Estimated total</p>
+        <p class="text-4xl font-bold text-white tracking-tight">${{ totalPrice() }}</p>
       </div>
 
       <button (click)="buyNow()" 
               [disabled]="isCheckingOut()"
-              class="w-full md:w-auto bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] px-16 py-4 rounded-sm font-black text-sm uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(164,208,7,0.2)] transition-all active:scale-[0.97] disabled:opacity-50">
+              class="w-full md:w-auto bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] px-10 py-3.5 rounded-sm font-bold text-sm shadow-xl transition-all active:scale-[0.97]">
         {{ isCheckingOut() ? 'Purchasing...' : 'Purchase for myself' }}
       </button>
-    </div>
-    
-    <div class="flex justify-center md:justify-end pr-4">
-        <p class="text-[#4e5667] text-[9px] uppercase font-bold tracking-widest">
-            All transactions are secure and encrypted.
-        </p>
     </div>
   }
 </div>

@@ -263,7 +263,7 @@ export class App implements OnInit {
   resetFilters() {
     this.minPriceInput = null;
     this.maxPriceInput = null;
-    this.stagedSortBy.set('newest');
+    this.stagedSortBy.set('newest'); 
     this.stagedFreeOnly.set(false);
     this.searchState.clearAll();
     this.isFilterMenuOpen.set(false);

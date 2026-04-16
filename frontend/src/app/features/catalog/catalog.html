@@ -18,22 +18,22 @@
       <div class="absolute inset-y-0 left-0 z-20 flex flex-col justify-center p-12 md:p-20 w-full md:w-1/2">
         <div class="animate-in slide-in-from-left-8 duration-700">
           
-          <span class="inline-block px-3 py-1 bg-[#316282] text-[#66c0f4] text-[10px] font-black uppercase tracking-[0.3em] border-l-4 border-[#66c0f4] mb-6">
+          <span class="inline-block px-2 py-1 bg-[#66c0f4]/10 text-[#66c0f4] text-[10px] font-semibold uppercase tracking-wider rounded-sm mb-4 border border-[#66c0f4]/20">
             Featured & Recommended
           </span>
 
-          <h2 class="text-6xl font-black text-white uppercase tracking-tighter leading-[0.9] mb-10 drop-shadow-2xl">
+          <h2 class="text-5xl font-bold text-white tracking-tight leading-tight mb-6 drop-shadow-xl">
             {{ heroGame.title }}
           </h2>
           
-          <div class="flex items-center gap-8">
+          <div class="flex items-center gap-6">
             <button [routerLink]="['/game', heroGame.id]" 
-                    class="bg-white text-[#171a21] px-10 py-4 rounded-sm font-black uppercase tracking-[0.2em] text-[11px] hover:bg-[#66c0f4] hover:text-white transition-all active:scale-95 shadow-2xl">
-              View Details
+                  class="bg-white text-[#171a21] px-8 py-3 rounded-sm font-semibold text-sm hover:bg-[#66c0f4] hover:text-white transition-all active:scale-95 shadow-lg">
+              View details
             </button>
 
-            <div class="text-4xl font-black text-[#c7d5e0] tracking-tighter italic uppercase">
-              {{ +heroGame.price === 0 ? 'Free' : '$' + heroGame.price }}
+            <div class="text-2xl font-medium text-[#c7d5e0]/90 tracking-tight">
+              {{ +heroGame.price === 0 ? 'Free to Play' : '$' + heroGame.price }}
             </div>
           </div>
         </div>
@@ -61,13 +61,13 @@
 
   <section class="space-y-10 pt-4">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
         <button (click)="selectCategory(null)"
                 [class.bg-[#316282]]="searchState.selectedCategoryId() === null"
                 [class.text-white]="searchState.selectedCategoryId() === null"
                 [class.bg-[#1e232b]]="searchState.selectedCategoryId() !== null"
-                class="px-5 py-2 rounded-sm text-[11px] font-black uppercase tracking-wider border border-white/5 transition-all hover:bg-[#2a3038] text-[#8f98a0]">
-          All Games
+                class="px-4 py-1.5 rounded-sm text-sm font-medium border border-white/5 transition-all hover:bg-[#2a3038] text-[#8f98a0]">
+          All games
         </button>
 
         @for (cat of categories(); track cat.id) {
@@ -75,15 +75,11 @@
                   [class.bg-[#316282]]="searchState.selectedCategoryId() === cat.id"
                   [class.text-white]="searchState.selectedCategoryId() === cat.id"
                   [class.bg-[#1e232b]]="searchState.selectedCategoryId() !== cat.id"
-                  class="px-5 py-2 rounded-sm text-[11px] font-black uppercase tracking-wider border border-white/5 transition-all hover:bg-[#2a3038] text-[#8f98a0]">
-            {{ cat.name }}
+                  class="px-4 py-1.5 rounded-sm text-sm font-medium border border-white/5 transition-all hover:bg-[#2a3038] text-[#8f98a0]">
+            {{ cat.name | titlecase }} 
           </button>
         }
       </div>
-      
-      <h3 class="text-[#4e5667] font-black uppercase text-[10px] tracking-[0.3em]">
-        {{ games().length }} Games Found
-      </h3>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
@@ -103,38 +99,38 @@
                    crossorigin="anonymous"
                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90 group-hover:opacity-100">
               
-              <div class="absolute bottom-0 right-0 flex items-center">
+              <div class="absolute bottom-0 right-0 flex items-center p-1">
                 @if (game.status === 'coming_soon') {
-                  <div class="bg-rose-600 text-white px-3 py-1 font-black text-[10px] uppercase tracking-widest shadow-lg">
-                    Coming Soon
+                  <div class="bg-rose-500 text-white px-2 py-0.5 font-semibold text-[11px] rounded-xs shadow-lg">
+                    Coming soon
                   </div>
                 } 
                 @else if (game.discount) {
-                  <div class="bg-[#a4d007] text-[#171a21] px-2 py-1 font-black text-lg">-{{ game.discount.discountPercent }}%</div>
-                  <div class="bg-[#000000]/80 px-2 py-1 flex flex-col items-end">
+                  <div class="bg-[#a4d007] text-[#171a21] px-1.5 py-0.5 font-bold text-sm rounded-xs">-{{ game.discount.discountPercent }}%</div>
+                  <div class="bg-black/80 px-2 py-0.5 flex flex-col items-end rounded-xs ml-0.5">
                     <span class="text-[#8f98a0] text-[10px] line-through">${{ game.price }}</span>
-                    <span class="text-[#a4d007] font-bold text-sm">${{ (game.price * (1 - game.discount.discountPercent/100)) | number:'1.2-2' }}</span>
+                    <span class="text-[#a4d007] font-bold text-xs">${{ (game.price * (1 - game.discount.discountPercent/100)) | number:'1.2-2' }}</span>
                   </div>
                 } @else {
-                  <div class="bg-[#000000]/60 px-3 py-1 text-[#66c0f4] font-bold text-sm">
-                    {{ +game.price === 0 ? 'FREE' : '$' + game.price }}
+                  <div class="bg-black/60 px-2 py-0.5 text-[#66c0f4] font-bold text-xs rounded-xs">
+                    {{ +game.price === 0 ? 'Free' : '$' + game.price }}
                   </div>
                 }
               </div>
             </div>
 
             <div class="p-4 bg-[#1e232b] flex-1 border-t border-white/5">
-              <h4 class="text-[#c7d5e0] font-black truncate text-sm group-hover:text-[#66c0f4] transition-colors uppercase tracking-tighter">
+              <h4 class="text-[#c7d5e0] font-semibold truncate text-base tracking-tight group-hover:text-[#66c0f4] transition-colors">
                 {{ game.title }}
               </h4>
-              <p class="text-[#565d66] text-[9px] uppercase font-bold tracking-widest mt-1">
+              <p class="text-[#565d66] text-xs font-medium mt-1">
                 {{ game.developer?.name }}
               </p>
               
-              <div class="flex gap-1 mt-4">
+              <div class="flex gap-1 mt-3">
                 @for (cat of game.categories.slice(0, 2); track cat.id) {
-                  <span class="text-[8px] text-[#8f98a0] uppercase bg-black/20 border border-white/5 px-1.5 py-0.5 rounded-sm">
-                    {{ cat.name }}
+                  <span class="text-[9px] text-[#8f98a0]/70 font-medium bg-[#171a21] px-1.5 py-0.5 rounded-xs">
+                    {{ cat.name | titlecase }}
                   </span>
                 }
               </div>
@@ -146,14 +142,22 @@
 
     @if (!isLoading() && totalPages() > 1) {
       <div class="flex justify-center pt-12 pb-20">
-        <div class="flex items-center bg-[#1e232b] border border-white/5 rounded-sm p-1 shadow-2xl">
-          <button (click)="prevPage()" [disabled]="currentPage() === 1" class="w-10 h-10 flex items-center justify-center text-[#8f98a0] hover:text-white hover:bg-white/5 disabled:opacity-0 transition-all">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg>
+        <div class="flex items-center bg-[#1e232b] border border-white/5 rounded-sm p-1 shadow-xl">
+          
+          <button (click)="prevPage()" [disabled]="currentPage() === 1" 
+                  class="w-10 h-10 flex items-center justify-center text-[#8f98a0] hover:text-white hover:bg-white/5 disabled:opacity-0 transition-all">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <span class="px-6 text-xs font-black text-[#4e5667] uppercase tracking-widest">Page {{ currentPage() }} / {{ totalPages() }}</span>
-          <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" class="w-10 h-10 flex items-center justify-center text-[#8f98a0] hover:text-white hover:bg-white/5 disabled:opacity-0 transition-all">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+
+          <span class="px-6 text-xs font-medium text-[#4e5667] tracking-tight">
+            Page {{ currentPage() }} of {{ totalPages() }}
+          </span>
+
+          <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" 
+                  class="w-10 h-10 flex items-center justify-center text-[#8f98a0] hover:text-white hover:bg-white/5 disabled:opacity-0 transition-all">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
+
         </div>
       </div>
     }
