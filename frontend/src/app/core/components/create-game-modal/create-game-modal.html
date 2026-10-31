@@ -1,4 +1,4 @@
-<div class="fixed inset-0 z-[100] overflow-y-auto bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
+<div class="fixed inset-0 z-[100] overflow-y-auto bg-black/90 backdrop-blur-md font-sans animate-in fade-in duration-300">
   <div class="min-h-full flex items-center justify-center p-6">
     <div class="w-full max-w-4xl bg-[#1e232b] border border-[#316282]/40 rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative p-12">
       
@@ -10,7 +10,7 @@
                    class="w-8 h-8 rounded-sm border border-[#316282]/50 flex items-center justify-center text-[10px] font-black transition-all">
                 {{ i + 1 }}
               </div>
-              <span class="text-[10px] font-black uppercase tracking-[0.2em]" 
+              <span class="text-[10px] font-black" 
                     [class.text-[#66c0f4]]="currentStep() === step" 
                     [class.text-[#4e5667]]="currentStep() !== step">
                 {{ step === 'info' ? 'General' : step === 'media' ? 'Visuals' : step === 'specs' ? 'Specs' : 'Deploy' }}
@@ -23,13 +23,13 @@
       @if (currentStep() === 'info') {
         <div class="space-y-8 animate-in slide-in-from-right-4 duration-300">
           <header class="mb-10">
-            <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Project Identity</h2>
+            <h2 class="text-4xl font-black text-white">Project Identity</h2>
             <div class="h-1 w-12 bg-[#66c0f4] mt-2"></div>
           </header>
 
           <div class="space-y-6">
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">App Title</label>
+              <label class="text-sm font-black text-[#4e5667] ml-1">App Title</label>
               <div class="relative">
                 <input type="text" [ngModel]="title()" (ngModelChange)="title.set($event)" maxlength="80"
                       class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all font-bold text-lg placeholder:text-[#4e5667]">
@@ -38,14 +38,14 @@
             </div>
             
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Product Description</label>
+              <label class="text-sm font-black text-[#4e5667] ml-1">Product Description</label>
               <textarea [ngModel]="description()" (ngModelChange)="description.set($event)" maxlength="2000" rows="5"
                         class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#c7d5e0] outline-none focus:border-[#66c0f4]/50 transition-all resize-none leading-relaxed"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Base Price (USD)</label>
+                <label class="text-sm font-black text-[#4e5667] ml-1">Base Price (USD)</label>
                 <div class="flex items-center bg-[#171a21] border border-[#316282]/30 rounded-sm px-6 focus-within:border-[#66c0f4]/50 transition-all">
                     <span class="text-[#66c0f4] font-black text-xl mr-3">$</span>
                     <input type="number" [ngModel]="price()" (ngModelChange)="price.set($event)" min="0"
@@ -54,17 +54,16 @@
               </div>
 
               <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Launch Date</label>
+                  <label class="text-sm font-black text-[#4e5667] ml-1">Launch Date</label>
                   <input type="date" 
                       [ngModel]="releaseDate()" 
                       (ngModelChange)="releaseDate.set($event)"
                       [min]="minDate()"
-                      class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all font-bold uppercase text-xs">
-                <p class="text-[7px] text-[#316282] uppercase tracking-widest ml-1 mt-1">Scheduled UTC release</p>
+                      class="w-full bg-[#171a21] border border-[#316282]/30 rounded-sm py-4 px-6 text-[#66c0f4] outline-none focus:border-[#66c0f4]/50 transition-all font-bold text-xs">
               </div>
 
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#4e5667] ml-1">Developing Studio</label>
+                <label class="text-sm font-black text-[#4e5667] ml-1">Developing Studio</label>
                 <div class="relative group">
                   
                   <div class="relative">
@@ -77,7 +76,7 @@
                     
                     @if (!developerSearchQuery() && selectedDeveloperId() === null) {
                       <div class="absolute right-4 top-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-200">
-                        <span class="bg-[#316282]/40 text-[#66c0f4] text-[8px] font-black px-2 py-1 rounded-sm uppercase tracking-widest border border-[#66c0f4]/30 shadow-[0_0_10px_rgba(102,192,244,0.1)]">
+                        <span class="bg-[#316282]/40 text-[#66c0f4] text-sm font-black px-2 py-1 rounded-sm border border-[#66c0f4]/30 shadow-[0_0_10px_rgba(102,192,244,0.1)]">
                           My Studio
                         </span>
                       </div>
@@ -91,8 +90,8 @@
                               class="w-full text-left px-6 py-4 bg-[#66c0f4]/5 hover:bg-[#66c0f4]/15 border-b border-white/5 group/self transition-all">
                         <div class="flex justify-between items-center">
                           <div>
-                              <p class="text-[#66c0f4] text-[10px] font-black uppercase tracking-widest">{{ myStudioName() }}</p>
-                              <p class="text-[8px] text-[#4e5667] font-bold uppercase tracking-tight mt-0.5">Author (Personal Studio)</p>
+                              <p class="text-[#66c0f4] text-[10px] font-black">{{ myStudioName() }}</p>
+                              <p class="text-[8px] text-[#4e5667] font-bold mt-0.5">Author (Personal Studio)</p>
                           </div>
                           @if (selectedDeveloperId() === null) {
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#66c0f4" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
@@ -112,7 +111,7 @@
                       </div>
 
                       @if (developerSearchQuery().length > 0 && searchResults().length === 0) {
-                          <div class="px-6 py-6 text-[9px] text-slate-600 font-bold uppercase tracking-[0.2em] text-center bg-black/10 italic">
+                          <div class="px-6 py-6 text-[9px] text-slate-600 font-bold text-center bg-black/10 italic">
                               No other results for "{{ developerSearchQuery() }}"
                           </div>
                       }
@@ -125,14 +124,14 @@
             </div>
 
             <div class="space-y-4 pt-4">
-              <p class="text-[10px] font-black text-[#4e5667] uppercase tracking-[0.3em] ml-1">Genre Classification</p>
+              <p class="text-sm font-black text-[#4e5667] ml-1">Genre Classification</p>
               <div class="flex flex-wrap gap-2">
                 @for (cat of categories(); track cat.id) {
                   <button type="button" (click)="toggleCategory(cat.id)"
                           [class.bg-[#316282]]="categoryIds().includes(cat.id)"
                           [class.text-white]="categoryIds().includes(cat.id)"
                           [class.border-[#66c0f4]]="categoryIds().includes(cat.id)"
-                          class="px-4 py-2 rounded-sm border border-[#316282]/30 bg-[#171a21] text-[#8f98a0] text-[10px] font-black uppercase tracking-widest transition-all hover:border-[#66c0f4]/50">
+                          class="px-4 py-2 rounded-sm border border-[#316282]/30 bg-[#171a21] text-[#8f98a0] text-[10px] font-black transition-all hover:border-[#66c0f4]/50">
                     {{ cat.name }}
                   </button>
                 }
@@ -142,7 +141,7 @@
 
           <button (click)="submitInfo()" 
                   [disabled]="!isStep1Valid() || isLoading()"
-                  class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-10 text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.3em] shadow-xl transition-all active:scale-95 mt-8 flex items-center justify-center gap-3">
+                  class="w-full bg-[#66c0f4] hover:bg-[#55a9d8] disabled:opacity-10 text-[#171a21] py-5 rounded-sm font-black text-sm shadow-xl transition-all active:scale-95 mt-8 flex items-center justify-center gap-3">
             
             @if (isLoading() && currentStep() === 'info') {
               <div class="w-4 h-4 border-2 border-[#171a21]/30 border-t-[#171a21] rounded-full animate-spin"></div>
@@ -157,15 +156,15 @@
       @if (currentStep() === 'media') {
         <div class="space-y-10 animate-in slide-in-from-right-4 duration-300">
           <header>
-            <h2 class="text-4xl font-black text-white uppercase tracking-tighter leading-none">Visual Assets</h2>
-            <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em] mt-3">Store page branding & cinematic gallery</p>
+            <h2 class="text-4xl font-black text-white leading-none">Visual Assets</h2>
+            <p class="text-[#8f98a0] text-sm font-bold mt-3">Store page branding & cinematic gallery</p>
           </header>
 
           <div class="space-y-10">
             <div class="space-y-4">
                 <div class="flex justify-between items-end px-1">
-                    <p class="text-[9px] font-black text-[#66c0f4] uppercase tracking-widest">Main Store Header (16:9 Aspect Ratio)</p>
-                    <span class="text-[8px] text-[#4e5667] font-bold uppercase">Required: 1280x720 min</span>
+                    <p class="text-sm font-black text-[#66c0f4]">Main Store Header (16:9 Aspect Ratio)</p>
+                    <span class="text-[10px] text-[#4e5667] font-bold">Required: 1280x720 min</span>
                 </div>
                 
                 <div class="aspect-video w-full rounded-sm overflow-hidden border border-[#316282]/40 bg-[#171a21] relative group transition-all hover:border-[#66c0f4]/50 shadow-2xl">
@@ -176,7 +175,7 @@
                             <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-2">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             </div>
-                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Replace Header Image</span>
+                            <span class="text-sm font-black text-white">Replace Header Image</span>
                         </label>
                     } @else {
                         <label class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-white/[0.02] transition-all">
@@ -184,7 +183,7 @@
                             <div class="w-16 h-16 border-2 border-dashed border-[#316282]/40 rounded-sm flex items-center justify-center mb-4">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#316282" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                             </div>
-                            <span class="text-[10px] text-[#4e5667] font-black uppercase tracking-[0.3em]">Drop main hero image here</span>
+                            <span class="text-sm text-[#4e5667] font-black">Drop main image here</span>
                         </label>
                     }
               </div>
@@ -192,8 +191,8 @@
 
             <div class="space-y-4 pt-6 border-t border-white/5">
                 <div class="flex justify-between items-end px-1">
-                    <p class="text-[9px] font-black text-[#66c0f4] uppercase tracking-widest">In-Game Screenshots ({{screenshotFiles().length}}/6)</p>
-                    <p class="text-[8px] text-[#4e5667] font-bold uppercase">Format: JPG/PNG • Max 10MB</p>
+                    <p class="text-sm font-black text-[#66c0f4]">In-Game Screenshots ({{screenshotFiles().length}}/6)</p>
+                    <p class="text-[10px] text-[#4e5667] font-bold">Format: JPG/PNG • Max 10MB</p>
                 </div>
                 
                 <div class="grid grid-cols-4 gap-4">
@@ -218,11 +217,11 @@
 
           <div class="flex gap-4 pt-6 border-t border-white/5">
             <button (click)="currentStep.set('media')" 
-                    class="flex-1 py-4 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">
+                    class="flex-1 py-4 text-[#4e5667] font-black text-sm hover:text-white transition-colors">
               Go Back
             </button>
             <button (click)="currentStep.set('specs')" [disabled]="!isStep2Valid()"
-                    class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-4 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all">
+                    class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-4 rounded-sm font-black text-sm transition-all">
               Proceed to Specifications
             </button>
           </div>
@@ -232,19 +231,19 @@
       @if (currentStep() === 'specs') {
         <div class="space-y-10 animate-in slide-in-from-right-4 duration-300">
           <header>
-            <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Technical Specs</h2>
-            <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em] mt-3">Target hardware configuration</p>
+            <h2 class="text-4xl font-black text-white">Technical Specs</h2>
+            <p class="text-[#8f98a0] text-sm font-bold mt-3">Target hardware configuration</p>
           </header>
 
           <div class="space-y-4 pb-6 border-b border-white/5">
-            <p class="text-[10px] font-black text-[#66c0f4] uppercase tracking-[0.3em] ml-1">Supported Platforms *</p>
+            <p class="text-sm font-black text-[#66c0f4] ml-1">Supported Platforms *</p>
             <div class="flex gap-4">
               @for (p of platforms(); track p.id) {
                 <button (click)="togglePlatform(p.id)" type="button"
                         [class.bg-[#316282]]="selectedPlatformIds().includes(p.id)"
                         [class.border-[#66c0f4]]="selectedPlatformIds().includes(p.id)"
                         [class.text-white]="selectedPlatformIds().includes(p.id)"
-                        class="flex-1 py-4 rounded-sm border border-[#316282]/30 bg-[#171a21] text-[#4e5667] text-[11px] font-black uppercase tracking-widest transition-all hover:border-[#66c0f4]/50">
+                        class="flex-1 py-4 rounded-sm border border-[#316282]/30 bg-[#171a21] text-[#4e5667] text-sm font-black transition-all hover:border-[#66c0f4]/50">
                   {{ p.name }}
                 </button>
               }
@@ -256,63 +255,63 @@
             <button (click)="copyMinToRec()" type="button"
                     class="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 bg-[#316282] hover:bg-[#66c0f4] text-white w-10 h-10 rounded-full shadow-2xl transition-all active:scale-90 flex items-center justify-center border-4 border-[#1e232b] group">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                <span class="absolute bottom-full mb-3 px-2 py-1 bg-[#0b0e14] text-[8px] font-black uppercase tracking-widest whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/10 pointer-events-none">Copy to Recommended</span>
+                <span class="absolute bottom-full mb-3 px-2 py-1 bg-[#0b0e14] text-[8px] font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/10 pointer-events-none">Copy to Recommended</span>
             </button>
 
             <div class="space-y-4">
-              <p class="text-[10px] font-black text-[#66c0f4] uppercase tracking-widest px-1 text-center">Minimum Requirements</p>
+              <p class="text-sm font-black text-[#66c0f4] px-1 text-center">Minimum Requirements</p>
               <div class="space-y-3 bg-[#171a21] p-6 rounded-sm border border-[#316282]/20 shadow-inner">
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Processor</label>
-                    <input type="text" placeholder="INTEL I5-4460" [(ngModel)]="minSpecs().processor" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Processor</label>
+                    <input type="text" placeholder="INTEL I5-4460" [(ngModel)]="minSpecs().processor" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Memory</label>
-                    <input type="text" placeholder="8 GB RAM" [(ngModel)]="minSpecs().ram" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Memory</label>
+                    <input type="text" placeholder="8 GB RAM" [(ngModel)]="minSpecs().ram" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Graphics</label>
-                    <input type="text" placeholder="GTX 760" [(ngModel)]="minSpecs().gpu" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Graphics</label>
+                    <input type="text" placeholder="GTX 760" [(ngModel)]="minSpecs().gpu" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Storage</label>
-                    <input type="text" placeholder="50 GB" [(ngModel)]="minSpecs().storage" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Storage</label>
+                    <input type="text" placeholder="50 GB" [(ngModel)]="minSpecs().storage" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#66c0f4]/50 transition-all">
                 </div>
               </div>
             </div>
 
             <div class="space-y-4">
-              <p class="text-[10px] font-black text-[#a4d007] uppercase tracking-widest px-1 text-center">Recommended Specs</p>
+              <p class="text-sm font-black text-[#a4d007] px-1 text-center">Recommended Specs</p>
               <div class="space-y-3 bg-[#171a21] p-6 rounded-sm border border-[#316282]/20 shadow-inner">
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Processor</label>
-                    <input type="text" placeholder="INTEL I7-9700K" [(ngModel)]="recSpecs().processor" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Processor</label>
+                    <input type="text" placeholder="INTEL I7-9700K" [(ngModel)]="recSpecs().processor" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Memory</label>
-                    <input type="text" placeholder="16 GB RAM" [(ngModel)]="recSpecs().ram" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Memory</label>
+                    <input type="text" placeholder="16 GB RAM" [(ngModel)]="recSpecs().ram" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Graphics</label>
-                    <input type="text" placeholder="RTX 2060" [(ngModel)]="recSpecs().gpu" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Graphics</label>
+                    <input type="text" placeholder="RTX 2060" [(ngModel)]="recSpecs().gpu" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[8px] font-black text-[#4e5667] uppercase ml-1">Storage</label>
-                    <input type="text" placeholder="50 GB SSD" [(ngModel)]="recSpecs().storage" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold uppercase text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
+                    <label class="text-[10px] font-black text-[#4e5667] ml-1">Storage</label>
+                    <input type="text" placeholder="50 GB SSD" [(ngModel)]="recSpecs().storage" class="w-full bg-[#0b0e14] border border-white/5 p-3 text-[10px] font-bold text-[#c7d5e0] rounded-sm outline-none focus:border-[#a4d007]/50 transition-all">
                 </div>
               </div>
             </div>
           </div>
 
           <div class="flex gap-4 pt-10 border-t border-white/5">
-            <button (click)="currentStep.set('media')" class="flex-1 py-5 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">Go Back</button>
+            <button (click)="currentStep.set('media')" class="flex-1 py-5 text-[#4e5667] font-black text-sm hover:text-white transition-colors">Go Back</button>
             <button (click)="currentStep.set('build')" 
-                    class="flex-1 py-5 bg-[#171a21] border border-[#316282]/30 text-[#8f98a0] hover:text-white rounded-sm font-black text-[10px] uppercase tracking-[0.3em] transition-all">
+                    class="flex-1 py-5 bg-[#171a21] border border-[#316282]/30 text-[#8f98a0] hover:text-white rounded-sm font-black text-sm transition-all">
               Skip for now
             </button>
             <button (click)="currentStep.set('build')" 
                     [disabled]="!isStep3Valid()"
-                    class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-5 rounded-sm font-black text-xs uppercase tracking-[0.3em] transition-all active:scale-95 shadow-xl">
+                    class="flex-[2] bg-[#66c0f4] hover:bg-[#55a9d8] text-[#171a21] py-5 rounded-sm font-black text-sm transition-all active:scale-95 shadow-xl">
               Confirm Specs
             </button>
           </div>
@@ -325,8 +324,8 @@
             <div class="w-20 h-20 bg-[#66c0f4]/10 text-[#66c0f4] rounded-sm flex items-center justify-center mx-auto border border-[#66c0f4]/20 shadow-2xl">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
             </div>
-            <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Package Deployment</h2>
-            <p class="text-[#8f98a0] text-[10px] font-bold uppercase tracking-[0.4em]">Prepare build for global distribution</p>
+            <h2 class="text-4xl font-black text-white">Package Deployment</h2>
+            <p class="text-[#8f98a0] text-sm font-bold">Prepare build for global distribution</p>
           </header>
 
           <div [class.border-[#a4d007]/50]="gameFile()" [class.bg-[#a4d007]/5]="gameFile()"
@@ -336,8 +335,8 @@
                 <div class="w-16 h-16 bg-[#a4d007] text-[#171a21] rounded-sm flex items-center justify-center mb-6">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <p class="text-white font-black text-xl tracking-tight">{{ gameFile()?.name }}</p>
-                <button (click)="gameFile.set(null)" class="mt-8 text-rose-500 font-black text-[10px] uppercase tracking-widest hover:underline">Change Archive</button>
+                <p class="text-white font-black text-xl">{{ gameFile()?.name }}</p>
+                <button (click)="gameFile.set(null)" class="mt-8 text-rose-500 font-black text-sm hover:underline">Change Archive</button>
               </div>
             } @else {
               <label class="cursor-pointer flex flex-col items-center group">
@@ -345,17 +344,17 @@
                 <div class="w-16 h-16 bg-[#1e232b] border border-[#316282]/50 text-[#316282] rounded-sm flex items-center justify-center group-hover:text-[#66c0f4] group-hover:border-[#66c0f4] transition-all mb-6">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
-                <span class="text-[#4e5667] font-black text-lg uppercase tracking-widest group-hover:text-white transition-colors">Select .ZIP build</span>
+                <span class="text-[#4e5667] font-black text-lg group-hover:text-white transition-colors">Select .ZIP build</span>
               </label>
             }
           </div>
 
           <div class="flex gap-4 pt-10">
-            <button (click)="currentStep.set('specs')" class="flex-1 py-5 text-[#4e5667] font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors">Go Back</button>
+            <button (click)="currentStep.set('specs')" class="flex-1 py-5 text-[#4e5667] font-black text-sm hover:text-white transition-colors">Go Back</button>
             <button (click)="publishGame()" [disabled]="!gameFile() || isLoading()"
-                    class="flex-[3] bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-5 rounded-sm font-black text-sm uppercase tracking-[0.4em] shadow-2xl transition-all flex items-center justify-center gap-4">
-              @if (isLoading()) { <div class="w-5 h-5 border-4 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin"></div> PROCESSING... }
-              @else { SUBMIT FOR VERIFICATION }
+                    class="flex-[3] bg-[#a4d007] hover:bg-[#bef30a] text-[#171a21] py-5 rounded-sm font-black text-sm shadow-2xl transition-all flex items-center justify-center gap-4">
+              @if (isLoading()) { <div class="w-5 h-5 border-4 border-[#171a21]/20 border-t-[#171a21] rounded-full animate-spin"></div> Processing... }
+              @else { Submit for Verification }
             </button>
           </div>
         </div>

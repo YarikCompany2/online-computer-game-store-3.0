@@ -73,7 +73,8 @@ export class NotificationService {
 
     if (accept) {
       notification.status = NotificationStatus.ACCEPTED;
-      await this.gameRepo.update(game.id, { status: GameStatus.ACTIVE });
+      await this.gameRepo.update(game.id, { status: GameStatus.PENDING_MODERATION });
+      await this.sendToModerators(game); 
       return await this.notificationRepo.save(notification);
     } else {
       const slug = slugify(game.title);
@@ -90,6 +91,22 @@ export class NotificationService {
       await this.gameRepo.delete(game.id);
 
       return { message: 'Collaboration rejected and game data deleted' };
+    }
+  }
+
+  private async sendToModerators(game: Game) {
+    const moderators = await this.userRepo.find({ 
+        where: { role: UserRole.MODERATOR } 
+    });
+
+    for (const mod of moderators) {
+        await this.notificationRepo.save({
+            recipientId: mod.id,
+            gameId: game.id,
+            type: NotificationType.MODERATION_REQUEST,
+            message: `New collaboration approved: "${game.title}" requires moderation.`,
+            status: NotificationStatus.PENDING
+        });
     }
   }
 

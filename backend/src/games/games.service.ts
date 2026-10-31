@@ -95,7 +95,16 @@ export class GamesService {
       }
 
       if (categoryId) {
-        queryBuilder.andWhere('category.id = :categoryId', { categoryId });
+        queryBuilder.andWhere(qb => {
+          const subQuery = qb
+            .subQuery()
+            .select('g.id')
+            .from('games', 'g')
+            .innerJoin('g.categories', 'c')
+            .where('c.id = :categoryId', { categoryId })
+            .getQuery();
+          return 'game.id IN ' + subQuery;
+        });
       }
 
       if (freeOnly) {
@@ -105,15 +114,25 @@ export class GamesService {
         if (maxPrice !== undefined) queryBuilder.andWhere('game.price <= :maxPrice', { maxPrice });
       }
 
+      const effectivePriceSql = `game.price * (1 - CASE 
+          WHEN discount.id IS NOT NULL 
+          AND discount.isActive = true 
+          AND NOW() BETWEEN discount.startDate AND discount.endDate 
+          THEN discount.discountPercent 
+          ELSE 0 
+          END / 100.0)`;
+
+      queryBuilder.addSelect(effectivePriceSql, 'effective_price');
+
       switch (sortBy) {
         case 'oldest':
           queryBuilder.orderBy('game.createdAt', 'ASC');
           break;
         case 'price_low':
-          queryBuilder.orderBy('game.price', 'ASC');
+          queryBuilder.orderBy('effective_price', 'ASC');
           break;
         case 'price_high':
-          queryBuilder.orderBy('game.price', 'DESC');
+          queryBuilder.orderBy('effective_price', 'DESC');
           break;
         case 'title':
           queryBuilder.orderBy('game.title', 'ASC');

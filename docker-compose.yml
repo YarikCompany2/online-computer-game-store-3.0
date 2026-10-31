@@ -3,6 +3,8 @@ services:
     image: postgres:15-alpine
     container_name: gamestore_db
     restart: always
+    env_file:
+    - ./backend/.env
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -11,11 +13,10 @@ services:
       - '${DB_PORT}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   api:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: gamestore_api
     restart: always
@@ -23,14 +24,24 @@ services:
       - '${APP_PORT}:3000'
     depends_on:
       - db
-    environment:
-      DATABASE_HOST: db
-      DATABASE_PORT: 5432
-      DATABASE_USER: ${DB_USERNAME}
-      DATABASE_PASSWORD: ${DB_PASSWORD}
-      DATABASE_NAME: ${DB_NAME}
     env_file:
-      - .env
+      - ./backend/.env
+    environment:
+      DB_HOST: db
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gamestore_ui
+    restart: always
+    ports:
+      - '80:80'
+    depends_on:
+      - api
 
 volumes:
   pgdata:
+  uploads_data:

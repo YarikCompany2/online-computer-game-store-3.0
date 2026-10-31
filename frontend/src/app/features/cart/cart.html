@@ -30,7 +30,9 @@
 
           <div class="text-right flex flex-col items-end gap-1">
             @if (item.game.discount) {
-              <span class="text-lg font-semibold text-[#66c0f4] tracking-tight">${{ item.game.price }}</span>
+              <span class="text-xs text-[#8f98a0] line-through font-medium">
+                ${{ item.game.price }}
+              </span>
               <span class="text-xl font-bold text-[#a4d007] tracking-tight">${{ (item.game.price * (1 - item.game.discount.discountPercent / 100)) | number:'1.2-2' }}</span>
             } @else {
               <span class="text-xl font-bold text-[#66c0f4] tracking-tight">${{ item.game.price }}</span>
